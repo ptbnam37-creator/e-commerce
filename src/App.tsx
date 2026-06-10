@@ -59,6 +59,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
         <ProductDetail 
           product={selectedProduct} 
           onBackToShop={() => setSelectedProduct(null)} 
+          onGoToCart={() => handleTabSwitch('Cart')}
         />
       );
     }
