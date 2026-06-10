@@ -19,8 +19,24 @@ function counter(state = 2, action: CartAction) {
   return state;
 }
 
-// Global Redux store initialized with 2 items (matching initial state)
-const store = createStore(counter, 2);
+// Read initial total quantity from localStorage
+const getInitialTotal = (): number => {
+  const saved = localStorage.getItem('cart');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) {
+        return parsed.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+      }
+    } catch (e) {
+      console.error('Failed to parse cart for Redux init:', e);
+    }
+  }
+  return 2; // Default fallback matching initial state
+};
+
+// Global Redux store initialized dynamically
+const store = createStore(counter, getInitialTotal());
 
 // Redux Action creators
 function deposit(cost: number) {

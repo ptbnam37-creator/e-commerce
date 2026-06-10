@@ -86,11 +86,26 @@ const initialProducts: Product[] = [
 ];
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize with two Galaxy A31s as in the mockup
-  const [cart, setCart] = useState<CartItem[]>([
-    { ...initialProducts[0], quantity: 1, cartId: 'initial-1' },
-    { ...initialProducts[0], quantity: 1, cartId: 'initial-2' }
-  ]);
+  // Initialize from localStorage or default to two Galaxy A31s
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const saved = localStorage.getItem('cart');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse cart from localStorage:', e);
+      }
+    }
+    return [
+      { ...initialProducts[0], quantity: 1, cartId: 'initial-1' },
+      { ...initialProducts[0], quantity: 1, cartId: 'initial-2' }
+    ];
+  });
+
+  // Persist cart changes to localStorage
+  React.useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (product: Product) => {
     setCart((prev) => {
