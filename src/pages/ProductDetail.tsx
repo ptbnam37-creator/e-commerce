@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { useCart } from '../context/CartContext';
+import { useCart, Product } from '../context/CartContext';
 
-const StarIcon = ({ filled }) => (
+const StarIcon = ({ filled }: { filled: boolean }) => (
   <svg className="star-icon" viewBox="0 0 24 24" style={{ fill: filled ? '#ffd214' : '#e0e0e0', width: '32px', height: '32px' }}>
     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
   </svg>
 );
 
-const ProductDetail = ({ product, onBackToShop }) => {
+interface ProductDetailProps {
+  product: Product | null;
+  onBackToShop: () => void;
+}
+
+const ProductDetail = ({ product, onBackToShop }: ProductDetailProps) => {
   const { addToCart } = useCart();
   const [toastMessage, setToastMessage] = useState('');
 
@@ -20,7 +25,7 @@ const ProductDetail = ({ product, onBackToShop }) => {
     );
   }
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
   };
 
@@ -96,7 +101,8 @@ const ProductDetail = ({ product, onBackToShop }) => {
             alt={product.name} 
             style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
             onError={(e) => {
-              e.target.src = '/samsung_a31.png';
+              const target = e.target as HTMLImageElement;
+              target.src = '/samsung_a31.png';
             }}
           />
         </div>

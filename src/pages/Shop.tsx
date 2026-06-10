@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { useCart } from '../context/CartContext';
+import { useCart, Product } from '../context/CartContext';
 
 const SearchIcon = () => (
   <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -14,8 +14,8 @@ const FunnelIcon = () => (
   </svg>
 );
 
-const StarIcon = ({ filled }) => (
-  <svg className="star-icon" viewBox="0 0 24 24" style={{ fill: filled ? '#ffd214' : '#e0e0e0' }}>
+const StarIcon = ({ filled }: { filled: boolean }) => (
+  <svg className="star-icon" viewBox="0 0 24 24" style={{ fill: filled ? '#ffd214' : '#e0e0e0', width: '28px', height: '28px' }}>
     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
   </svg>
 );
@@ -26,23 +26,24 @@ const ChevronDown = () => (
   </svg>
 );
 
-const Shop = ({ onSelectProduct }) => {
+interface ShopProps {
+  onSelectProduct: (product: Product) => void;
+}
+
+const Shop = ({ onSelectProduct }: ShopProps) => {
   const { products } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const filterDropdownRef = useRef(null);
-
-  // Custom filter values from the mockup
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(999999999);
-  const [minRating, setMinRating] = useState(0);
-  const [maxRating, setMaxRating] = useState(5);
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(999999999);
+  const [minRating, setMinRating] = useState<number>(0);
+  const [maxRating, setMaxRating] = useState<number>(5);
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close filter dropdown on click outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
         setShowFilters(false);
       }
     };
@@ -50,12 +51,8 @@ const Shop = ({ onSelectProduct }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
-  };
-
-  const handleCardClick = (product) => {
-    onSelectProduct(product);
   };
 
   const filteredProducts = useMemo(() => {
@@ -88,25 +85,6 @@ const Shop = ({ onSelectProduct }) => {
 
   return (
     <div style={{ position: 'relative' }}>
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          backgroundColor: '#00d2ff',
-          color: '#0b1a30',
-          padding: '12px 24px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 16px rgba(0,210,255,0.3)',
-          zIndex: 1000,
-          fontWeight: '600',
-          animation: 'slideIn 0.3s ease'
-        }}>
-          {toastMessage}
-        </div>
-      )}
-
       {/* Header bar: Shop title left, Search & Filter right */}
       <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '24px', alignItems: 'center' }}>
         <h1 className="page-title" style={{ fontSize: '28px', fontWeight: 'bold' }}>Shop</h1>
@@ -145,7 +123,7 @@ const Shop = ({ onSelectProduct }) => {
             <FunnelIcon />
           </button>
 
-          {/* EXACT Dropdown Menu matching filter screenshot layout */}
+          {/* Dropdown Menu */}
           {showFilters && (
             <div style={{
               position: 'absolute',
@@ -181,7 +159,7 @@ const Shop = ({ onSelectProduct }) => {
                   {/* Từ */}
                   <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', paddingLeft: '8px' }}>
                     <span style={{ width: '45px', fontSize: '15px' }}>Từ:</span>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative', borderBottom: 'none' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
                       <select 
                         value={minPrice} 
                         onChange={(e) => setMinPrice(Number(e.target.value))}
@@ -318,8 +296,8 @@ const Shop = ({ onSelectProduct }) => {
             <div 
               key={product.id} 
               className="product-card"
-              onClick={() => handleCardClick(product)}
-              title="Click to add to cart"
+              onClick={() => onSelectProduct(product)}
+              title="Click to view details"
             >
               <div className="product-image-container">
                 <img
@@ -327,7 +305,8 @@ const Shop = ({ onSelectProduct }) => {
                   alt={product.name}
                   className="product-image"
                   onError={(e) => {
-                    e.target.src = '/samsung_a31.png'; // fallback
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/samsung_a31.png';
                   }}
                 />
               </div>
@@ -336,7 +315,7 @@ const Shop = ({ onSelectProduct }) => {
                 <h2 className="product-name">{product.name}</h2>
                 <div className="product-price">{formatPrice(product.price)}</div>
                 
-                {/* Gold stars rating matching product.rating */}
+                {/* Gold stars rating */}
                 <div className="product-rating">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <StarIcon key={star} filled={star <= product.rating} />

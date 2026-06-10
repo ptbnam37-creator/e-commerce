@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+
+interface ProfileData {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+}
 
 const Profile = () => {
-  const [profile, setProfile] = useState({
+  const [profile, setProfile] = useState<ProfileData>({
     name: 'Nguyễn Văn A',
     email: 'nguyenvana@gmail.com',
-    phone: '0999999999',
+    phone: '0987 654 321',
     address: '120 Yên Lãng, Đống Đa, Hà Nội'
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfile((prev) => ({
       ...prev,
@@ -16,7 +23,7 @@ const Profile = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     alert('Thông tin cá nhân đã được cập nhật thành công!');
   };

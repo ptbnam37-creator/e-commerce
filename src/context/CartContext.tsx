@@ -1,8 +1,34 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-const CartContext = createContext();
+export interface Product {
+  id: number;
+  name: string;
+  brand: string;
+  rating: number;
+  description: string;
+  price: number;
+  image: string;
+}
 
-const initialProducts = [
+export interface CartItem extends Product {
+  quantity: number;
+  cartId: string;
+}
+
+interface CartContextType {
+  products: Product[];
+  cart: CartItem[];
+  addToCart: (product: Product) => void;
+  updateQuantity: (cartId: string, delta: number) => void;
+  removeFromCart: (cartId: string) => void;
+  subTotal: number;
+  tax: number;
+  total: number;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+const initialProducts: Product[] = [
   {
     id: 1,
     name: 'Điện thoại Samsung Galaxy A31',
@@ -59,16 +85,15 @@ const initialProducts = [
   }
 ];
 
-export const CartProvider = ({ children }) => {
+export const CartProvider = ({ children }: { children: ReactNode }) => {
   // Initialize with two Galaxy A31s as in the mockup
-  const [cart, setCart] = useState([
+  const [cart, setCart] = useState<CartItem[]>([
     { ...initialProducts[0], quantity: 1, cartId: 'initial-1' },
     { ...initialProducts[0], quantity: 1, cartId: 'initial-2' }
   ]);
 
-  const addToCart = (product) => {
+  const addToCart = (product: Product) => {
     setCart((prev) => {
-      // Find if item already in cart
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
         return prev.map((item) =>
@@ -79,20 +104,19 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  const updateQuantity = (cartId, delta) => {
+  const updateQuantity = (cartId: string, delta: number) => {
     setCart((prev) =>
-      prev
-        .map((item) => {
-          if (item.cartId === cartId) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : item;
-          }
-          return item;
-        })
+      prev.map((item) => {
+        if (item.cartId === cartId) {
+          const newQty = item.quantity + delta;
+          return newQty > 0 ? { ...item, quantity: newQty } : item;
+        }
+        return item;
+      })
     );
   };
 
-  const removeFromCart = (cartId) => {
+  const removeFromCart = (cartId: string) => {
     setCart((prev) => prev.filter((item) => item.cartId !== cartId));
   };
 
@@ -118,4 +142,10 @@ export const CartProvider = ({ children }) => {
   );
 };
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
+};

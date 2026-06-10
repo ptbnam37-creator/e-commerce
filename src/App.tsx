@@ -1,5 +1,5 @@
 import React, { useState, Suspense } from 'react';
-import { CartProvider, useCart } from './context/CartContext';
+import { CartProvider, useCart, Product } from './context/CartContext';
 import './App.css';
 
 // Lazy load page components
@@ -32,20 +32,19 @@ const ProfileIcon = () => (
 );
 
 function NavigationContent() {
-  const [activeTab, setActiveTab] = useState('Cart'); // Default active tab is Cart as shown in mockup
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [activeTab, setActiveTab] = useState<string>('Cart'); // Default active tab is Cart
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
   const { cart } = useCart();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Helper function to handle tab switching
-  const handleTabSwitch = (tabName) => {
+  const handleTabSwitch = (tabName: string) => {
     setSelectedProduct(null); // Clear selected product when navigating away
     setActiveTab(tabName);
   };
 
-  const handleSelectProduct = (product) => {
+  const handleSelectProduct = (product: Product) => {
     setSelectedProduct(product);
   };
 

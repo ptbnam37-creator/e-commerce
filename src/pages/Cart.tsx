@@ -4,7 +4,7 @@ import { useCart } from '../context/CartContext';
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, subTotal, tax, total } = useCart();
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
   };
 
