@@ -60,9 +60,9 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
 
   // Color variants matching the thumbnails
   const colors = [
-    { name: 'Xanh Dương', style: 'hue-rotate(200deg) saturate(1.5)' },
-    { name: 'Đen', style: 'brightness(0.3) contrast(1.2)' },
-    { name: 'Trắng', style: 'none' }
+    { name: 'Xanh Dương', image: product.id === 1 ? '/samsung_a31_blue.png' : product.image },
+    { name: 'Đen', image: product.id === 1 ? '/samsung_a31_black.png' : product.image },
+    { name: 'Trắng', image: product.id === 1 ? '/samsung_a31.png' : product.image }
   ];
 
   return (
@@ -99,7 +99,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
         <div style={{ fontSize: '18px', fontWeight: '500', color: '#333333' }}>
           <span 
             onClick={onBackToShop} 
-            style={{ cursor: 'pointer', hover: { textDecoration: 'underline' } }}
+            style={{ cursor: 'pointer' }}
           >
             Shop
           </span>
@@ -159,14 +159,13 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             padding: '10px'
           }}>
             <img 
-              src={product.image} 
+              src={colors.find(c => c.name === selectedColor)?.image || product.image} 
               alt={product.name} 
               style={{
                 maxWidth: '100%',
                 maxHeight: '100%',
                 objectFit: 'contain',
-                filter: colors.find(c => c.name === selectedColor)?.style || 'none',
-                transition: 'filter 0.3s ease'
+                transition: 'all 0.3s ease'
               }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -194,13 +193,12 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
               >
                 <div style={{ width: '48px', height: '48px', margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <img 
-                    src={product.image} 
+                    src={c.image} 
                     alt={c.name} 
                     style={{
                       maxWidth: '100%',
                       maxHeight: '100%',
-                      objectFit: 'contain',
-                      filter: c.style
+                      objectFit: 'contain'
                     }}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
