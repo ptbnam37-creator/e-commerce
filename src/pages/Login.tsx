@@ -45,8 +45,14 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
       setError('Vui lòng nhập đầy đủ thông tin đăng nhập!');
       return;
     }
-    // Mock login success
-    onLoginSuccess(username);
+    
+    // Validate default credentials
+    if (username === 'nguyenvana' && password === '12345678') {
+      setError('');
+      onLoginSuccess(username);
+    } else {
+      setError('Tên đăng nhập hoặc mật khẩu không chính xác!');
+    }
   };
 
   return (
