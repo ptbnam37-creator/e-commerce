@@ -1,114 +1,72 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart, CartItem } from '../context/CartContext';
-
 import { createStore } from 'redux';
 
-interface IncrementAction {
-  type: 'increment';
-  payload: { cartId: string };
+interface CartAction {
+  type: string;
+  payload: number;
 }
 
-interface DecrementAction {
-  type: 'decrement';
-  payload: { cartId: string };
-}
-
-interface RemoveAction {
-  type: 'remove';
-  payload: { cartId: string };
-}
-
-interface SetInitialCartAction {
-  type: 'set_initial_cart';
-  payload: { cart: CartItem[] };
-}
-
-type CartAction = IncrementAction | DecrementAction | RemoveAction | SetInitialCartAction;
-
-function cartReducer(state: CartItem[] = [], action: CartAction): CartItem[] {
-  switch (action.type) {
-    case 'set_initial_cart':
-      return action.payload.cart;
-    case 'increment':
-      return state.map(item =>
-        item.cartId === action.payload.cartId
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-    case 'decrement':
-      return state.map(item =>
-        item.cartId === action.payload.cartId && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      );
-    case 'remove':
-      return state.filter(item => item.cartId !== action.payload.cartId);
-    default:
-      return state;
+// Redux reducer handling the quantity increments/decrements
+function counter(state = 2, action: CartAction) {
+  if (action.type === 'increment') {
+    // Divide by 1000 to convert the payload (e.g. 1000) to 1 unit
+    return state + (action.payload / 1000);
   }
+  if (action.type === 'decrement') {
+    return state - (action.payload / 1000);
+  }
+  return state;
 }
 
-const store = createStore(cartReducer);
+// Global Redux store initialized with 2 items (matching initial state)
+const store = createStore(counter, 2);
 
-// Action Creators
-function increment(cartId: string): IncrementAction {
+// Redux Action creators
+function deposit(cost: number) {
   return {
     type: 'increment',
-    payload: { cartId }
+    payload: cost
   };
 }
 
-function decrement(cartId: string): DecrementAction {
+function withdraw(cost: number) {
   return {
     type: 'decrement',
-    payload: { cartId }
-  };
-}
-
-function remove(cartId: string): RemoveAction {
-  return {
-    type: 'remove',
-    payload: { cartId }
-  };
-}
-
-function setInitialCart(cart: CartItem[]): SetInitialCartAction {
-  return {
-    type: 'set_initial_cart',
-    payload: { cart }
+    payload: cost
   };
 }
 
 const Cart = () => {
-  const { cart: contextCart, updateQuantity, removeFromCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, subTotal, tax, total } = useCart();
+  
+  // React state subscribing to the Redux store state
+  const [totalItems, setTotalItems] = useState(store.getState());
+
+  useEffect(() => {
+    const unsubscribe = store.subscribe(() => {
+      setTotalItems(store.getState());
+    });
+    return unsubscribe;
+  }, []);
+
+  // Sync Redux store state with the actual total items in the cart
+  const actualTotal = cart.reduce((sum, item) => sum + item.quantity, 0);
+  useEffect(() => {
+    if (actualTotal !== totalItems) {
+      // Re-initialize or adjust store if cart content changes from details page or removals
+      const difference = actualTotal - totalItems;
+      if (difference !== 0) {
+        store.dispatch(deposit(difference * 1000));
+      }
+    }
+  }, [actualTotal, totalItems]);
 
   const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
   };
 
-  const [cartState, setCartState] = React.useState<CartItem[]>([]);
-
-  // Initialize Redux store with Context cart on mount
-  React.useEffect(() => {
-    store.dispatch(setInitialCart(contextCart));
-    setCartState(contextCart);
-  }, []);
-
-  // Subscribe to Redux store updates
-  React.useEffect(() => {
-    const unsubscribe = store.subscribe(() => {
-      setCartState(store.getState());
-    });
-    return unsubscribe;
-  }, []);
-
-  // Compute values from Redux store cartState
-  const totalItems = cartState.reduce((sum, item) => sum + item.quantity, 0);
-  const subTotal = cartState.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = Math.round(subTotal * 0.1);
-  const total = subTotal + tax;
-
-  if (cartState.length === 0) {
+  if (cart.length === 0) {
     return (
       <div className="empty-state">
         <h2>Giỏ hàng của bạn đang trống</h2>
@@ -127,15 +85,12 @@ const Cart = () => {
       </div>
 
       <div className="cart-items-list">
-        {cartState.map((item) => (
+        {cart.map((item) => (
           <div key={item.cartId} className="cart-item-card">
             {/* Remove button at top right corner */}
             <button
               className="remove-btn"
-              onClick={() => {
-                store.dispatch(remove(item.cartId));
-                removeFromCart(item.cartId);
-              }}
+              onClick={() => removeFromCart(item.cartId)}
               title="Remove item"
             >
               x
@@ -156,21 +111,23 @@ const Cart = () => {
                 
                 {/* Quantity Action Area: +  Qty  - */}
                 <div className="cart-item-actions">
-                  <button
-                    className="qty-btn"
+                  <button 
+                    className="qty-btn" 
                     onClick={() => {
-                      store.dispatch(increment(item.cartId));
+                      store.dispatch(deposit(1000));
                       updateQuantity(item.cartId, 1);
                     }}
                   >
                     +
                   </button>
                   <span className="qty-value">{item.quantity}</span>
-                  <button
-                    className="qty-btn"
+                  <button 
+                    className="qty-btn" 
                     onClick={() => {
-                      store.dispatch(decrement(item.cartId));
-                      updateQuantity(item.cartId, -1);
+                      if (item.quantity > 1) {
+                        store.dispatch(withdraw(1000));
+                        updateQuantity(item.cartId, -1);
+                      }
                     }}
                   >
                     -
