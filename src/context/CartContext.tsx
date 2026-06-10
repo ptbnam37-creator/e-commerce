@@ -45,7 +45,7 @@ const initialProducts: Product[] = [
     rating: 4,
     description: 'Sở hữu thiết kế trẻ trung năng động, màn hình Dynamic AMOLED 2X sắc nét, tần số quét 120Hz mượt mà cùng hiệu năng mạnh mẽ từ con chip Exynos 2100 cao cấp.',
     price: 12490000,
-    image: '/samsung_s21.png'
+    image: '/samsung-s21-fe.png'
   },
   {
     id: 3,
@@ -63,7 +63,7 @@ const initialProducts: Product[] = [
     rating: 4,
     description: 'OPPO Reno11 F 5G nổi bật với camera chân dung siêu nét, sạc nhanh SuperVOOC 67W, màn hình AMOLED 120Hz viền siêu mỏng cùng mặt lưng chuyển màu lung linh.',
     price: 8990000,
-    image: '/oppo_reno11.png'
+    image: '/oppo_reno11f.png'
   },
   {
     id: 5,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useCart, CartItem } from '../context/CartContext';
-import { createStore } from 'redux';
+import { useCart, CartItem } from '../context/CartContext.tsx';
+import { configureStore } from '@reduxjs/toolkit';
 
 interface CartAction {
   type: string;
@@ -36,7 +36,7 @@ const getInitialTotal = (): number => {
 };
 
 // Global Redux store initialized dynamically
-const store = createStore(counter, getInitialTotal());
+const store = configureStore({ reducer: counter, preloadedState: getInitialTotal() });
 
 // Redux Action creators
 function deposit(cost: number) {
@@ -67,7 +67,7 @@ const Cart = () => {
   }, []);
 
   // Sync Redux store state with the actual total items in the cart
-  const actualTotal = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const actualTotal = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   useEffect(() => {
     if (actualTotal !== totalItems) {
       // Re-initialize or adjust store if cart content changes from details page or removals
@@ -101,7 +101,7 @@ const Cart = () => {
       </div>
 
       <div className="cart-items-list">
-        {cart.map((item) => (
+        {cart.map((item : CartItem) => (
           <div key={item.cartId} className="cart-item-card">
             {/* Remove button at top right corner */}
             <button

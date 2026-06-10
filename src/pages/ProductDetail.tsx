@@ -39,31 +39,40 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
   };
 
+  const hasVariants = product.id === 1;
+
+  // Only define color options for the product that actually has color variants
+  const colors = hasVariants ? [
+    { name: 'Xanh Dương', image: '/samsung_a31_blue.png' },
+    { name: 'Đen', image: '/samsung_a31_black.png' },
+    { name: 'Trắng', image: '/samsung_a31.png' }
+  ] : [];
+
   const handleAdd = () => {
+    const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;
     addToCart({
       ...product,
-      name: `${product.name} (${selectedColor})`
+      name: finalName
     });
-    setToastMessage(`Đã thêm ${product.name} (${selectedColor}) vào giỏ hàng!`);
+    setToastMessage(`Đã thêm ${finalName} vào giỏ hàng!`);
     setTimeout(() => setToastMessage(''), 2000);
   };
 
   const handleBuyNow = () => {
+    const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;
     addToCart({
       ...product,
-      name: `${product.name} (${selectedColor})`
+      name: finalName
     });
     onGoToCart();
   };
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Color variants matching the thumbnails
-  const colors = [
-    { name: 'Xanh Dương', image: product.id === 1 ? '/samsung_a31_blue.png' : product.image },
-    { name: 'Đen', image: product.id === 1 ? '/samsung_a31_black.png' : product.image },
-    { name: 'Trắng', image: product.id === 1 ? '/samsung_a31.png' : product.image }
-  ];
+  // Determine main image based on color selection
+  const mainImage = hasVariants
+    ? (colors.find(c => c.name === selectedColor)?.image || product.image)
+    : product.image;
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
@@ -159,7 +168,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             padding: '10px'
           }}>
             <img 
-              src={colors.find(c => c.name === selectedColor)?.image || product.image} 
+              src={mainImage} 
               alt={product.name} 
               style={{
                 maxWidth: '100%',
@@ -174,44 +183,46 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             />
           </div>
 
-          {/* Color variant thumbnails */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            {colors.map((c) => (
-              <div 
-                key={c.name}
-                onClick={() => setSelectedColor(c.name)}
-                style={{
-                  border: selectedColor === c.name ? '1.5px solid #00c0ff' : '1px solid #dcdcdc',
-                  borderRadius: '4px',
-                  padding: '6px',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  width: '68px',
-                  backgroundColor: '#ffffff',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <div style={{ width: '48px', height: '48px', margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <img 
-                    src={c.image} 
-                    alt={c.name} 
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: '100%',
-                      objectFit: 'contain'
-                    }}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/samsung_a31.png';
-                    }}
-                  />
+          {/* Color variant thumbnails - Only render if product has color variants */}
+          {hasVariants && (
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              {colors.map((c) => (
+                <div 
+                  key={c.name}
+                  onClick={() => setSelectedColor(c.name)}
+                  style={{
+                    border: selectedColor === c.name ? '1.5px solid #00c0ff' : '1px solid #dcdcdc',
+                    borderRadius: '4px',
+                    padding: '6px',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    width: '68px',
+                    backgroundColor: '#ffffff',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <div style={{ width: '48px', height: '48px', margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img 
+                      src={c.image} 
+                      alt={c.name} 
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain'
+                      }}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/samsung_a31.png';
+                      }}
+                    />
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#666', whiteSpace: 'nowrap' }}>
+                    {c.name}
+                  </div>
                 </div>
-                <div style={{ fontSize: '10px', color: '#666', whiteSpace: 'nowrap' }}>
-                  {c.name}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right Side: Product Details info */}
