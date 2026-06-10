@@ -24,7 +24,7 @@ interface ProductDetailProps {
 const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps) => {
   const { addToCart, cart } = useCart();
   const [toastMessage, setToastMessage] = useState('');
-  const [selectedColor, setSelectedColor] = useState('Trắng');
+  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]?.name || '');
 
   if (!product) {
     return (
@@ -39,14 +39,8 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
   };
 
-  const hasVariants = product.id === 1;
-
-  // Only define color options for the product that actually has color variants
-  const colors = hasVariants ? [
-    { name: 'Xanh Dương', image: '/samsung_a31_blue.png' },
-    { name: 'Đen', image: '/samsung_a31_black.png' },
-    { name: 'Trắng', image: '/samsung_a31.png' }
-  ] : [];
+  const hasVariants = !!(product.colors && product.colors.length > 0);
+  const colors = product.colors || [];
 
   const handleAdd = () => {
     const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;

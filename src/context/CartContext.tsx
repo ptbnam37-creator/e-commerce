@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+export interface ProductColor {
+  name: string;
+  image: string;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -8,6 +13,7 @@ export interface Product {
   description: string;
   price: number;
   image: string;
+  colors: ProductColor[];
 }
 
 export interface CartItem extends Product {
@@ -36,7 +42,12 @@ const initialProducts: Product[] = [
     rating: 5,
     description: 'Galaxy A31 là mẫu smartphone tầm trung mới ra mắt đầu năm 2020 của Samsung. Thiết bị gây ấn tượng mạnh với ngoại hình thời trang, cụm 4 camera đa chức năng, vân tay dưới màn hình và viên pin khủng lên đến 5000 mAh.',
     price: 6940000,
-    image: '/samsung_a31.png'
+    image: '/samsung_a31.png',
+    colors: [
+      { name: 'Xanh Dương', image: '/samsung_a31_blue.png' },
+      { name: 'Đen', image: '/samsung_a31_black.png' },
+      { name: 'Trắng', image: '/samsung_a31.png' }
+    ]
   },
   {
     id: 2,
@@ -45,7 +56,12 @@ const initialProducts: Product[] = [
     rating: 4,
     description: 'Sở hữu thiết kế trẻ trung năng động, màn hình Dynamic AMOLED 2X sắc nét, tần số quét 120Hz mượt mà cùng hiệu năng mạnh mẽ từ con chip Exynos 2100 cao cấp.',
     price: 12490000,
-    image: '/samsung-s21-fe.png'
+    image: '/samsung-s21-fe.png',
+    colors: [
+      { name: 'Trắng', image: '/samsung-s21-fe.png' },
+      { name: 'Đen', image: '/samsung-s21-fe.png' },
+      { name: 'Xanh Lá', image: '/samsung-s21-fe.png' }
+    ]
   },
   {
     id: 3,
@@ -54,7 +70,12 @@ const initialProducts: Product[] = [
     rating: 5,
     description: 'iPhone 13 sở hữu thiết kế sang trọng, camera chéo độc đáo, hiệu năng siêu việt từ Apple A15 Bionic cùng thời lượng pin cải tiến vượt trội đáp ứng trọn vẹn nhu cầu.',
     price: 16990000,
-    image: '/iphone_13.png'
+    image: '/iphone_13.png',
+    colors: [
+      { name: 'Đen', image: '/iphone_13.png' },
+      { name: 'Trắng', image: '/iphone_13.png' },
+      { name: 'Xanh Dương', image: '/iphone_13.png' }
+    ]
   },
   {
     id: 4,
@@ -63,7 +84,12 @@ const initialProducts: Product[] = [
     rating: 4,
     description: 'OPPO Reno11 F 5G nổi bật với camera chân dung siêu nét, sạc nhanh SuperVOOC 67W, màn hình AMOLED 120Hz viền siêu mỏng cùng mặt lưng chuyển màu lung linh.',
     price: 8990000,
-    image: '/oppo_reno11f.png'
+    image: '/oppo_reno11f.png',
+    colors: [
+      { name: 'Xanh Dương', image: '/oppo_reno11f.png' },
+      { name: 'Xanh Lá', image: '/oppo_reno11f.png' },
+      { name: 'Hồng', image: '/oppo_reno11f.png' }
+    ]
   },
   {
     id: 5,
@@ -72,7 +98,12 @@ const initialProducts: Product[] = [
     rating: 5,
     description: 'iPhone 15 Pro với khung vỏ Titan chuẩn vũ trụ siêu bền nhẹ, nút Action mới, chip A17 Pro tối tân mang đến trải nghiệm đồ họa chơi game đỉnh cao cùng camera 48MP.',
     price: 24990000,
-    image: '/iphone_15.png'
+    image: '/iphone_15.png',
+    colors: [
+      { name: 'Titan Tự Nhiên', image: '/iphone_15.png' },
+      { name: 'Titan Đen', image: '/iphone_15.png' },
+      { name: 'Titan Xanh', image: '/iphone_15.png' }
+    ]
   },
   {
     id: 6,
@@ -81,7 +112,12 @@ const initialProducts: Product[] = [
     rating: 3,
     description: 'Redmi Note 13 mang lại hiệu năng ổn định, màn hình AMOLED 120Hz mượt mà, camera 108MP siêu phân giải cùng viên pin 5000 mAh đi kèm sạc nhanh 33W.',
     price: 4590000,
-    image: '/xiaomi_redmi13.png'
+    image: '/xiaomi_redmi13.png',
+    colors: [
+      { name: 'Đen', image: '/xiaomi_redmi13.png' },
+      { name: 'Xanh Dương', image: '/xiaomi_redmi13.png' },
+      { name: 'Vàng', image: '/xiaomi_redmi13.png' }
+    ]
   }
 ];
 
