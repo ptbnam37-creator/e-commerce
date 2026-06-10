@@ -7,7 +7,11 @@ interface ProfileData {
   address: string;
 }
 
-const Profile = () => {
+interface ProfileProps {
+  onLogout: () => void;
+}
+
+const Profile = ({ onLogout }: ProfileProps) => {
   const [profile, setProfile] = useState<ProfileData>({
     name: 'Nguyễn Văn A',
     email: 'nguyenvana@gmail.com',
@@ -90,9 +94,25 @@ const Profile = () => {
             />
           </div>
 
-          <button type="submit" className="save-profile-btn">
-            Lưu thay đổi
-          </button>
+          <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+            <button type="submit" className="save-profile-btn" style={{ flex: 1, marginTop: 0 }}>
+              Lưu thay đổi
+            </button>
+            <button 
+              type="button" 
+              className="save-profile-btn" 
+              onClick={onLogout}
+              style={{ 
+                flex: 1, 
+                marginTop: 0,
+                backgroundColor: '#ffffff',
+                border: '1px solid #dcdcdc',
+                color: '#333333'
+              }}
+            >
+              Đăng xuất
+            </button>
+          </div>
         </form>
       </div>
     </div>

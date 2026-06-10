@@ -7,6 +7,7 @@ const Shop = React.lazy(() => import('./pages/Shop'));
 const Cart = React.lazy(() => import('./pages/Cart'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const ProductDetail = React.lazy(() => import('./pages/ProductDetail'));
+const Login = React.lazy(() => import('./pages/Login'));
 
 // SVG Icons
 const ShopIcon = () => (
@@ -31,7 +32,11 @@ const ProfileIcon = () => (
   </svg>
 );
 
-function NavigationContent() {
+interface NavigationContentProps {
+  onLogout: () => void;
+}
+
+function NavigationContent({ onLogout }: NavigationContentProps) {
   const [activeTab, setActiveTab] = useState<string>('Cart'); // Default active tab is Cart
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -64,7 +69,7 @@ function NavigationContent() {
       case 'Cart':
         return <Cart />;
       case 'My Profile':
-        return <Profile />;
+        return <Profile onLogout={onLogout} />;
       default:
         return <Cart />;
     }
@@ -174,9 +179,33 @@ function NavigationContent() {
 }
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  if (!isLoggedIn) {
+    return (
+      <Suspense fallback={
+        <div style={{
+          width: '100vw',
+          height: '100vh',
+          background: 'linear-gradient(135deg, #00b4ec 0%, #0070c0 100%)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'white',
+          fontFamily: 'sans-serif',
+          fontSize: '18px'
+        }}>
+          Đang tải trang đăng nhập...
+        </div>
+      }>
+        <Login onLoginSuccess={() => setIsLoggedIn(true)} />
+      </Suspense>
+    );
+  }
+
   return (
     <CartProvider>
-      <NavigationContent />
+      <NavigationContent onLogout={() => setIsLoggedIn(false)} />
     </CartProvider>
   );
 }
