@@ -58,9 +58,10 @@ const initialProducts: Product[] = [
     price: 12490000,
     image: '/samsung-s21-fe.png',
     colors: [
-      { name: 'Trắng', image: '/samsung-s21-fe.png' },
-      { name: 'Đen', image: '/samsung-s21-fe.png' },
-      { name: 'Xanh Lá', image: '/samsung-s21-fe.png' }
+      { name: 'Tím', image: '/samsung-s21-fe.png' },
+      { name: 'Đen', image: '/samsung-s21-fe-black.png' },
+      { name: 'Xanh Lá', image: '/samsung-s21-fe-green.png' },
+      { name: 'Trắng', image: '/samsung-s21-fe-white.png' }
     ]
   },
   {
@@ -70,11 +71,14 @@ const initialProducts: Product[] = [
     rating: 5,
     description: 'iPhone 13 sở hữu thiết kế sang trọng, camera chéo độc đáo, hiệu năng siêu việt từ Apple A15 Bionic cùng thời lượng pin cải tiến vượt trội đáp ứng trọn vẹn nhu cầu.',
     price: 16990000,
-    image: '/iphone_13.png',
+    image: '/ip13-green.png',
     colors: [
-      { name: 'Đen', image: '/iphone_13.png' },
-      { name: 'Trắng', image: '/iphone_13.png' },
-      { name: 'Xanh Dương', image: '/iphone_13.png' }
+      { name: 'Xanh Lá', image: '/ip13-green.png' },
+      { name: 'Đen', image: '/ip13-black.png' },
+      { name: 'Trắng', image: '/ip13-white.png' },
+      { name: 'Xanh Dương', image: '/ip13-blue.png' },
+      { name: 'Hồng', image: '/ip13-pink.png' },
+      { name: 'Đỏ', image: '/ip13-red.png' },
     ]
   },
   {
@@ -86,9 +90,8 @@ const initialProducts: Product[] = [
     price: 8990000,
     image: '/oppo_reno11f.png',
     colors: [
-      { name: 'Xanh Dương', image: '/oppo_reno11f.png' },
-      { name: 'Xanh Lá', image: '/oppo_reno11f.png' },
-      { name: 'Hồng', image: '/oppo_reno11f.png' }
+      { name: 'Xanh Đen', image: '/oppo-reno-11f-dark-green.png' },
+      { name: 'Xanh', image: '/oppo_reno11f.png' }
     ]
   },
   {
@@ -98,11 +101,12 @@ const initialProducts: Product[] = [
     rating: 5,
     description: 'iPhone 15 Pro với khung vỏ Titan chuẩn vũ trụ siêu bền nhẹ, nút Action mới, chip A17 Pro tối tân mang đến trải nghiệm đồ họa chơi game đỉnh cao cùng camera 48MP.',
     price: 24990000,
-    image: '/iphone_15.png',
+    image: '/iphone15-pro-nau_1_.png',
     colors: [
-      { name: 'Titan Tự Nhiên', image: '/iphone_15.png' },
-      { name: 'Titan Đen', image: '/iphone_15.png' },
-      { name: 'Titan Xanh', image: '/iphone_15.png' }
+      { name: 'Titan Tự Nhiên', image: '/iphone15-pro-nau_1_.png' },
+      { name: 'Titan Đen', image: '/iphone15-pro-den_1.png' },
+      { name: 'Titan Trắng', image: '/iphone15-pro-trang_1__1.png' },
+      { name: 'Titan Xanh', image: '/iphone15-pro-xanh_1_.png' }
     ]
   },
   {
@@ -112,11 +116,11 @@ const initialProducts: Product[] = [
     rating: 3,
     description: 'Redmi Note 13 mang lại hiệu năng ổn định, màn hình AMOLED 120Hz mượt mà, camera 108MP siêu phân giải cùng viên pin 5000 mAh đi kèm sạc nhanh 33W.',
     price: 4590000,
-    image: '/xiaomi_redmi13.png',
+    image: '/redmi-note13-black.png',
     colors: [
-      { name: 'Đen', image: '/xiaomi_redmi13.png' },
-      { name: 'Xanh Dương', image: '/xiaomi_redmi13.png' },
-      { name: 'Vàng', image: '/xiaomi_redmi13.png' }
+      { name: 'Đen', image: '/redmi-note13-black.png' },
+      { name: 'Xanh Lá', image: '/redmi-note13-green.png' },
+      { name: 'Vàng', image: '/redmi-note13-yellow.png' }
     ]
   }
 ];
