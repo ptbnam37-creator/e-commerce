@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { pb } from '../services/pocketbase';
 
 export interface ProductColor {
   name: string;
@@ -6,7 +7,7 @@ export interface ProductColor {
 }
 
 export interface Product {
-  id: number;
+  id: number | string;
   name: string;
   brand: string;
   rating: number;
@@ -126,6 +127,8 @@ const initialProducts: Product[] = [
 ];
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+
   // Initialize from localStorage or default to two Galaxy A31s
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('cart');
@@ -141,6 +144,55 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       { ...initialProducts[0], quantity: 1, cartId: 'initial-2' }
     ];
   });
+
+  // Load products from PocketBase database
+  React.useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const records = await pb.collection('products').getFullList<any>({
+          sort: '-created',
+        });
+        
+        if (records && records.length > 0) {
+          const mapped: Product[] = records.map((record) => {
+            let imageUrl = record.image;
+            if (record.image && !record.image.startsWith('http') && !record.image.startsWith('/')) {
+              imageUrl = pb.files.getUrl(record, record.image);
+            } else if (!record.image) {
+              imageUrl = '/samsung_a31.png';
+            }
+
+            let colorsArr = [];
+            if (Array.isArray(record.colors)) {
+              colorsArr = record.colors;
+            } else if (typeof record.colors === 'string') {
+              try {
+                colorsArr = JSON.parse(record.colors);
+              } catch {
+                colorsArr = [];
+              }
+            }
+
+            return {
+              id: record.productId || record.id,
+              name: record.name,
+              brand: record.brand,
+              rating: Number(record.rating || 5),
+              description: record.description || '',
+              price: Number(record.price || 0),
+              image: imageUrl,
+              colors: colorsArr
+            };
+          });
+          setProducts(mapped);
+        }
+      } catch (err) {
+        console.warn('PocketBase products fetch failed or collection not found. Using local initialProducts fallback.', err);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   // Persist cart changes to localStorage
   React.useEffect(() => {
@@ -182,7 +234,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   return (
     <CartContext.Provider
       value={{
-        products: initialProducts,
+        products,
         cart,
         addToCart,
         updateQuantity,
