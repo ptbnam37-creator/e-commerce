@@ -133,7 +133,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       try {
         return JSON.parse(saved);
       } catch (e) {
-        console.error('Failed to parse cart from localStorage:', e);
+        console.warn('Failed to parse cart from localStorage:', e);
       }
     }
     return [
