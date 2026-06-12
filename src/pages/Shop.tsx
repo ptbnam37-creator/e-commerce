@@ -26,6 +26,197 @@ const ChevronDown = () => (
   </svg>
 );
 
+interface FilterDropdownProps {
+  minPrice: number;
+  setMinPrice: (val: number) => void;
+  maxPrice: number;
+  setMaxPrice: (val: number) => void;
+  minRating: number;
+  setMinRating: (val: number) => void;
+  maxRating: number;
+  setMaxRating: (val: number) => void;
+  priceFromOptions: { value: number; label: string }[];
+  priceToOptions: { value: number; label: string }[];
+}
+
+const FilterDropdown = ({
+  minPrice, setMinPrice, maxPrice, setMaxPrice,
+  minRating, setMinRating, maxRating, setMaxRating,
+  priceFromOptions, priceToOptions
+}: FilterDropdownProps) => (
+  <div style={{
+    position: 'absolute',
+    top: '45px',
+    right: '0',
+    backgroundColor: 'white',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+    border: '1px solid #c0c0c0',
+    borderRadius: '2px',
+    zIndex: 100,
+    minWidth: '280px',
+    color: '#000000',
+    fontFamily: 'sans-serif'
+  }}>
+    {/* Header: "Filter" */}
+    <div style={{
+      textAlign: 'center',
+      fontWeight: 'bold',
+      fontSize: '18px',
+      padding: '12px 0',
+      borderBottom: '1px solid #c0c0c0'
+    }}>
+      Filter
+    </div>
+
+    {/* Body */}
+    <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+      {/* Giá Section */}
+      <div>
+        <div style={{ fontSize: '16px', marginBottom: '8px', paddingLeft: '24px' }}>Giá</div>
+
+        {/* Từ */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', paddingLeft: '8px' }}>
+          <span style={{ width: '45px', fontSize: '15px' }}>Từ:</span>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
+            <select
+              value={minPrice}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setMinPrice(val);
+                if (val > maxPrice) setMaxPrice(val);
+              }}
+              style={{
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                fontSize: '15px',
+                textAlign: 'right',
+                textAlignLast: 'right',
+                paddingRight: '20px',
+                background: 'transparent',
+                cursor: 'pointer',
+                appearance: 'none',
+                fontWeight: '500'
+              }}
+            >
+              {priceFromOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <ChevronDown />
+          </div>
+        </div>
+
+        {/* Đến */}
+        <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
+          <span style={{ width: '45px', fontSize: '15px' }}>Đến:</span>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
+            <select
+              value={maxPrice}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setMaxPrice(val);
+                if (val < minPrice) setMinPrice(val);
+              }}
+              style={{
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                fontSize: '15px',
+                textAlign: 'right',
+                textAlignLast: 'right',
+                paddingRight: '20px',
+                background: 'transparent',
+                cursor: 'pointer',
+                appearance: 'none',
+                fontWeight: '500'
+              }}
+            >
+              {priceToOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <ChevronDown />
+          </div>
+        </div>
+      </div>
+
+      {/* Đánh giá Section */}
+      <div style={{ marginTop: '4px' }}>
+        <div style={{ fontSize: '16px', marginBottom: '8px', paddingLeft: '24px' }}>Đánh giá</div>
+
+        {/* Từ */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', paddingLeft: '8px' }}>
+          <span style={{ width: '45px', fontSize: '15px' }}>Từ:</span>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
+            <select
+              value={minRating}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setMinRating(val);
+                if (val > maxRating) setMaxRating(val);
+              }}
+              style={{
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                fontSize: '15px',
+                textAlign: 'right',
+                textAlignLast: 'right',
+                paddingRight: '20px',
+                background: 'transparent',
+                cursor: 'pointer',
+                appearance: 'none',
+                fontWeight: '500'
+              }}
+            >
+              {[0, 1, 2, 3, 4, 5].map((stars) => (
+                <option key={stars} value={stars}>{stars} Sao</option>
+              ))}
+            </select>
+            <ChevronDown />
+          </div>
+        </div>
+
+        {/* Đến */}
+        <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
+          <span style={{ width: '45px', fontSize: '15px' }}>Đến:</span>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
+            <select
+              value={maxRating}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setMaxRating(val);
+                if (val < minRating) setMinRating(val);
+              }}
+              style={{
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                fontSize: '15px',
+                textAlign: 'right',
+                textAlignLast: 'right',
+                paddingRight: '20px',
+                background: 'transparent',
+                cursor: 'pointer',
+                appearance: 'none',
+                fontWeight: '500'
+              }}
+            >
+              {[0, 1, 2, 3, 4, 5].map((stars) => (
+                <option key={stars} value={stars}>{stars} Sao</option>
+              ))}
+            </select>
+            <ChevronDown />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+);
+
 interface ShopProps {
   onSelectProduct: (product: Product) => void;
 }
@@ -125,177 +316,18 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
           {/* Dropdown Menu */}
           {showFilters && (
-            <div style={{
-              position: 'absolute',
-              top: '45px',
-              right: '0',
-              backgroundColor: 'white',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-              border: '1px solid #c0c0c0',
-              borderRadius: '2px',
-              zIndex: 100,
-              minWidth: '280px',
-              color: '#000000',
-              fontFamily: 'sans-serif'
-            }}>
-              {/* Header: "Filter" */}
-              <div style={{
-                textAlign: 'center',
-                fontWeight: 'bold',
-                fontSize: '18px',
-                padding: '12px 0',
-                borderBottom: '1px solid #c0c0c0'
-              }}>
-                Filter
-              </div>
-
-              {/* Body */}
-              <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                
-                {/* Giá Section */}
-                <div>
-                  <div style={{ fontSize: '16px', marginBottom: '8px', paddingLeft: '24px' }}>Giá</div>
-                  
-                  {/* Từ */}
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', paddingLeft: '8px' }}>
-                    <span style={{ width: '45px', fontSize: '15px' }}>Từ:</span>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
-                      <select 
-                        value={minPrice} 
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          setMinPrice(val);
-                          if (val > maxPrice) setMaxPrice(val);
-                        }}
-                        style={{
-                          width: '100%',
-                          border: 'none',
-                          outline: 'none',
-                          fontSize: '15px',
-                          textAlign: 'right',
-                          textAlignLast: 'right',
-                          paddingRight: '20px',
-                          background: 'transparent',
-                          cursor: 'pointer',
-                          appearance: 'none',
-                          fontWeight: '500'
-                        }}
-                      >
-                        {priceFromOptions.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                      <ChevronDown />
-                    </div>
-                  </div>
-
-                  {/* Đến */}
-                  <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
-                    <span style={{ width: '45px', fontSize: '15px' }}>Đến:</span>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
-                      <select 
-                        value={maxPrice} 
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          setMaxPrice(val);
-                          if (val < minPrice) setMinPrice(val);
-                        }}
-                        style={{
-                          width: '100%',
-                          border: 'none',
-                          outline: 'none',
-                          fontSize: '15px',
-                          textAlign: 'right',
-                          textAlignLast: 'right',
-                          paddingRight: '20px',
-                          background: 'transparent',
-                          cursor: 'pointer',
-                          appearance: 'none',
-                          fontWeight: '500'
-                        }}
-                      >
-                        {priceToOptions.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                      <ChevronDown />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Đánh giá Section */}
-                <div style={{ marginTop: '4px' }}>
-                  <div style={{ fontSize: '16px', marginBottom: '8px', paddingLeft: '24px' }}>Đánh giá</div>
-                  
-                  {/* Từ */}
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', paddingLeft: '8px' }}>
-                    <span style={{ width: '45px', fontSize: '15px' }}>Từ:</span>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
-                      <select 
-                        value={minRating} 
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          setMinRating(val);
-                          if (val > maxRating) setMaxRating(val);
-                        }}
-                        style={{
-                          width: '100%',
-                          border: 'none',
-                          outline: 'none',
-                          fontSize: '15px',
-                          textAlign: 'right',
-                          textAlignLast: 'right',
-                          paddingRight: '20px',
-                          background: 'transparent',
-                          cursor: 'pointer',
-                          appearance: 'none',
-                          fontWeight: '500'
-                        }}
-                      >
-                        {[0, 1, 2, 3, 4, 5].map((stars) => (
-                          <option key={stars} value={stars}>{stars} Sao</option>
-                        ))}
-                      </select>
-                      <ChevronDown />
-                    </div>
-                  </div>
-
-                  {/* Đến */}
-                  <div style={{ display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
-                    <span style={{ width: '45px', fontSize: '15px' }}>Đến:</span>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
-                      <select 
-                        value={maxRating} 
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          setMaxRating(val);
-                          if (val < minRating) setMinRating(val);
-                        }}
-                        style={{
-                          width: '100%',
-                          border: 'none',
-                          outline: 'none',
-                          fontSize: '15px',
-                          textAlign: 'right',
-                          textAlignLast: 'right',
-                          paddingRight: '20px',
-                          background: 'transparent',
-                          cursor: 'pointer',
-                          appearance: 'none',
-                          fontWeight: '500'
-                        }}
-                      >
-                        {[0, 1, 2, 3, 4, 5].map((stars) => (
-                          <option key={stars} value={stars}>{stars} Sao</option>
-                        ))}
-                      </select>
-                      <ChevronDown />
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
+            <FilterDropdown
+              minPrice={minPrice}
+              setMinPrice={setMinPrice}
+              maxPrice={maxPrice}
+              setMaxPrice={setMaxPrice}
+              minRating={minRating}
+              setMinRating={setMinRating}
+              maxRating={maxRating}
+              setMaxRating={setMaxRating}
+              priceFromOptions={priceFromOptions}
+              priceToOptions={priceToOptions}
+            />
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useCart, CartItem } from '../context/CartContext.tsx';
 import { configureStore } from '@reduxjs/toolkit';
+import { Provider, useSelector, useDispatch } from 'react-redux';
 
 interface CartAction {
   type: string;
@@ -53,18 +54,12 @@ function withdraw(cost: number) {
   };
 }
 
-const Cart = () => {
+const CartInner = () => {
   const { cart, updateQuantity, removeFromCart, subTotal, tax, total } = useCart();
   
-  // React state subscribing to the Redux store state
-  const [totalItems, setTotalItems] = useState(store.getState());
-
-  useEffect(() => {
-    const unsubscribe = store.subscribe(() => {
-      setTotalItems(store.getState());
-    });
-    return unsubscribe;
-  }, []);
+  // React-Redux hook subscribing to the Redux store state
+  const totalItems = useSelector((state: number) => state);
+  const dispatch = useDispatch();
 
   // Sync Redux store state with the actual total items in the cart
   const actualTotal = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
@@ -73,10 +68,10 @@ const Cart = () => {
       // Re-initialize or adjust store if cart content changes from details page or removals
       const difference = actualTotal - totalItems;
       if (difference !== 0) {
-        store.dispatch(deposit(difference * 1000));
+        dispatch(deposit(difference * 1000));
       }
     }
-  }, [actualTotal, totalItems]);
+  }, [actualTotal, totalItems, dispatch]);
 
   const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
@@ -130,7 +125,7 @@ const Cart = () => {
                   <button 
                     className="qty-btn" 
                     onClick={() => {
-                      store.dispatch(deposit(1000));
+                      dispatch(deposit(1000));
                       updateQuantity(item.cartId, 1);
                     }}
                   >
@@ -141,7 +136,7 @@ const Cart = () => {
                     className="qty-btn" 
                     onClick={() => {
                       if (item.quantity > 1) {
-                        store.dispatch(withdraw(1000));
+                        dispatch(withdraw(1000));
                         updateQuantity(item.cartId, -1);
                       }
                     }}
@@ -171,6 +166,15 @@ const Cart = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Cart = () => {
+  const localStore = useMemo(() => store, []);
+  return (
+    <Provider store={localStore}>
+      <CartInner />
+    </Provider>
   );
 };
 

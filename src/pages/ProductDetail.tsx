@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useCart, Product } from '../context/CartContext';
 
 const StarIcon = ({ filled }: { filled: boolean }) => (
@@ -24,6 +24,7 @@ interface ProductDetailProps {
 const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps) => {
   const { addToCart, cart } = useCart();
   const [toastMessage, setToastMessage] = useState('');
+  const toastTimeoutRef = useRef<number | null>(null);
   const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]?.name || '');
 
   if (!product) {
@@ -54,8 +55,12 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
       name: finalName,
       image: mainImage
     });
+
+    if (toastTimeoutRef.current !== null) {
+      clearTimeout(toastTimeoutRef.current);
+    }
     setToastMessage(`Đã thêm ${finalName} vào giỏ hàng!`);
-    setTimeout(() => setToastMessage(''), 2000);
+    toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
   };
 
   const handleBuyNow = () => {
