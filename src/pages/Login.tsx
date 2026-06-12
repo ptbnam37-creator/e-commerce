@@ -51,21 +51,36 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
     setIsLoading(true);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/api/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const apiUrl = import.meta.env.VITE_API_URL;
 
-      if (response.ok) {
-        setError('');
-        onLoginSuccess(username, rememberMe);
+      if (apiUrl) {
+        const response = await fetch(`${apiUrl}/api/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        if (response.ok) {
+          setError('');
+          onLoginSuccess(username, rememberMe);
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          setError(errorData.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!');
+        }
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!');
+        // Fallback for standalone demo without a backend
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        const demoUser = import.meta.env.VITE_DEMO_USERNAME || 'admin';
+        const demoPass = import.meta.env.VITE_DEMO_PASSWORD || 'admin';
+
+        if (username === demoUser && password === demoPass) {
+          setError('');
+          onLoginSuccess(username, rememberMe);
+        } else {
+          setError('Tên đăng nhập hoặc mật khẩu không chính xác!');
+        }
       }
     } catch {
       setError('Đã xảy ra lỗi kết nối, vui lòng thử lại.');
