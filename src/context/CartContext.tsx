@@ -149,12 +149,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   React.useEffect(() => {
     const loadProducts = async () => {
       try {
-        const records = await pb.collection('products').getFullList<any>({
-          sort: '-created',
-        });
+        const [productRecords, variantRecords] = await Promise.all([
+          pb.collection('product').getFullList<any>({ sort: '-created' }),
+          pb.collection('color_variants').getFullList<any>()
+        ]);
         
-        if (records && records.length > 0) {
-          const mapped: Product[] = records.map((record) => {
+        if (productRecords && productRecords.length > 0) {
+          const mapped: Product[] = productRecords.map((record) => {
             let imageUrl = record.image;
             if (record.image && !record.image.startsWith('http') && !record.image.startsWith('/')) {
               imageUrl = pb.files.getUrl(record, record.image);
@@ -162,19 +163,21 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               imageUrl = '/samsung_a31.png';
             }
 
-            let colorsArr = [];
-            if (Array.isArray(record.colors)) {
-              colorsArr = record.colors;
-            } else if (typeof record.colors === 'string') {
-              try {
-                colorsArr = JSON.parse(record.colors);
-              } catch {
-                colorsArr = [];
+            // Find matching color variants from the color_variants relation
+            const productVariants = variantRecords.filter(v => v.productId === record.id);
+            const colorsArr = productVariants.map(v => {
+              let varImageUrl = '';
+              if (v.image) {
+                varImageUrl = pb.files.getUrl(v, v.image);
               }
-            }
+              return {
+                name: v.color,
+                image: varImageUrl || imageUrl
+              };
+            });
 
             return {
-              id: record.productId || record.id,
+              id: record.id,
               name: record.name,
               brand: record.brand,
               rating: Number(record.rating || 5),
@@ -187,7 +190,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           setProducts(mapped);
         }
       } catch (err) {
-        console.warn('PocketBase products fetch failed or collection not found. Using local initialProducts fallback.', err);
+        console.warn('PocketBase product/variants fetch failed. Using local initialProducts fallback.', err);
       }
     };
 
