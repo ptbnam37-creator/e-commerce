@@ -1,7 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 
 interface LoginProps {
-  onLoginSuccess: (username: string) => void;
+  onLoginSuccess: (username: string, rememberMe: boolean) => void;
 }
 
 const UserIcon = () => (
@@ -49,7 +49,7 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
     // Validate default credentials
     if (username === 'nguyenvana' && password === '12345678') {
       setError('');
-      onLoginSuccess(username);
+      onLoginSuccess(username, rememberMe);
     } else {
       setError('Tên đăng nhập hoặc mật khẩu không chính xác!');
     }

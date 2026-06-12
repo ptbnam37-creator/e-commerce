@@ -1,5 +1,6 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { CartProvider, useCart, Product } from './context/CartContext';
+import { authStore, loginAction, logoutAction } from './store/authStore';
 import './App.css';
 
 // Lazy load page components
@@ -181,7 +182,22 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
 }
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(authStore.getState());
+
+  useEffect(() => {
+    const unsubscribe = authStore.subscribe(() => {
+      setIsLoggedIn(authStore.getState());
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleLoginSuccess = (username: string, rememberMe: boolean) => {
+    authStore.dispatch(loginAction(username, rememberMe));
+  };
+
+  const handleLogout = () => {
+    authStore.dispatch(logoutAction());
+  };
 
   if (!isLoggedIn) {
     return (
@@ -200,14 +216,14 @@ function App() {
           Đang tải trang đăng nhập...
         </div>
       }>
-        <Login onLoginSuccess={() => setIsLoggedIn(true)} />
+        <Login onLoginSuccess={handleLoginSuccess} />
       </Suspense>
     );
   }
 
   return (
     <CartProvider>
-      <NavigationContent onLogout={() => setIsLoggedIn(false)} />
+      <NavigationContent onLogout={handleLogout} />
     </CartProvider>
   );
 }
