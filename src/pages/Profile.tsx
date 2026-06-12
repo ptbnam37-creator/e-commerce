@@ -1,23 +1,16 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-
-interface ProfileData {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-}
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, updateProfile } from '../store/authStore';
 
 interface ProfileProps {
   onLogout: () => void;
 }
 
 const Profile = ({ onLogout }: ProfileProps) => {
-  const [profile, setProfile] = useState<ProfileData>({
-    name: 'Nguyễn Văn A',
-    email: 'nguyenvana@gmail.com',
-    phone: '0987 654 321',
-    address: '120 Yên Lãng, Đống Đa, Hà Nội'
-  });
+  const dispatch = useDispatch();
+  const storedProfile = useSelector((state: RootState) => state.profile);
+
+  const [profile, setProfile] = useState(storedProfile);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,6 +22,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    dispatch(updateProfile(profile));
     alert('Thông tin cá nhân đã được cập nhật thành công!');
   };
 

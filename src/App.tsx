@@ -183,7 +183,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
 }
 
 function App() {
-  const isLoggedIn = useSelector((state: boolean) => state);
+  const isLoggedIn = useSelector((state: { auth: boolean }) => state.auth);
   const dispatch = useDispatch();
 
   const handleLoginSuccess = (username: string, rememberMe: boolean) => {
