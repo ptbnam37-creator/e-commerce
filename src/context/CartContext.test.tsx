@@ -40,9 +40,9 @@ describe('CartContext', () => {
       expect.any(SyntaxError)
     );
 
-    // Verify fallback initial products are loaded (2 items of Samsung Galaxy A31)
-    expect(screen.getByTestId('cart-length')).toHaveTextContent('2');
-    expect(screen.getByTestId('first-item-name')).toHaveTextContent('Điện thoại Samsung Galaxy A31');
+    // Verify fallback to empty cart
+    expect(screen.getByTestId('cart-length')).toHaveTextContent('0');
+    expect(screen.getByTestId('first-item-name')).toHaveTextContent('Empty');
   });
 
   it('loads valid cart from localStorage', () => {
