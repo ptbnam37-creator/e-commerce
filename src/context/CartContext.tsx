@@ -151,7 +151,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       try {
         const [productRecords, variantRecords] = await Promise.all([
           pb.collection('product').getFullList<any>({ sort: '-created' }),
-          pb.collection('color_variants').getFullList<any>()
+          pb.collection('color_variants').getFullList<any>({ sort: 'created' })
         ]);
         
         if (productRecords && productRecords.length > 0) {
