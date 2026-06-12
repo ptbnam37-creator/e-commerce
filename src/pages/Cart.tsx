@@ -26,7 +26,7 @@ const getInitialTotal = (): number => {
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed)) {
-        return parsed.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+        return parsed.reduce((sum: number, item: { quantity?: number }) => sum + (item.quantity || 0), 0);
       }
     } catch (e) {
       console.error('Failed to parse cart for Redux init:', e);

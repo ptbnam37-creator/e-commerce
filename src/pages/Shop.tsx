@@ -162,7 +162,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
                       <select 
                         value={minPrice} 
-                        onChange={(e) => setMinPrice(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setMinPrice(val);
+                          if (val > maxPrice) setMaxPrice(val);
+                        }}
                         style={{
                           width: '100%',
                           border: 'none',
@@ -191,7 +195,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
                       <select 
                         value={maxPrice} 
-                        onChange={(e) => setMaxPrice(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setMaxPrice(val);
+                          if (val < minPrice) setMinPrice(val);
+                        }}
                         style={{
                           width: '100%',
                           border: 'none',
@@ -225,7 +233,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
                       <select 
                         value={minRating} 
-                        onChange={(e) => setMinRating(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setMinRating(val);
+                          if (val > maxRating) setMaxRating(val);
+                        }}
                         style={{
                           width: '100%',
                           border: 'none',
@@ -254,7 +266,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', position: 'relative' }}>
                       <select 
                         value={maxRating} 
-                        onChange={(e) => setMaxRating(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setMaxRating(val);
+                          if (val < minRating) setMinRating(val);
+                        }}
                         style={{
                           width: '100%',
                           border: 'none',

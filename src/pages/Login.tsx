@@ -39,19 +39,39 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
       setError('Vui lòng nhập đầy đủ thông tin đăng nhập!');
       return;
     }
     
-    // Validate default credentials
-    if (username === 'nguyenvana' && password === '12345678') {
-      setError('');
-      onLoginSuccess(username, rememberMe);
-    } else {
-      setError('Tên đăng nhập hoặc mật khẩu không chính xác!');
+    setIsLoading(true);
+
+    try {
+      // Simulate a mock backend API call for authentication
+      const result = await new Promise<{ success: boolean; error?: string }>((resolve) => {
+        setTimeout(() => {
+          if (username === 'nguyenvana' && password === '12345678') {
+            resolve({ success: true });
+          } else {
+            resolve({ success: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
+          }
+        }, 800); // Simulated network delay
+      });
+
+      if (result.success) {
+        setError('');
+        onLoginSuccess(username, rememberMe);
+      } else {
+        setError(result.error || 'Đăng nhập thất bại');
+      }
+    } catch {
+      setError('Đã xảy ra lỗi kết nối, vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -136,8 +156,8 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="login-submit-btn">
-            Đăng nhập
+          <button type="submit" className="login-submit-btn" disabled={isLoading} style={{ opacity: isLoading ? 0.7 : 1 }}>
+            {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
 
