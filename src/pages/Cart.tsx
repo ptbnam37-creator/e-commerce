@@ -56,7 +56,7 @@ function withdraw(cost: number) {
 
 const CartInner = () => {
   const { cart, updateQuantity, removeFromCart, subTotal, tax, total } = useCart();
-  
+
   // React-Redux hook subscribing to the Redux store state
   const totalItems = useSelector((state: number) => state);
   const dispatch = useDispatch();
@@ -91,12 +91,13 @@ const CartInner = () => {
       <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '0px' }}>
         <h1 className="page-title" style={{ fontSize: '24px', fontWeight: 'bold' }}>Cart</h1>
         <span className="item-count" style={{ alignSelf: 'flex-end', marginBottom: '8px', fontSize: '14px' }}>
-          {totalItems} {totalItems === 1 ? 'Item' : 'Items'} in bag
+          {/* {totalItems} {totalItems === 1 ? 'Item' : 'Items'} in cart */}
+          {totalItems} sản phẩm trong giỏ hàng
         </span>
       </div>
 
       <div className="cart-items-list">
-        {cart.map((item : CartItem) => (
+        {cart.map((item: CartItem) => (
           <div key={item.cartId} className="cart-item-card">
             {/* Remove button at top right corner */}
             <button
@@ -116,14 +117,14 @@ const CartInner = () => {
             <div className="cart-item-details">
               <h2 className="cart-item-name">{item.name}</h2>
               <p className="cart-item-desc">{item.description}</p>
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
                 <span className="cart-item-price">{formatPrice(item.price)}</span>
-                
+
                 {/* Quantity Action Area: +  Qty  - */}
                 <div className="cart-item-actions">
-                  <button 
-                    className="qty-btn" 
+                  <button
+                    className="qty-btn"
                     onClick={() => {
                       dispatch(deposit(1000));
                       updateQuantity(item.cartId, 1);
@@ -132,8 +133,8 @@ const CartInner = () => {
                     +
                   </button>
                   <span className="qty-value">{item.quantity}</span>
-                  <button 
-                    className="qty-btn" 
+                  <button
+                    className="qty-btn"
                     onClick={() => {
                       if (item.quantity > 1) {
                         dispatch(withdraw(1000));

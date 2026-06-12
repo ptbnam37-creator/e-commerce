@@ -1,4 +1,5 @@
 import React, { useState, FormEvent } from 'react';
+import { pb } from '../services/pocketbase';
 
 interface LoginProps {
   onLoginSuccess: (username: string, rememberMe: boolean) => void;
@@ -51,7 +52,20 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
     setIsLoading(true);
 
     try {
-      // Simulate a mock backend API call for authentication
+      // Try to log in with PocketBase first
+      try {
+        const authData = await pb.collection('users').authWithPassword(username, password);
+        if (authData) {
+          setError('');
+          onLoginSuccess(username, rememberMe);
+          setIsLoading(false);
+          return;
+        }
+      } catch (pbError) {
+        console.warn('PocketBase authentication failed or server offline. Falling back to mock auth...', pbError);
+      }
+
+      // Fallback to mock login
       const result = await new Promise<{ success: boolean; error?: string }>((resolve) => {
         setTimeout(() => {
           if (username === 'nguyenvana' && password === '12345678') {
