@@ -42,11 +42,17 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
   const hasVariants = !!(product.colors && product.colors.length > 0);
   const colors = product.colors || [];
 
+  // Determine main image based on color selection
+  const mainImage = hasVariants
+    ? (colors.find(c => c.name === selectedColor)?.image || product.image)
+    : product.image;
+
   const handleAdd = () => {
     const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;
     addToCart({
       ...product,
-      name: finalName
+      name: finalName,
+      image: mainImage
     });
     setToastMessage(`Đã thêm ${finalName} vào giỏ hàng!`);
     setTimeout(() => setToastMessage(''), 2000);
@@ -56,17 +62,13 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
     const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;
     addToCart({
       ...product,
-      name: finalName
+      name: finalName,
+      image: mainImage
     });
     onGoToCart();
   };
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-
-  // Determine main image based on color selection
-  const mainImage = hasVariants
-    ? (colors.find(c => c.name === selectedColor)?.image || product.image)
-    : product.image;
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
