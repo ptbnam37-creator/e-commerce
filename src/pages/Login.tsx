@@ -51,22 +51,21 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
     setIsLoading(true);
 
     try {
-      // Simulate a mock backend API call for authentication
-      const result = await new Promise<{ success: boolean; error?: string }>((resolve) => {
-        setTimeout(() => {
-          if (username === 'nguyenvana' && password === '12345678') {
-            resolve({ success: true });
-          } else {
-            resolve({ success: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
-          }
-        }, 800); // Simulated network delay
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
       });
 
-      if (result.success) {
+      if (response.ok) {
         setError('');
         onLoginSuccess(username, rememberMe);
       } else {
-        setError(result.error || 'Đăng nhập thất bại');
+        const errorData = await response.json().catch(() => ({}));
+        setError(errorData.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!');
       }
     } catch {
       setError('Đã xảy ra lỗi kết nối, vui lòng thử lại.');
