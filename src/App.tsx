@@ -2,6 +2,7 @@ import React, { useState, Suspense } from 'react';
 import { CartProvider, useCart, Product } from './context/CartContext';
 import { loginAction, logoutAction } from './store/authStore';
 import { useSelector, useDispatch } from 'react-redux';
+import { pb } from './services/pocketbase';
 import './App.css';
 
 // Lazy load page components
@@ -93,7 +94,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
         <div className="header-right">
           {/* Profile Avatar redirects to My Profile page */}
           <img 
-            src="/avatar.png" 
+            src={(pb.authStore.isValid && pb.authStore.model?.avatar) ? pb.files.getUrl(pb.authStore.model, pb.authStore.model.avatar) : '/avatar.png'} 
             alt="User Profile" 
             className="user-avatar" 
             onClick={() => handleTabSwitch('My Profile')}

@@ -1,6 +1,7 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, updateProfile } from '../store/authStore';
+import { pb } from '../services/pocketbase';
 
 interface ProfileProps {
   onLogout: () => void;
@@ -10,7 +11,25 @@ const Profile = ({ onLogout }: ProfileProps) => {
   const dispatch = useDispatch();
   const storedProfile = useSelector((state: RootState) => state.profile);
 
-  const [profile, setProfile] = useState(storedProfile);
+  // Initialize with PocketBase data if logged in via PocketBase, else fallback
+  const isPbLoggedIn = pb.authStore.isValid && pb.authStore.model;
+
+  const [profile, setProfile] = useState({
+    name: isPbLoggedIn ? (pb.authStore.model?.name || '') : storedProfile.name,
+    email: isPbLoggedIn ? (pb.authStore.model?.email || '') : storedProfile.email,
+    phone: isPbLoggedIn ? (pb.authStore.model?.phone || '') : storedProfile.phone,
+    address: isPbLoggedIn ? (pb.authStore.model?.address || '') : storedProfile.address,
+  });
+
+  const [avatarUrl, setAvatarUrl] = useState('/avatar.png');
+
+  useEffect(() => {
+    if (isPbLoggedIn && pb.authStore.model?.avatar) {
+      setAvatarUrl(pb.files.getUrl(pb.authStore.model, pb.authStore.model.avatar));
+    } else {
+      setAvatarUrl('/avatar.png');
+    }
+  }, [isPbLoggedIn]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -20,10 +39,27 @@ const Profile = ({ onLogout }: ProfileProps) => {
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(updateProfile(profile));
-    alert('Thông tin cá nhân đã được cập nhật thành công!');
+    if (isPbLoggedIn && pb.authStore.model) {
+      try {
+        await pb.collection('users').update(pb.authStore.model.id, {
+          name: profile.name,
+          email: profile.email,
+          phone: profile.phone,
+          address: profile.address
+        });
+        // Refresh auth store to update local model
+        await pb.collection('users').authRefresh();
+        alert('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!');
+      } catch (err) {
+        console.error('Failed to update profile in PocketBase:', err);
+        alert('Có lỗi xảy ra khi lưu thông tin lên PocketBase.');
+      }
+    } else {
+      dispatch(updateProfile(profile));
+      alert('Thông tin cá nhân đã được cập nhật thành công!');
+    }
   };
 
   return (
@@ -34,7 +70,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
       <div className="profile-container">
         <div className="profile-header-edit">
-          <img src="/avatar.png" alt="Avatar" className="profile-avatar-large" />
+          <img src={avatarUrl} alt="Avatar" className="profile-avatar-large" />
           <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>{profile.name}</h2>
           <p style={{ color: '#666' }}>Thành viên Vàng</p>
         </div>
@@ -67,7 +103,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
           <div className="form-group">
             <label htmlFor="phone">Số điện thoại</label>
             <input
-              type="tel"
+              type="text"
               id="phone"
               name="phone"
               value={profile.phone}
