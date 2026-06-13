@@ -56,8 +56,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const loadProducts = async () => {
       try {
         const [productRecords, variantRecords] = await Promise.all([
-          pb.collection('product').getFullList<any>(),
-          pb.collection('color_variants').getFullList<any>()
+          pb.collection('product').getFullList<any>({ sort: 'id' }),
+          pb.collection('color_variants').getFullList<any>({ sort: 'id' })
         ]);
         
         if (productRecords && productRecords.length > 0) {
