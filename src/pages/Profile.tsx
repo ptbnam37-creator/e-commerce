@@ -25,7 +25,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
   useEffect(() => {
     if (isPbLoggedIn && pb.authStore.model?.avatar) {
-      setAvatarUrl(pb.files.getUrl(pb.authStore.model, pb.authStore.model.avatar));
+      setAvatarUrl(pb.files.getURL(pb.authStore.model, pb.authStore.model.avatar));
     } else {
       setAvatarUrl('/avatar.png');
     }

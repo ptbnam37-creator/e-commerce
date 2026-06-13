@@ -56,15 +56,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const loadProducts = async () => {
       try {
         const [productRecords, variantRecords] = await Promise.all([
-          pb.collection('product').getFullList<any>({ sort: '-created' }),
-          pb.collection('color_variants').getFullList<any>({ sort: 'created' })
+          pb.collection('product').getFullList<any>(),
+          pb.collection('color_variants').getFullList<any>()
         ]);
         
         if (productRecords && productRecords.length > 0) {
           const mapped: Product[] = productRecords.map((record) => {
             let imageUrl = record.image;
-            if (record.image && !record.image.startsWith('http') && !record.image.startsWith('/')) {
-              imageUrl = pb.files.getUrl(record, record.image);
+            if (typeof record.image === 'string' && !record.image.startsWith('http') && !record.image.startsWith('/')) {
+              imageUrl = pb.files.getURL(record, record.image);
             } else if (!record.image) {
               imageUrl = '/samsung_a31.png';
             }
@@ -74,7 +74,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             const colorsArr = productVariants.map(v => {
               let varImageUrl = '';
               if (v.image) {
-                varImageUrl = pb.files.getUrl(v, v.image);
+                varImageUrl = pb.files.getURL(v, v.image);
               }
               return {
                 name: v.color,

@@ -94,7 +94,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
         <div className="header-right">
           {/* Profile Avatar redirects to My Profile page */}
           <img 
-            src={(pb.authStore.isValid && pb.authStore.model?.avatar) ? pb.files.getUrl(pb.authStore.model, pb.authStore.model.avatar) : '/avatar.png'} 
+            src={(pb.authStore.isValid && pb.authStore.model?.avatar) ? pb.files.getURL(pb.authStore.model, pb.authStore.model.avatar) : '/avatar.png'} 
             alt="User Profile" 
             className="user-avatar" 
             onClick={() => handleTabSwitch('My Profile')}
