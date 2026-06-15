@@ -62,10 +62,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         
         if (productRecords && productRecords.length > 0) {
           const mapped: Product[] = productRecords.map((record) => {
-            let imageUrl = record.image;
-            if (typeof record.image === 'string' && !record.image.startsWith('http') && !record.image.startsWith('/')) {
-              imageUrl = pb.files.getURL(record, record.image);
-            } else if (!record.image) {
+            let imageUrl = '';
+            let imageFilename = '';
+
+            if (Array.isArray(record.image) && record.image.length > 0) {
+              imageFilename = record.image[0];
+            } else if (typeof record.image === 'string' && record.image !== '') {
+              imageFilename = record.image;
+            }
+
+            if (imageFilename) {
+              if (imageFilename.startsWith('http') || imageFilename.startsWith('/')) {
+                imageUrl = imageFilename;
+              } else {
+                imageUrl = pb.files.getURL(record, imageFilename);
+              }
+            } else {
               imageUrl = '/samsung_a31.png';
             }
 
@@ -73,9 +85,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             const productVariants = variantRecords.filter(v => v.productId === record.id);
             const colorsArr = productVariants.map(v => {
               let varImageUrl = '';
-              if (v.image) {
-                varImageUrl = pb.files.getURL(v, v.image);
+              let varImageFilename = '';
+              
+              if (Array.isArray(v.image) && v.image.length > 0) {
+                varImageFilename = v.image[0];
+              } else if (typeof v.image === 'string' && v.image !== '') {
+                varImageFilename = v.image;
               }
+
+              if (varImageFilename) {
+                if (varImageFilename.startsWith('http') || varImageFilename.startsWith('/')) {
+                  varImageUrl = varImageFilename;
+                } else {
+                  varImageUrl = pb.files.getURL(v, varImageFilename);
+                }
+              }
+              
               return {
                 name: v.color,
                 image: varImageUrl || imageUrl
