@@ -139,7 +139,7 @@ body {
   padding: 16px 0;
 }
 
-.app-sidebar.collapsed .sidebar-menu-header span {
+.app-sidebar.collapsed .sidebar-menu-header > span {
   display: none;
 }
 
