@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local Project Reports
+report.tex
+report.pdf
+report.aux
+report.log
+report.toc
+report.out
+
