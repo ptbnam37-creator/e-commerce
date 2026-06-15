@@ -49,12 +49,15 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
     : product.image;
 
   const handleAdd = () => {
+    const chosenColorObj = colors.find(c => c.name === selectedColor);
+    const variantId = chosenColorObj?.id;
     const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;
+    
     addToCart({
       ...product,
       name: finalName,
       image: mainImage
-    });
+    }, variantId);
 
     if (toastTimeoutRef.current !== null) {
       clearTimeout(toastTimeoutRef.current);
@@ -64,12 +67,16 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
   };
 
   const handleBuyNow = () => {
+    const chosenColorObj = colors.find(c => c.name === selectedColor);
+    const variantId = chosenColorObj?.id;
     const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;
+    
     addToCart({
       ...product,
       name: finalName,
       image: mainImage
-    });
+    }, variantId);
+    
     onGoToCart();
   };
 

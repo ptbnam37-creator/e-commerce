@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { pb } from '../services/pocketbase';
 
 export interface ProductColor {
+  id: string;
   name: string;
   image: string;
 }
@@ -20,14 +21,15 @@ export interface Product {
 export interface CartItem extends Product {
   quantity: number;
   cartId: string;
+  variantId?: string;
 }
 
 interface CartContextType {
   products: Product[];
   cart: CartItem[];
-  addToCart: (product: Product) => void;
-  updateQuantity: (cartId: string, delta: number) => void;
-  removeFromCart: (cartId: string) => void;
+  addToCart: (product: Product, variantId?: string) => Promise<void>;
+  updateQuantity: (cartId: string, delta: number) => Promise<void>;
+  removeFromCart: (cartId: string) => Promise<void>;
   subTotal: number;
   tax: number;
   total: number;
@@ -37,19 +39,59 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
-  // Initialize from localStorage or default to empty array
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('cart');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse cart from localStorage:', e);
-      }
+  // Function to load cart from PocketBase
+  const loadCartFromPB = async () => {
+    if (!pb.authStore.isValid || !pb.authStore.model) {
+      setCart([]);
+      return;
     }
-    return [];
-  });
+    try {
+      const records = await pb.collection('cart').getFullList<any>({
+        filter: `user = "${pb.authStore.model.id}"`,
+        expand: 'product,product.productId',
+        sort: 'id'
+      });
+
+      const items: CartItem[] = records.map((record) => {
+        const variant = record.expand?.product;
+        const prod = variant?.expand?.productId;
+        if (!variant || !prod) return null;
+
+        let imageUrl = prod.image;
+        if (Array.isArray(prod.image) && prod.image.length > 0) {
+          imageUrl = pb.files.getURL(prod, prod.image[0]);
+        } else if (typeof prod.image === 'string' && prod.image !== '') {
+          imageUrl = pb.files.getURL(prod, prod.image);
+        } else {
+          imageUrl = '/samsung_a31.png';
+        }
+
+        if (variant.image) {
+          imageUrl = pb.files.getURL(variant, variant.image);
+        }
+
+        return {
+          id: prod.id,
+          name: `${prod.name} (${variant.color})`,
+          brand: prod.brand,
+          rating: Number(prod.rating || 5),
+          description: prod.description || '',
+          price: Number(prod.price || 0),
+          image: imageUrl,
+          colors: [], // not needed in cart item
+          quantity: Number(record.number || 1),
+          cartId: record.id,
+          variantId: variant.id
+        };
+      }).filter(Boolean) as CartItem[];
+
+      setCart(items);
+    } catch (err) {
+      console.error('Failed to load cart from PocketBase:', err);
+    }
+  };
 
   // Load products from PocketBase database
   React.useEffect(() => {
@@ -102,6 +144,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               }
               
               return {
+                id: v.id,
                 name: v.color,
                 image: varImageUrl || imageUrl
               };
@@ -128,37 +171,93 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     loadProducts();
   }, []);
 
-  // Persist cart changes to localStorage
+  // Listen to auth changes to load/clear cart
   React.useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
-
-  const addToCart = (product: Product) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id && item.name === product.name);
-      if (existing) {
-        return prev.map((item) =>
-          (item.id === product.id && item.name === product.name) ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      return [...prev, { ...product, quantity: 1, cartId: Date.now() + Math.random().toString() }];
+    loadCartFromPB();
+    const unsubscribe = pb.authStore.onChange(() => {
+      loadCartFromPB();
     });
+    return () => unsubscribe();
+  }, []);
+
+  const addToCart = async (product: Product, variantId?: string) => {
+    if (!pb.authStore.isValid || !pb.authStore.model) {
+      alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
+      return;
+    }
+
+    if (!variantId) {
+      console.warn('Missing variantId for product:', product.name);
+      return;
+    }
+
+    try {
+      const existing = cart.find((item) => item.variantId === variantId);
+
+      if (existing) {
+        const newQty = existing.quantity + 1;
+        await pb.collection('cart').update(existing.cartId, {
+          number: newQty
+        });
+        setCart((prev) =>
+          prev.map((item) =>
+            item.cartId === existing.cartId ? { ...item, quantity: newQty } : item
+          )
+        );
+      } else {
+        const createdRecord = await pb.collection('cart').create({
+          user: pb.authStore.model.id,
+          product: variantId,
+          number: 1
+        });
+
+        // Reconstruct local CartItem
+        const newCartItem: CartItem = {
+          ...product,
+          quantity: 1,
+          cartId: createdRecord.id,
+          variantId: variantId
+        };
+        
+        setCart((prev) => [...prev, newCartItem]);
+      }
+    } catch (err) {
+      console.error('Failed to add to cart on PocketBase:', err);
+    }
   };
 
-  const updateQuantity = (cartId: string, delta: number) => {
-    setCart((prev) =>
-      prev.map((item) => {
-        if (item.cartId === cartId) {
-          const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : item;
-        }
-        return item;
-      })
-    );
+  const updateQuantity = async (cartId: string, delta: number) => {
+    if (!pb.authStore.isValid) return;
+
+    const existing = cart.find((item) => item.cartId === cartId);
+    if (!existing) return;
+
+    const newQty = existing.quantity + delta;
+    if (newQty <= 0) return;
+
+    try {
+      await pb.collection('cart').update(cartId, {
+        number: newQty
+      });
+      setCart((prev) =>
+        prev.map((item) =>
+          item.cartId === cartId ? { ...item, quantity: newQty } : item
+        )
+      );
+    } catch (err) {
+      console.error('Failed to update quantity on PocketBase:', err);
+    }
   };
 
-  const removeFromCart = (cartId: string) => {
-    setCart((prev) => prev.filter((item) => item.cartId !== cartId));
+  const removeFromCart = async (cartId: string) => {
+    if (!pb.authStore.isValid) return;
+
+    try {
+      await pb.collection('cart').delete(cartId);
+      setCart((prev) => prev.filter((item) => item.cartId !== cartId));
+    } catch (err) {
+      console.error('Failed to remove from cart on PocketBase:', err);
+    }
   };
 
   const subTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
