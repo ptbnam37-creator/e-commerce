@@ -1,33 +1,17 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Ignore latex directory
+/latex/
 
-node_modules
-dist
-dist-ssr
-*.local
+# e-commerce ignores
+e-commerce/node_modules/
+e-commerce/dist/
+e-commerce/dist-ssr/
+e-commerce/*.local
+e-commerce/.vscode/*
+!e-commerce/.vscode/extensions.json
+e-commerce/.idea
+e-commerce/.DS_Store
+e-commerce/*.log
+e-commerce/npm-debug.log*
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Local Project Reports
-report.tex
-report.pdf
-report.aux
-report.log
-report.toc
-report.out
-
+# pocketbase ignores
+pocketbase/*.log
