@@ -1,4 +1,5 @@
 import React from 'react';
+import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { CartProvider, useCart } from './CartContext';
 import { pb } from '../services/pocketbase';
