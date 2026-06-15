@@ -101,7 +101,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           pb.collection('product').getFullList<any>({ sort: 'id' }),
           pb.collection('color_variants').getFullList<any>({ sort: 'id' })
         ]);
-        
+
         if (productRecords && productRecords.length > 0) {
           const mapped: Product[] = productRecords.map((record) => {
             let imageUrl = '';
@@ -128,7 +128,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             const colorsArr = productVariants.map(v => {
               let varImageUrl = '';
               let varImageFilename = '';
-              
+
               if (Array.isArray(v.image) && v.image.length > 0) {
                 varImageFilename = v.image[0];
               } else if (typeof v.image === 'string' && v.image !== '') {
@@ -142,7 +142,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                   varImageUrl = pb.files.getURL(v, varImageFilename);
                 }
               }
-              
+
               return {
                 id: v.id,
                 name: v.color,
@@ -218,7 +218,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           cartId: createdRecord.id,
           variantId: variantId
         };
-        
+
         setCart((prev) => [...prev, newCartItem]);
       }
     } catch (err) {
