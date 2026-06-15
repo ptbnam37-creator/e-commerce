@@ -1,66 +1,108 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { CartProvider, useCart } from './CartContext';
+import { pb } from '../services/pocketbase';
+
+// Mock PocketBase
+vi.mock('../services/pocketbase', () => {
+  const mockCartList = [
+    {
+      id: 'cart-record-1',
+      number: 2,
+      expand: {
+        product: {
+          id: 'variant-1',
+          color: 'Xanh dương',
+          expand: {
+            productId: {
+              id: 'prod-1',
+              name: 'iPhone 13',
+              brand: 'Apple',
+              price: 16900000,
+              rating: 5,
+              image: 'ip13-blue.png'
+            }
+          }
+        }
+      }
+    }
+  ];
+
+  return {
+    pb: {
+      collection: vi.fn().mockImplementation((name) => {
+        return {
+          getFullList: vi.fn().mockImplementation(() => {
+            if (name === 'cart') {
+              return Promise.resolve(mockCartList);
+            }
+            if (name === 'product') {
+              return Promise.resolve([
+                { id: 'prod-1', name: 'iPhone 13', brand: 'Apple', price: 16900000, rating: 5, image: 'ip13-blue.png' }
+              ]);
+            }
+            if (name === 'color_variants') {
+              return Promise.resolve([
+                { id: 'variant-1', productId: 'prod-1', color: 'Xanh dương', image: 'ip13-blue.png' }
+              ]);
+            }
+            return Promise.resolve([]);
+          }),
+        };
+      }),
+      authStore: {
+        isValid: false,
+        model: null,
+        onChange: vi.fn().mockReturnValue(() => {}),
+      },
+      files: {
+        getURL: vi.fn().mockReturnValue('/placeholder.png'),
+      }
+    }
+  };
+});
 
 // A simple test component to consume the context
 const TestComponent = () => {
-  const { cart } = useCart();
+  const { cart, products } = useCart();
   return (
     <div>
+      <div data-testid="products-length">{products.length}</div>
       <div data-testid="cart-length">{cart.length}</div>
       <div data-testid="first-item-name">{cart.length > 0 ? cart[0].name : 'Empty'}</div>
+      <div data-testid="first-item-qty">{cart.length > 0 ? cart[0].quantity : '0'}</div>
     </div>
   );
 };
 
-describe('CartContext', () => {
+describe('CartContext with PocketBase', () => {
   beforeEach(() => {
-    // Clear localStorage before each test
-    localStorage.clear();
-    // Clear console mocks
     vi.restoreAllMocks();
+    pb.authStore.isValid = false;
+    pb.authStore.model = null;
   });
 
-  it('handles invalid JSON in localStorage gracefully', () => {
-    // Mock localStorage to return invalid JSON
-    localStorage.setItem('cart', '{ invalid json');
-
-    // Spy on console.error
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
+  it('keeps cart empty when user is not logged in', async () => {
     render(
       <CartProvider>
         <TestComponent />
       </CartProvider>
     );
 
-    // Verify console.error was called
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Failed to parse cart from localStorage:',
-      expect.any(SyntaxError)
-    );
+    // Should load products
+    await waitFor(() => {
+      expect(screen.getByTestId('products-length')).toHaveTextContent('1');
+    });
 
-    // Verify fallback to empty cart
+    // Cart remains empty
     expect(screen.getByTestId('cart-length')).toHaveTextContent('0');
     expect(screen.getByTestId('first-item-name')).toHaveTextContent('Empty');
   });
 
-  it('loads valid cart from localStorage', () => {
-    const validCart = [
-      {
-        id: 3,
-        name: 'Điện thoại iPhone 13 128GB',
-        brand: 'Apple',
-        rating: 5,
-        description: 'test',
-        price: 16990000,
-        image: '/ip13-green.png',
-        colors: [],
-        quantity: 1,
-        cartId: 'test-cart-id'
-      }
-    ];
-    localStorage.setItem('cart', JSON.stringify(validCart));
+  it('loads cart items from PocketBase when user is logged in', async () => {
+    // Simulate logged in user
+    pb.authStore.isValid = true;
+    pb.authStore.model = { id: 'user-123' };
 
     render(
       <CartProvider>
@@ -68,7 +110,13 @@ describe('CartContext', () => {
       </CartProvider>
     );
 
-    expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
-    expect(screen.getByTestId('first-item-name')).toHaveTextContent('Điện thoại iPhone 13 128GB');
+    // Should load products and cart items
+    await waitFor(() => {
+      expect(screen.getByTestId('products-length')).toHaveTextContent('1');
+      expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
+    });
+
+    expect(screen.getByTestId('first-item-name')).toHaveTextContent('iPhone 13 (Xanh dương)');
+    expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
   });
 });
