@@ -40,7 +40,7 @@ interface NavigationContentProps {
 }
 
 function NavigationContent({ onLogout }: NavigationContentProps) {
-  const [activeTab, setActiveTab] = useState<string>('Cart'); // Default active tab is Cart
+  const [activeTab, setActiveTab] = useState<string>('Shop'); // Default active tab is Shop
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
