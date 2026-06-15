@@ -54,10 +54,24 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
     try {
       // Try to log in with PocketBase first
       try {
-        const authData = await pb.collection('users').authWithPassword(username, password);
+        let identity = username;
+
+        // Try to query the users collection by name, phone, email, or id
+        try {
+          const userList = await pb.collection('users').getList(1, 1, {
+            filter: `email = "${username}" || name = "${username}" || phone = "${username}" || id = "${username}"`
+          });
+          if (userList.items.length > 0) {
+            identity = userList.items[0].email; // use the found email to authenticate
+          }
+        } catch (searchError) {
+          console.warn('Failed to pre-query user, attempting direct login...', searchError);
+        }
+
+        const authData = await pb.collection('users').authWithPassword(identity, password);
         if (authData) {
           setError('');
-          onLoginSuccess(username, rememberMe);
+          onLoginSuccess(authData.record.name || username, rememberMe);
           setIsLoading(false);
           return;
         }
@@ -68,7 +82,11 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
       // Fallback to mock login
       const result = await new Promise<{ success: boolean; error?: string }>((resolve) => {
         setTimeout(() => {
-          if (username === 'nguyenvana' && password === '12345678') {
+          const isValidMockUser = 
+            (username === 'nguyenvana' || username === 'Nguyễn Văn A' || username === '0222222222' || username === 'nguyenvana@gmail.com') ||
+            (username === 'levanb' || username === 'Lê Văn B' || username === '0111111111' || username === 'levanb@gmail.com');
+          
+          if (isValidMockUser && password === '12345678') {
             resolve({ success: true });
           } else {
             resolve({ success: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
@@ -124,7 +142,7 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
             <input
               type="text"
               className="login-input-field"
-              placeholder="Tên đăng nhập"
+              placeholder="Tên đăng nhập, Email hoặc số điện thoại"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
