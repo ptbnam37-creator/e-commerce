@@ -62,6 +62,18 @@ const Profile = ({ onLogout }: ProfileProps) => {
     }
   };
 
+  const rankMap: Record<string, string> = {
+    'Normal': 'Thành viên thường',
+    'VIP': 'Thành viên VIP',
+    'Gold': 'Thành viên vàng',
+    'Platinum': 'Thành viên bạch kim',
+    'Diamond': 'Thành viên kim cương'
+  };
+
+  const currentRank = isPbLoggedIn
+    ? (rankMap[pb.authStore.model?.rank] || pb.authStore.model?.rank || 'Thành viên thường')
+    : 'Thành viên thường';
+
   return (
     <div>
       <div className="page-title-container">
@@ -72,7 +84,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
         <div className="profile-header-edit">
           <img src={avatarUrl} alt="Avatar" className="profile-avatar-large" />
           <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>{profile.name}</h2>
-          <p style={{ color: '#666' }}>Thành viên Vàng</p>
+          <p style={{ color: '#666' }}>{currentRank}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="profile-form">
