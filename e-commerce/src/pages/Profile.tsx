@@ -21,13 +21,13 @@ const Profile = ({ onLogout }: ProfileProps) => {
     address: isPbLoggedIn ? (pb.authStore.model?.address || '') : storedProfile.address,
   });
 
-  const [avatarUrl, setAvatarUrl] = useState('/avatar.png');
+  const [avatarUrl, setAvatarUrl] = useState(`${import.meta.env.BASE_URL}avatar.png`);
 
   useEffect(() => {
     if (isPbLoggedIn && pb.authStore.model?.avatar) {
       setAvatarUrl(pb.files.getURL(pb.authStore.model, pb.authStore.model.avatar));
     } else {
-      setAvatarUrl('/avatar.png');
+      setAvatarUrl(`${import.meta.env.BASE_URL}avatar.png`);
     }
   }, [isPbLoggedIn]);
 

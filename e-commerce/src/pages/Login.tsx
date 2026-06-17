@@ -115,7 +115,7 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
       <div className="login-card-wrapper">
         {/* Logo circle */}
         <div className="login-logo-circle">
-          <img src="/logo.png" alt="ANY BUY" className="login-logo-img" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="ANY BUY" className="login-logo-img" />
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

@@ -87,14 +87,14 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
         <div className="header-left">
           {/* Logo redirects to Shop page */}
           <div className="logo-container" onClick={() => handleTabSwitch('Shop')} style={{ cursor: 'pointer' }}>
-            <img src="/logo.png" alt="ANY BUY" className="logo-img" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="ANY BUY" className="logo-img" />
             <h1 className="app-title">Mobile Shopping</h1>
           </div>
         </div>
         <div className="header-right">
           {/* Profile Avatar redirects to My Profile page */}
           <img 
-            src={(pb.authStore.isValid && pb.authStore.model?.avatar) ? pb.files.getURL(pb.authStore.model, pb.authStore.model.avatar) : '/avatar.png'} 
+            src={(pb.authStore.isValid && pb.authStore.model?.avatar) ? pb.files.getURL(pb.authStore.model, pb.authStore.model.avatar) : `${import.meta.env.BASE_URL}avatar.png`} 
             alt="User Profile" 
             className="user-avatar" 
             onClick={() => handleTabSwitch('My Profile')}
