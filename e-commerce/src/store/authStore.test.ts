@@ -49,6 +49,32 @@ describe('authStore', () => {
     });
   });
 
+  describe('getInitialAuthState', () => {
+    it('returns true when isLoggedIn is "true" in localStorage', async () => {
+      localStorage.setItem('isLoggedIn', 'true');
+      const { getInitialAuthState } = await import('./authStore');
+      expect(getInitialAuthState()).toBe(true);
+    });
+
+    it('returns true when isLoggedIn is "true" in sessionStorage', async () => {
+      sessionStorage.setItem('isLoggedIn', 'true');
+      const { getInitialAuthState } = await import('./authStore');
+      expect(getInitialAuthState()).toBe(true);
+    });
+
+    it('returns false when isLoggedIn is not set in either storage', async () => {
+      const { getInitialAuthState } = await import('./authStore');
+      expect(getInitialAuthState()).toBe(false);
+    });
+
+    it('returns false when isLoggedIn is set to something other than "true"', async () => {
+      localStorage.setItem('isLoggedIn', 'false');
+      sessionStorage.setItem('isLoggedIn', '1');
+      const { getInitialAuthState } = await import('./authStore');
+      expect(getInitialAuthState()).toBe(false);
+    });
+  });
+
   describe('actions', () => {
     it('loginAction with rememberMe = true uses localStorage', async () => {
       const { authStore, loginAction } = await import('./authStore');
