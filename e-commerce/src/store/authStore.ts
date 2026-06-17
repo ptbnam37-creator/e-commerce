@@ -17,12 +17,17 @@ type AuthAction = LoginAction | LogoutAction;
 function authReducer(state = false, action: AuthAction): boolean {
   switch (action.type) {
     case LOGIN:
-      if (action.payload.rememberMe) {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('username', action.payload.username);
-      } else {
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('username', action.payload.username);
+      try {
+        if (action.payload.rememberMe) {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('username', action.payload.username);
+        } else {
+          sessionStorage.setItem('isLoggedIn', 'true');
+          sessionStorage.setItem('username', action.payload.username);
+        }
+      } catch (error) {
+        // gracefully handle storage exceptions, e.g. QuotaExceededError or disabled cookies
+        console.error('Failed to save auth state to storage:', error);
       }
       return true;
     case LOGOUT:
