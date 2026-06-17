@@ -132,6 +132,7 @@ describe('authStore', () => {
 
   describe('actions', () => {
     it('loginAction with rememberMe = true uses localStorage', async () => {
+      const sessionStorageSpy = vi.spyOn(sessionStorage, 'setItem');
       const { authStore, loginAction } = await import('./authStore');
 
       authStore.dispatch(loginAction('testuser', true));
@@ -140,9 +141,13 @@ describe('authStore', () => {
       expect(localStorage.getItem('isLoggedIn')).toBe('true');
       expect(localStorage.getItem('username')).toBe('testuser');
       expect(sessionStorage.getItem('isLoggedIn')).toBeNull();
+      expect(sessionStorageSpy).not.toHaveBeenCalled();
+
+      sessionStorageSpy.mockRestore();
     });
 
     it('loginAction with rememberMe = false uses sessionStorage', async () => {
+      const localStorageSpy = vi.spyOn(localStorage, 'setItem');
       const { authStore, loginAction } = await import('./authStore');
 
       authStore.dispatch(loginAction('testuser', false));
@@ -151,6 +156,44 @@ describe('authStore', () => {
       expect(sessionStorage.getItem('isLoggedIn')).toBe('true');
       expect(sessionStorage.getItem('username')).toBe('testuser');
       expect(localStorage.getItem('isLoggedIn')).toBeNull();
+      expect(localStorageSpy).not.toHaveBeenCalled();
+
+      localStorageSpy.mockRestore();
+    });
+
+    it('handles localStorage exceptions gracefully during login', async () => {
+      // Mock directly on Storage.prototype since JSDOM uses it for localStorage
+      const localStorageSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('QuotaExceededError');
+      });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const { authStore, loginAction } = await import('./authStore');
+
+      authStore.dispatch(loginAction('testuser', true));
+
+      // auth should still be true even if storage fails
+      expect(authStore.getState().auth).toBe(true);
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to save auth state to storage:', expect.any(Error));
+
+      localStorageSpy.mockRestore();
+      consoleSpy.mockRestore();
+    });
+
+    it('handles sessionStorage exceptions gracefully during login', async () => {
+      const sessionStorageSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('QuotaExceededError');
+      });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const { authStore, loginAction } = await import('./authStore');
+
+      authStore.dispatch(loginAction('testuser', false));
+
+      // auth should still be true even if storage fails
+      expect(authStore.getState().auth).toBe(true);
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to save auth state to storage:', expect.any(Error));
+
+      sessionStorageSpy.mockRestore();
+      consoleSpy.mockRestore();
     });
 
     it('logoutAction clears both storages and sets auth to false', async () => {
@@ -187,6 +230,17 @@ describe('authStore', () => {
 
       expect(authStore.getState().profile).toEqual(newProfileData);
       expect(localStorage.getItem('profileData')).toBe(JSON.stringify(newProfileData));
+    });
+
+    it('returns current state for unknown action types', async () => {
+      const { authStore } = await import('./authStore');
+      const initialState = authStore.getState().auth;
+
+      // Dispatch an action that is not handled by the authReducer
+      authStore.dispatch({ type: 'UNKNOWN_ACTION' });
+
+      // State should remain unchanged
+      expect(authStore.getState().auth).toBe(initialState);
     });
   });
 });
