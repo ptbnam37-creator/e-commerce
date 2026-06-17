@@ -49,6 +49,61 @@ describe('authStore', () => {
     });
   });
 
+  describe('authReducer', () => {
+    it('handles LOGIN with rememberMe = true', async () => {
+      const { authReducer, LOGIN } = await import('./authStore');
+      const action = { type: LOGIN, payload: { rememberMe: true, username: 'testuser' } };
+
+      const newState = authReducer(false, action);
+
+      expect(newState).toBe(true);
+      expect(localStorage.getItem('isLoggedIn')).toBe('true');
+      expect(localStorage.getItem('username')).toBe('testuser');
+      expect(sessionStorage.getItem('isLoggedIn')).toBeNull();
+    });
+
+    it('handles LOGIN with rememberMe = false', async () => {
+      const { authReducer, LOGIN } = await import('./authStore');
+      const action = { type: LOGIN, payload: { rememberMe: false, username: 'testuser' } };
+
+      const newState = authReducer(false, action);
+
+      expect(newState).toBe(true);
+      expect(sessionStorage.getItem('isLoggedIn')).toBe('true');
+      expect(sessionStorage.getItem('username')).toBe('testuser');
+      expect(localStorage.getItem('isLoggedIn')).toBeNull();
+    });
+
+    it('handles LOGOUT', async () => {
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('username', 'testuser');
+      sessionStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('username', 'testuser');
+
+      const { authReducer, LOGOUT } = await import('./authStore');
+      const action = { type: LOGOUT };
+
+      const newState = authReducer(true, action as any);
+
+      expect(newState).toBe(false);
+      expect(localStorage.getItem('isLoggedIn')).toBeNull();
+      expect(localStorage.getItem('username')).toBeNull();
+      expect(sessionStorage.getItem('isLoggedIn')).toBeNull();
+      expect(sessionStorage.getItem('username')).toBeNull();
+    });
+
+    it('returns default state for unknown actions', async () => {
+      const { authReducer } = await import('./authStore');
+      const action = { type: 'UNKNOWN' };
+
+      const newState = authReducer(false, action as any);
+      const newStateTrue = authReducer(true, action as any);
+
+      expect(newState).toBe(false);
+      expect(newStateTrue).toBe(true);
+    });
+  });
+
   describe('actions', () => {
     it('loginAction with rememberMe = true uses localStorage', async () => {
       const { authStore, loginAction } = await import('./authStore');
