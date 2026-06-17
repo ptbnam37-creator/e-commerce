@@ -62,7 +62,7 @@ const CartInner = () => {
   const dispatch = useDispatch();
 
   // Sync Redux store state with the actual total items in the cart
-  const actualTotal = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+  const actualTotal = useMemo(() => cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0), [cart]);
   useEffect(() => {
     if (actualTotal !== totalItems) {
       // Re-initialize or adjust store if cart content changes from details page or removals
