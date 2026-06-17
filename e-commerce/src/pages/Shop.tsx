@@ -261,8 +261,9 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   };
 
   const filteredProducts = useMemo(() => {
+    const lowerSearchTerm = searchTerm.toLowerCase();
     return products.filter((product) => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = product.name.toLowerCase().includes(lowerSearchTerm);
       const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
       const matchesRating = product.rating >= minRating && product.rating <= maxRating;
       return matchesSearch && matchesPrice && matchesRating;

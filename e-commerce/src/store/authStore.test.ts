@@ -49,6 +49,7 @@ describe('authStore', () => {
     });
   });
 
+
   describe('getInitialAuthState', () => {
     it('returns true when isLoggedIn is "true" in localStorage', async () => {
       localStorage.setItem('isLoggedIn', 'true');
@@ -74,6 +75,8 @@ describe('authStore', () => {
       expect(getInitialAuthState()).toBe(false);
     });
   });
+
+
 
   describe('authReducer', () => {
     it('handles LOGIN with rememberMe = true', async () => {
