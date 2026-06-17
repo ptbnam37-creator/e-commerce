@@ -164,7 +164,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
       </div>
 
       {/* Main product presentation grid */}
-      <div style={{
+      <div className="product-detail-grid" style={{
         display: 'flex',
         flexWrap: 'wrap',
         gap: '48px',
@@ -173,7 +173,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
       }}>
         
         {/* Left Side: Product Image & Color Thumbnails */}
-        <div style={{
+        <div className="product-detail-left" style={{
           flex: '1 1 320px',
           display: 'flex',
           flexDirection: 'column',
@@ -248,7 +248,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
         </div>
 
         {/* Right Side: Product Details info */}
-        <div style={{
+        <div className="product-detail-right" style={{
           flex: '1.2 1 350px',
           display: 'flex',
           flexDirection: 'column',
@@ -275,7 +275,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
           </div>
 
           {/* Action buttons row */}
-          <div style={{ display: 'flex', gap: '24px', marginTop: '12px' }}>
+          <div className="product-detail-actions" style={{ display: 'flex', gap: '24px', marginTop: '12px' }}>
             <button 
               onClick={handleBuyNow}
               style={{
