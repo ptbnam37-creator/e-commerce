@@ -39,12 +39,19 @@ vi.mock('../services/pocketbase', () => {
             }
             if (name === 'product') {
               return Promise.resolve([
-                { id: 'prod-1', name: 'iPhone 13', brand: 'Apple', price: 16900000, rating: 5, image: 'ip13-blue.png' }
-              ]);
-            }
-            if (name === 'color_variants') {
-              return Promise.resolve([
-                { id: 'variant-1', productId: 'prod-1', color: 'Xanh dương', image: 'ip13-blue.png' }
+                {
+                  id: 'prod-1',
+                  name: 'iPhone 13',
+                  brand: 'Apple',
+                  price: 16900000,
+                  rating: 5,
+                  image: 'ip13-blue.png',
+                  expand: {
+                    'color_variants(productId)': [
+                      { id: 'variant-1', productId: 'prod-1', color: 'Xanh dương', image: 'ip13-blue.png' }
+                    ]
+                  }
+                }
               ]);
             }
             return Promise.resolve([]);

@@ -97,10 +97,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   React.useEffect(() => {
     const loadProducts = async () => {
       try {
-        const [productRecords, variantRecords] = await Promise.all([
-          pb.collection('product').getFullList<any>({ sort: 'id' }),
-          pb.collection('color_variants').getFullList<any>({ sort: 'id' })
-        ]);
+        const productRecords = await pb.collection('product').getFullList<any>({
+          expand: 'color_variants(productId)',
+          sort: 'id'
+        });
 
         if (productRecords && productRecords.length > 0) {
           const mapped: Product[] = productRecords.map((record) => {
@@ -123,9 +123,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               imageUrl = '/samsung_a31.png';
             }
 
-            // Find matching color variants from the color_variants relation
-            const productVariants = variantRecords.filter(v => v.productId === record.id);
-            const colorsArr = productVariants.map(v => {
+            // Find matching color variants from the expanded relation
+            const productVariants = record.expand?.['color_variants(productId)'] || [];
+            const colorsArr = productVariants.map((v: any) => {
               let varImageUrl = '';
               let varImageFilename = '';
 
