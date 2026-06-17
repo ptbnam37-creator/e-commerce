@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useMemo } from 'react';
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { CartProvider, useCart, Product } from './context/CartContext';
 import { loginAction, logoutAction } from './store/authStore';
@@ -85,7 +85,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   
   const { cart } = useCart();
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
   // Helper to determine the active nav button based on url path
   const getActiveTab = () => {
