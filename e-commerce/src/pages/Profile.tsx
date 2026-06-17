@@ -22,8 +22,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
   });
 
   const [avatarUrl, setAvatarUrl] = useState(`${import.meta.env.BASE_URL}avatar.png`);
-
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -42,6 +41,14 @@ const Profile = ({ onLogout }: ProfileProps) => {
     }));
   };
 
+  const showToast = (message: string, type: 'success' | 'error') => {
+    if (toastTimeoutRef.current !== null) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToastMessage({ message, type });
+    toastTimeoutRef.current = window.setTimeout(() => setToastMessage(null), 3000);
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isPbLoggedIn && pb.authStore.model) {
@@ -54,27 +61,14 @@ const Profile = ({ onLogout }: ProfileProps) => {
         });
         // Refresh auth store to update local model
         await pb.collection('users').authRefresh();
-
-        if (toastTimeoutRef.current !== null) {
-          clearTimeout(toastTimeoutRef.current);
-        }
-        setToastMessage('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!');
-        toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
+        showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
       } catch (err) {
         console.error('Failed to update profile in PocketBase:', err);
-        if (toastTimeoutRef.current !== null) {
-          clearTimeout(toastTimeoutRef.current);
-        }
-        setToastMessage('Có lỗi xảy ra khi lưu thông tin lên PocketBase.');
-        toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
+        showToast('Có lỗi xảy ra khi lưu thông tin lên PocketBase.', 'error');
       }
     } else {
       dispatch(updateProfile(profile));
-      if (toastTimeoutRef.current !== null) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-      setToastMessage('Thông tin cá nhân đã được cập nhật thành công!');
-      toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
+      showToast('Thông tin cá nhân đã được cập nhật thành công!', 'success');
     }
   };
 
@@ -91,26 +85,23 @@ const Profile = ({ onLogout }: ProfileProps) => {
     : 'Thành viên thường';
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
-      {/* Toast Notification */}
+    <div>
       {toastMessage && (
         <div style={{
           position: 'fixed',
           top: '20px',
           right: '20px',
-          backgroundColor: '#00d2ff',
-          color: '#0b1a30',
+          backgroundColor: toastMessage.type === 'success' ? '#52c41a' : '#ff4d4f',
+          color: '#ffffff',
           padding: '12px 24px',
           borderRadius: '8px',
-          boxShadow: '0 4px 16px rgba(0,210,255,0.3)',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
           zIndex: 1000,
-          fontWeight: '600',
-          animation: 'slideIn 0.3s ease'
+          fontWeight: 'bold'
         }}>
-          {toastMessage}
+          {toastMessage.message}
         </div>
       )}
-
       <div className="page-title-container">
         <h1 className="page-title">My Profile</h1>
       </div>
@@ -123,6 +114,8 @@ const Profile = ({ onLogout }: ProfileProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="profile-form">
+
+
           <div className="form-group">
             <label htmlFor="name">Họ và Tên</label>
             <input
