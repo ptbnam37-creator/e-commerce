@@ -121,10 +121,11 @@ describe('Shop Component', () => {
 
     const searchInput = screen.getByPlaceholderText('Search...');
 
-    // Type 'Samsung', which doesn't match any products in mockProducts
-    fireEvent.change(searchInput, { target: { value: 'Samsung' } });
+    // Type a term that matches no products
+    fireEvent.change(searchInput, { target: { value: 'NonExistentProduct' } });
 
-    // Assert that the empty state is visible
+    expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
+    expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
     expect(screen.getByText('Không tìm thấy sản phẩm nào')).toBeInTheDocument();
     expect(screen.getByText('Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.')).toBeInTheDocument();
   });
