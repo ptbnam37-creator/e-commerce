@@ -53,6 +53,25 @@ describe('Login Component', () => {
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
 
+  it('displays error message when submitting form with empty fields', async () => {
+    render(<Login onLoginSuccess={mockOnLoginSuccess} />);
+
+    const usernameInput = screen.getByPlaceholderText('Tên đăng nhập, Email hoặc số điện thoại');
+    const passwordInput = screen.getByPlaceholderText('Mật khẩu');
+    const submitButton = screen.getByRole('button', { name: 'Đăng nhập' });
+
+    // Enter only whitespaces to bypass HTML5 required validation but fail the custom trim() validation
+    fireEvent.change(usernameInput, { target: { value: '   ' } });
+    fireEvent.change(passwordInput, { target: { value: '   ' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Vui lòng nhập đầy đủ thông tin đăng nhập!')).toBeInTheDocument();
+    });
+
+    expect(mockOnLoginSuccess).not.toHaveBeenCalled();
+  });
+
   it('handles validation and displays error message for mock credentials failure', async () => {
     render(<Login onLoginSuccess={mockOnLoginSuccess} />);
 
