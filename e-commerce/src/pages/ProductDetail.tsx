@@ -1,11 +1,25 @@
 import React, { useState, useRef } from 'react';
 import { useCart, Product } from '../context/CartContext';
 
-const StarIcon = ({ filled }: { filled: boolean }) => (
-  <svg className="star-icon" viewBox="0 0 24 24" style={{ fill: filled ? '#ffd214' : '#e0e0e0', width: '28px', height: '28px' }}>
-    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-  </svg>
-);
+interface StarIconProps {
+  fillPercent: number;
+  size?: string;
+}
+
+const StarIcon = ({ fillPercent, size = '28px' }: StarIconProps) => {
+  const gradientId = React.useId().replace(/:/g, '');
+  return (
+    <svg className="star-icon" viewBox="0 0 24 24" style={{ width: size, height: size }}>
+      <defs>
+        <linearGradient id={gradientId}>
+          <stop offset={`${fillPercent * 100}%`} stopColor="#ffd214" />
+          <stop offset={`${fillPercent * 100}%`} stopColor="#e0e0e0" />
+        </linearGradient>
+      </defs>
+      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill={`url(#${gradientId})`} />
+    </svg>
+  );
+};
 
 const CartIconHeader = () => (
   <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" strokeWidth="2" style={{ cursor: 'pointer' }}>
@@ -254,9 +268,10 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
           </div>
 
           <div style={{ display: 'flex', gap: '4px' }}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <StarIcon key={star} filled={star <= product.rating} />
-            ))}
+            {[1, 2, 3, 4, 5].map((star) => {
+              const fillPercent = Math.min(Math.max(product.rating - (star - 1), 0), 1);
+              return <StarIcon key={star} fillPercent={fillPercent} />;
+            })}
           </div>
 
           {/* Action buttons row */}
