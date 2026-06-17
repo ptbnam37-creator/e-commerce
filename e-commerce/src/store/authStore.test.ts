@@ -7,6 +7,32 @@ describe('authStore', () => {
     vi.resetModules();
   });
 
+  describe('getInitialAuthState', () => {
+    it('returns true when localStorage has isLoggedIn = "true"', async () => {
+      localStorage.setItem('isLoggedIn', 'true');
+      const { getInitialAuthState } = await import('./authStore');
+      expect(getInitialAuthState()).toBe(true);
+    });
+
+    it('returns true when sessionStorage has isLoggedIn = "true"', async () => {
+      sessionStorage.setItem('isLoggedIn', 'true');
+      const { getInitialAuthState } = await import('./authStore');
+      expect(getInitialAuthState()).toBe(true);
+    });
+
+    it('returns false when neither storage has isLoggedIn = "true"', async () => {
+      const { getInitialAuthState } = await import('./authStore');
+      expect(getInitialAuthState()).toBe(false);
+    });
+
+    it('returns false when storage has isLoggedIn = "false"', async () => {
+      localStorage.setItem('isLoggedIn', 'false');
+      sessionStorage.setItem('isLoggedIn', 'false');
+      const { getInitialAuthState } = await import('./authStore');
+      expect(getInitialAuthState()).toBe(false);
+    });
+  });
+
   describe('initialization', () => {
     it('initializes auth to true if isLoggedIn is in localStorage', async () => {
       localStorage.setItem('isLoggedIn', 'true');
