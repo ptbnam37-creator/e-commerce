@@ -15,8 +15,7 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -31,13 +30,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Bước mới: Thiết lập NodeJS để cài đặt thư viện và build React
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: './e-commerce/package-lock.json'
+
+      # Bước mới: Cài đặt thư viện và biên dịch (Build) React
+      - name: Install and Build React App
+        run: |
+          cd e-commerce
+          npm ci
+          npm run build
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      # Đã sửa: Chỉ upload thư mục dist của e-commerce sau khi đã build thành công
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: './e-commerce/dist'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
