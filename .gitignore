@@ -14,7 +14,4 @@ e-commerce/*.log
 e-commerce/npm-debug.log*
 
 # pocketbase ignores
-pocketbase/*.log
-pocketbase/pb_data/*.db-shm
-pocketbase/pb_data/*.db-wal
-pocketbase/pb_data/*.tmp
+/pocketbase/
