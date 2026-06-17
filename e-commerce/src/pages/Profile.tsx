@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, updateProfile } from '../store/authStore';
 import { pb } from '../services/pocketbase';
@@ -22,6 +22,9 @@ const Profile = ({ onLogout }: ProfileProps) => {
   });
 
   const [avatarUrl, setAvatarUrl] = useState(`${import.meta.env.BASE_URL}avatar.png`);
+
+  const [toastMessage, setToastMessage] = useState('');
+  const toastTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isPbLoggedIn && pb.authStore.model?.avatar) {
@@ -51,14 +54,27 @@ const Profile = ({ onLogout }: ProfileProps) => {
         });
         // Refresh auth store to update local model
         await pb.collection('users').authRefresh();
-        alert('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!');
+
+        if (toastTimeoutRef.current !== null) {
+          clearTimeout(toastTimeoutRef.current);
+        }
+        setToastMessage('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!');
+        toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
       } catch (err) {
         console.error('Failed to update profile in PocketBase:', err);
-        alert('Có lỗi xảy ra khi lưu thông tin lên PocketBase.');
+        if (toastTimeoutRef.current !== null) {
+          clearTimeout(toastTimeoutRef.current);
+        }
+        setToastMessage('Có lỗi xảy ra khi lưu thông tin lên PocketBase.');
+        toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
       }
     } else {
       dispatch(updateProfile(profile));
-      alert('Thông tin cá nhân đã được cập nhật thành công!');
+      if (toastTimeoutRef.current !== null) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+      setToastMessage('Thông tin cá nhân đã được cập nhật thành công!');
+      toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
     }
   };
 
@@ -75,7 +91,26 @@ const Profile = ({ onLogout }: ProfileProps) => {
     : 'Thành viên thường';
 
   return (
-    <div>
+    <div style={{ position: 'relative', width: '100%' }}>
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: '#00d2ff',
+          color: '#0b1a30',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 16px rgba(0,210,255,0.3)',
+          zIndex: 1000,
+          fontWeight: '600',
+          animation: 'slideIn 0.3s ease'
+        }}>
+          {toastMessage}
+        </div>
+      )}
+
       <div className="page-title-container">
         <h1 className="page-title">My Profile</h1>
       </div>
