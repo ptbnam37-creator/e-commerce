@@ -1,4 +1,5 @@
 import React, { useState, Suspense } from 'react';
+import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { CartProvider, useCart, Product } from './context/CartContext';
 import { loginAction, logoutAction } from './store/authStore';
 import { useSelector, useDispatch } from 'react-redux';
@@ -39,45 +40,72 @@ interface NavigationContentProps {
   onLogout: () => void;
 }
 
+// Wrapper to pass the product from route parameters to the ProductDetail component
+function ProductDetailWrapper() {
+  const { productId } = useParams<{ productId: string }>();
+  const { products } = useCart();
+  const navigate = useNavigate();
+
+  const product = products.find((p) => p.id === productId);
+
+  if (!product) {
+    return (
+      <div className="empty-state">
+        <p>Không tìm thấy sản phẩm.</p>
+        <button 
+          onClick={() => navigate('/shop')} 
+          style={{ 
+            marginTop: '16px', 
+            padding: '8px 16px', 
+            background: '#0070c0', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer' 
+          }}
+        >
+          Quay lại cửa hàng
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <ProductDetail 
+      product={product} 
+      onBackToShop={() => navigate('/shop')} 
+      onGoToCart={() => navigate('/cart')}
+    />
+  );
+}
+
 function NavigationContent({ onLogout }: NavigationContentProps) {
-  const [activeTab, setActiveTab] = useState<string>('Shop'); // Default active tab is Shop
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
   const { cart } = useCart();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleTabSwitch = (tabName: string) => {
-    setSelectedProduct(null); // Clear selected product when navigating away
-    setActiveTab(tabName);
+  // Helper to determine the active nav button based on url path
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path.startsWith('/product/') || path === '/shop') {
+      return 'Shop';
+    }
+    if (path === '/cart') {
+      return 'Cart';
+    }
+    if (path === '/profile') {
+      return 'My Profile';
+    }
+    return 'Shop';
   };
+
+  const activeTab = getActiveTab();
 
   const handleSelectProduct = (product: Product) => {
-    setSelectedProduct(product);
-  };
-
-  const renderContent = () => {
-    if (selectedProduct) {
-      return (
-        <ProductDetail 
-          key={selectedProduct.id}
-          product={selectedProduct} 
-          onBackToShop={() => setSelectedProduct(null)} 
-          onGoToCart={() => handleTabSwitch('Cart')}
-        />
-      );
-    }
-
-    switch (activeTab) {
-      case 'Shop':
-        return <Shop onSelectProduct={handleSelectProduct} />;
-      case 'Cart':
-        return <Cart />;
-      case 'My Profile':
-        return <Profile onLogout={onLogout} />;
-      default:
-        return <Cart />;
-    }
+    navigate(`/product/${product.id}`);
   };
 
   return (
@@ -86,7 +114,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
       <header className="app-header">
         <div className="header-left">
           {/* Logo redirects to Shop page */}
-          <div className="logo-container" onClick={() => handleTabSwitch('Shop')} style={{ cursor: 'pointer' }}>
+          <div className="logo-container" onClick={() => navigate('/shop')} style={{ cursor: 'pointer' }}>
             <img src={`${import.meta.env.BASE_URL}logo.png`} alt="ANY BUY" className="logo-img" />
             <h1 className="app-title">Mobile Shopping</h1>
           </div>
@@ -97,7 +125,8 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
             src={(pb.authStore.isValid && pb.authStore.model?.avatar) ? pb.files.getURL(pb.authStore.model, pb.authStore.model.avatar) : `${import.meta.env.BASE_URL}avatar.png`} 
             alt="User Profile" 
             className="user-avatar" 
-            onClick={() => handleTabSwitch('My Profile')}
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate('/profile')}
           />
         </div>
       </header>
@@ -117,8 +146,8 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
           
           <nav className="sidebar-nav">
             <button
-              className={`nav-item ${activeTab === 'Shop' && !selectedProduct ? 'active' : ''}`}
-              onClick={() => handleTabSwitch('Shop')}
+              className={`nav-item ${activeTab === 'Shop' ? 'active' : ''}`}
+              onClick={() => navigate('/shop')}
             >
               <ShopIcon />
               <span>Shop</span>
@@ -126,7 +155,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
             
             <button
               className={`nav-item ${activeTab === 'Cart' ? 'active' : ''}`}
-              onClick={() => handleTabSwitch('Cart')}
+              onClick={() => navigate('/cart')}
               style={{ position: 'relative' }}
             >
               <CartIcon />
@@ -151,7 +180,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
             
             <button
               className={`nav-item ${activeTab === 'My Profile' ? 'active' : ''}`}
-              onClick={() => handleTabSwitch('My Profile')}
+              onClick={() => navigate('/profile')}
             >
               <ProfileIcon />
               <span>My Profile</span>
@@ -175,7 +204,14 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
               <p>Đang tải nội dung...</p>
             </div>
           }>
-            {renderContent()}
+            <Routes>
+              <Route path="/" element={<Navigate to="/shop" replace />} />
+              <Route path="/shop" element={<Shop onSelectProduct={handleSelectProduct} />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/profile" element={<Profile onLogout={onLogout} />} />
+              <Route path="/product/:productId" element={<ProductDetailWrapper />} />
+              <Route path="*" element={<Navigate to="/shop" replace />} />
+            </Routes>
           </Suspense>
         </main>
       </div>
@@ -183,7 +219,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
   );
 }
 
-function App() {
+function AppContent() {
   const isLoggedIn = useSelector((state: { auth: boolean }) => state.auth);
   const dispatch = useDispatch();
 
@@ -221,6 +257,14 @@ function App() {
     <CartProvider>
       <NavigationContent onLogout={handleLogout} />
     </CartProvider>
+  );
+}
+
+function App() {
+  return (
+    <HashRouter>
+      <AppContent />
+    </HashRouter>
   );
 }
 
