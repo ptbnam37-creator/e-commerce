@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { useCart, Product } from '../context/CartContext';
 
 interface StarIconProps {
@@ -40,6 +40,8 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
   const [toastMessage, setToastMessage] = useState('');
   const toastTimeoutRef = useRef<number | null>(null);
   const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]?.name || '');
+
+  const totalItems = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
   if (!product) {
     return (
@@ -93,8 +95,6 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
     
     onGoToCart();
   };
-
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
