@@ -1,6 +1,8 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { useCart, Product } from '../context/CartContext';
 
+const STARS = [1, 2, 3, 4, 5];
+
 interface StarIconProps {
   fillPercent: number;
   size?: string;
@@ -268,7 +270,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
           </div>
 
           <div style={{ display: 'flex', gap: '4px' }}>
-            {[1, 2, 3, 4, 5].map((star) => {
+            {STARS.map((star) => {
               const fillPercent = Math.min(Math.max(product.rating - (star - 1), 0), 1);
               return <StarIcon key={star} fillPercent={fillPercent} />;
             })}

@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useCart, Product } from '../context/CartContext';
 
+const STARS = [1, 2, 3, 4, 5];
+
 const SearchIcon = () => (
   <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="11" cy="11" r="8" />
@@ -185,7 +187,7 @@ const FilterDropdown = ({
                 fontWeight: '500'
               }}
             >
-              {[0, 1, 2, 3, 4, 5].map((stars) => (
+              {[0, ...STARS].map((stars) => (
                 <option key={stars} value={stars}>{stars} Sao</option>
               ))}
             </select>
@@ -379,7 +381,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
                 
                 {/* Gold stars rating */}
                 <div className="product-rating">
-                  {[1, 2, 3, 4, 5].map((star) => {
+                  {STARS.map((star) => {
                     const fillPercent = Math.min(Math.max(product.rating - (star - 1), 0), 1);
                     return <StarIcon key={star} fillPercent={fillPercent} />;
                   })}
