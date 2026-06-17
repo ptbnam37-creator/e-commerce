@@ -83,7 +83,6 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
       const result = await new Promise<{ success: boolean; error?: string }>((resolve) => {
         setTimeout(() => {
           const isValidMockUser = 
-            (username === 'nguyenvana' || username === 'Nguyễn Văn A' || username === '0222222222' || username === 'nguyenvana@gmail.com') ||
             (username === 'levanb' || username === 'Lê Văn B' || username === '0111111111' || username === 'levanb@gmail.com');
           
           if (isValidMockUser && password === '12345678') {

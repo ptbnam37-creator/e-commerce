@@ -57,8 +57,8 @@ const getInitialProfileState = (): ProfileData => {
     }
   }
   return {
-    name: 'Nguyễn Văn A',
-    email: 'nguyenvana@gmail.com',
+    name: 'Lê Văn B',
+    email: 'levanb@gmail.com',
     phone: '0987 654 321',
     address: '120 Yên Lãng, Đống Đa, Hà Nội'
   };

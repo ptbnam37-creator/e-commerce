@@ -80,12 +80,12 @@ describe('Login Component', () => {
     const submitButton = screen.getByRole('button', { name: 'Đăng nhập' });
 
     // Enter valid mock credentials
-    fireEvent.change(usernameInput, { target: { value: 'nguyenvana' } });
+    fireEvent.change(usernameInput, { target: { value: 'levanb' } });
     fireEvent.change(passwordInput, { target: { value: '12345678' } });
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(mockOnLoginSuccess).toHaveBeenCalledWith('nguyenvana', false);
+      expect(mockOnLoginSuccess).toHaveBeenCalledWith('levanb', false);
     });
   });
 });

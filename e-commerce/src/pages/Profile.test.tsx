@@ -47,25 +47,25 @@ describe('Profile Component', () => {
 
   it('renders fallback mock profile when not logged in to PocketBase', () => {
     vi.mocked(useSelector).mockReturnValue({
-      name: 'Nguyễn Văn A',
-      email: 'nguyenvana@gmail.com',
-      phone: '0222222222',
+      name: 'Lê Văn B',
+      email: 'levanb@gmail.com',
+      phone: '0111111111',
       address: 'Hà Nội',
     });
 
     render(<Profile onLogout={mockOnLogout} />);
 
-    expect(screen.getByLabelText('Họ và Tên')).toHaveValue('Nguyễn Văn A');
-    expect(screen.getByLabelText('Email')).toHaveValue('nguyenvana@gmail.com');
-    expect(screen.getByLabelText('Số điện thoại')).toHaveValue('0222222222');
+    expect(screen.getByLabelText('Họ và Tên')).toHaveValue('Lê Văn B');
+    expect(screen.getByLabelText('Email')).toHaveValue('levanb@gmail.com');
+    expect(screen.getByLabelText('Số điện thoại')).toHaveValue('0111111111');
     expect(screen.getByLabelText('Địa chỉ nhận hàng')).toHaveValue('Hà Nội');
   });
 
   it('triggers onLogout callback when clicking Đăng xuất', () => {
     vi.mocked(useSelector).mockReturnValue({
-      name: 'Nguyễn Văn A',
-      email: 'nguyenvana@gmail.com',
-      phone: '0222222222',
+      name: 'Lê Văn B',
+      email: 'levanb@gmail.com',
+      phone: '0111111111',
       address: 'Hà Nội',
     });
 
