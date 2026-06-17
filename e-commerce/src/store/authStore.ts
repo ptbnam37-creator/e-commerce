@@ -14,7 +14,7 @@ interface LogoutAction {
 
 type AuthAction = LoginAction | LogoutAction;
 
-function authReducer(state = false, action: AuthAction): boolean {
+export function authReducer(state = false, action: AuthAction): boolean {
   switch (action.type) {
     case LOGIN:
       if (action.payload.rememberMe) {
