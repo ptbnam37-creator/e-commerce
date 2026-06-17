@@ -5,6 +5,7 @@
 e-commerce/node_modules/
 e-commerce/dist/
 e-commerce/dist-ssr/
+e-commerce/coverage/
 e-commerce/*.local
 e-commerce/.vscode/*
 !e-commerce/.vscode/extensions.json

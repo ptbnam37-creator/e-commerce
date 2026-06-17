@@ -41,7 +41,7 @@ export function authReducer(state = false, action: AuthAction): boolean {
   }
 }
 
-const getInitialAuthState = (): boolean => {
+export const getInitialAuthState = (): boolean => {
   return localStorage.getItem('isLoggedIn') === 'true' || sessionStorage.getItem('isLoggedIn') === 'true';
 };
 
