@@ -104,4 +104,28 @@ describe('Shop Component', () => {
 
     expect(mockOnSelectProduct).toHaveBeenCalledWith(mockProducts[0]);
   });
+
+  it('renders empty state when no products match the search term', () => {
+    vi.mocked(useCart).mockReturnValue({
+      products: mockProducts,
+      cart: [],
+      addToCart: vi.fn(),
+      updateQuantity: vi.fn(),
+      removeFromCart: vi.fn(),
+      subTotal: 0,
+      tax: 0,
+      total: 0,
+    });
+
+    render(<Shop onSelectProduct={mockOnSelectProduct} />);
+
+    const searchInput = screen.getByPlaceholderText('Search...');
+
+    // Type 'Samsung', which doesn't match any products in mockProducts
+    fireEvent.change(searchInput, { target: { value: 'Samsung' } });
+
+    // Assert that the empty state is visible
+    expect(screen.getByText('Không tìm thấy sản phẩm nào')).toBeInTheDocument();
+    expect(screen.getByText('Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.')).toBeInTheDocument();
+  });
 });
