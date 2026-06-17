@@ -39,11 +39,13 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setInfo('');
     if (!username.trim() || !password.trim()) {
       setError('Vui lòng nhập đầy đủ thông tin đăng nhập!');
       return;
@@ -133,6 +135,21 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
             </div>
           )}
 
+          {info && (
+            <div style={{
+              backgroundColor: 'rgba(24, 144, 255, 0.2)',
+              border: '1px solid #1890ff',
+              color: 'white',
+              padding: '10px',
+              borderRadius: '4px',
+              fontSize: '14px',
+              marginBottom: '16px',
+              textAlign: 'center'
+            }}>
+              {info}
+            </div>
+          )}
+
           {/* Username Field */}
           <div className="login-input-group">
             <span className="login-input-icon">
@@ -181,7 +198,11 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
               />
               <span>Lưu đăng nhập</span>
             </label>
-            <a href="#forgot" className="login-forgot-link" onClick={(e) => { e.preventDefault(); alert('Vui lòng liên hệ quản trị viên để khôi phục mật khẩu.'); }}>
+            <a href="#forgot" className="login-forgot-link" onClick={(e) => {
+              e.preventDefault();
+              setError('');
+              setInfo('Vui lòng liên hệ quản trị viên để khôi phục mật khẩu.');
+            }}>
               Bạn quên mật khẩu?
             </a>
           </div>

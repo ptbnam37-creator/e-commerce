@@ -22,6 +22,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
   });
 
   const [avatarUrl, setAvatarUrl] = useState(`${import.meta.env.BASE_URL}avatar.png`);
+  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   useEffect(() => {
     if (isPbLoggedIn && pb.authStore.model?.avatar) {
@@ -41,6 +42,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setNotification(null);
     if (isPbLoggedIn && pb.authStore.model) {
       try {
         await pb.collection('users').update(pb.authStore.model.id, {
@@ -51,14 +53,14 @@ const Profile = ({ onLogout }: ProfileProps) => {
         });
         // Refresh auth store to update local model
         await pb.collection('users').authRefresh();
-        alert('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!');
+        setNotification({message: 'Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', type: 'success'});
       } catch (err) {
         console.error('Failed to update profile in PocketBase:', err);
-        alert('Có lỗi xảy ra khi lưu thông tin lên PocketBase.');
+        setNotification({message: 'Có lỗi xảy ra khi lưu thông tin lên PocketBase.', type: 'error'});
       }
     } else {
       dispatch(updateProfile(profile));
-      alert('Thông tin cá nhân đã được cập nhật thành công!');
+      setNotification({message: 'Thông tin cá nhân đã được cập nhật thành công!', type: 'success'});
     }
   };
 
@@ -88,6 +90,21 @@ const Profile = ({ onLogout }: ProfileProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="profile-form">
+          {notification && (
+            <div style={{
+              backgroundColor: notification.type === 'success' ? 'rgba(82, 196, 26, 0.2)' : 'rgba(255, 77, 79, 0.2)',
+              border: `1px solid ${notification.type === 'success' ? '#52c41a' : '#ff4d4f'}`,
+              color: notification.type === 'success' ? '#389e0d' : '#cf1322',
+              padding: '10px',
+              borderRadius: '4px',
+              fontSize: '14px',
+              marginBottom: '16px',
+              textAlign: 'center'
+            }}>
+              {notification.message}
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="name">Họ và Tên</label>
             <input
