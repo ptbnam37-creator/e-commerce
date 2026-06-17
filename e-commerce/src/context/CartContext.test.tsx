@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, renderHook } from '@testing-library/react';
 import { CartProvider, useCart } from './CartContext';
 import { pb } from '../services/pocketbase';
 
@@ -126,5 +126,15 @@ describe('CartContext with PocketBase', () => {
 
     expect(screen.getByTestId('first-item-name')).toHaveTextContent('iPhone 13 (Xanh dương)');
     expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
+  });
+});
+
+describe('useCart', () => {
+  it('throws an error if used outside of CartProvider', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => renderHook(() => useCart())).toThrow('useCart must be used within a CartProvider');
+
+    consoleError.mockRestore();
   });
 });
