@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, updateProfile } from '../store/authStore';
-import { pb } from '../services/pocketbase';
+import { pb, getFileUrl } from '../services/pocketbase';
 
 interface ProfileProps {
   onLogout: () => void;
@@ -26,7 +26,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
   useEffect(() => {
     if (isPbLoggedIn && pb.authStore.model?.avatar) {
-      setAvatarUrl(pb.files.getURL(pb.authStore.model, pb.authStore.model.avatar));
+      setAvatarUrl(getFileUrl(pb.authStore.model, pb.authStore.model.avatar));
     } else {
       setAvatarUrl(`${import.meta.env.BASE_URL}avatar.png`);
     }

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { pb } from '../services/pocketbase';
+import { pb, getFileUrl } from '../services/pocketbase';
 
 export interface ProductColor {
   id: string;
@@ -61,15 +61,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
         let imageUrl = prod.image;
         if (Array.isArray(prod.image) && prod.image.length > 0) {
-          imageUrl = pb.files.getURL(prod, prod.image[0]);
+          imageUrl = getFileUrl(prod, prod.image[0]);
         } else if (typeof prod.image === 'string' && prod.image !== '') {
-          imageUrl = pb.files.getURL(prod, prod.image);
+          imageUrl = getFileUrl(prod, prod.image);
         } else {
           imageUrl = '/samsung_a31.png';
         }
 
         if (variant.image) {
-          imageUrl = pb.files.getURL(variant, variant.image);
+          imageUrl = getFileUrl(variant, variant.image);
         }
 
         return {
@@ -117,7 +117,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               if (imageFilename.startsWith('http') || imageFilename.startsWith('/')) {
                 imageUrl = imageFilename;
               } else {
-                imageUrl = pb.files.getURL(record, imageFilename);
+                imageUrl = getFileUrl(record, imageFilename);
               }
             } else {
               imageUrl = '/samsung_a31.png';
@@ -139,7 +139,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                 if (varImageFilename.startsWith('http') || varImageFilename.startsWith('/')) {
                   varImageUrl = varImageFilename;
                 } else {
-                  varImageUrl = pb.files.getURL(v, varImageFilename);
+                  varImageUrl = getFileUrl(v, varImageFilename);
                 }
               }
 
