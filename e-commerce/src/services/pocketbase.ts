@@ -1,3 +1,3 @@
 import PocketBase from 'pocketbase';
 
-export const pb = new PocketBase('https://e-commerce-backend-xne7.onrender.com');
+export const pb = new PocketBase('https://anymore-ship-onlooker.ngrok-free.dev');
