@@ -68,9 +68,14 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
 
   const handleAdd = () => {
     const chosenColorObj = colors.find(c => c.name === selectedColor);
-    const variantId = chosenColorObj?.id;
-    const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;
+    const variantId = chosenColorObj?.id || (colors.length > 0 ? colors[0].id : undefined);
+    const finalName = hasVariants ? `${product.name} (${selectedColor || colors[0]?.name})` : product.name;
     
+    if (!variantId) {
+      alert('Sản phẩm này chưa có biến thể. Vui lòng liên hệ quản trị viên!');
+      return;
+    }
+
     addToCart({
       ...product,
       name: finalName,
@@ -86,8 +91,13 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
 
   const handleBuyNow = () => {
     const chosenColorObj = colors.find(c => c.name === selectedColor);
-    const variantId = chosenColorObj?.id;
-    const finalName = hasVariants ? `${product.name} (${selectedColor})` : product.name;
+    const variantId = chosenColorObj?.id || (colors.length > 0 ? colors[0].id : undefined);
+    const finalName = hasVariants ? `${product.name} (${selectedColor || colors[0]?.name})` : product.name;
+
+    if (!variantId) {
+      alert('Sản phẩm này chưa có biến thể. Vui lòng liên hệ quản trị viên!');
+      return;
+    }
     
     addToCart({
       ...product,
