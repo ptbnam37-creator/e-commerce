@@ -1,0 +1,18 @@
+# Ignore latex directory
+/latex/
+
+# e-commerce ignores
+e-commerce/node_modules/
+e-commerce/dist/
+e-commerce/dist-ssr/
+e-commerce/coverage/
+e-commerce/*.local
+e-commerce/.vscode/*
+!e-commerce/.vscode/extensions.json
+e-commerce/.idea
+e-commerce/.DS_Store
+e-commerce/*.log
+e-commerce/npm-debug.log*
+
+# pocketbase ignores
+/pocketbase/
