@@ -292,7 +292,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
               onClick={handleBuyNow}
               style={{
                 flex: 1,
-                height: '52px',
+                height: '64px',
                 backgroundColor: '#00c0ff',
                 color: '#ffffff',
                 border: 'none',
@@ -309,7 +309,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
               onClick={handleAdd}
               style={{
                 flex: 1,
-                height: '52px',
+                height: '64px',
                 backgroundColor: '#00e600',
                 color: '#ffffff',
                 border: 'none',
