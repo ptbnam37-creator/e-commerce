@@ -1079,6 +1079,8 @@ body {
 
   .product-detail-actions button {
     width: 100%;
+    height: 56px !important;
+    font-size: 16px !important;
   }
 
   .product-detail-page {
