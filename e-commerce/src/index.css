@@ -1079,8 +1079,10 @@ body {
 
   .product-detail-actions button {
     width: 100%;
-    height: 56px !important;
-    font-size: 16px !important;
+    min-height: 56px !important;
+    padding: 16px 0 !important;
+    font-size: 18px !important;
+    line-height: 1.2 !important;
   }
 
   .product-detail-page {
