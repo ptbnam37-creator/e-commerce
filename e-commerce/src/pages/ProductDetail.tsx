@@ -109,7 +109,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div className="product-detail-page" style={{ position: 'relative', width: '100%' }}>
       {/* Toast Notification */}
       {toastMessage && (
         <div style={{

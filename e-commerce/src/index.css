@@ -1080,4 +1080,8 @@ body {
   .product-detail-actions button {
     width: 100%;
   }
+
+  .product-detail-page {
+    padding-bottom: 80px;
+  }
 }
