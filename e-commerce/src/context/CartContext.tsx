@@ -268,7 +268,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const subTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subTotal = React.useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }, [cart]);
   const tax = Math.round(subTotal * 0.1);
   const total = subTotal + tax;
 
