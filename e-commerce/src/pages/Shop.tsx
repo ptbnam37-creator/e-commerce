@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useCart, Product } from '../context/CartContext';
+import { StarIcon } from '../components/icons/StarIcon';
 
 const STARS = [1, 2, 3, 4, 5];
 
@@ -15,26 +16,6 @@ const FunnelIcon = () => (
     <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
   </svg>
 );
-
-interface StarIconProps {
-  fillPercent: number;
-  size?: string;
-}
-
-const StarIcon = ({ fillPercent, size = '28px' }: StarIconProps) => {
-  const gradientId = React.useId().replace(/:/g, '');
-  return (
-    <svg className="star-icon" viewBox="0 0 24 24" style={{ width: size, height: size }}>
-      <defs>
-        <linearGradient id={gradientId}>
-          <stop offset={`${fillPercent * 100}%`} stopColor="#ffd214" />
-          <stop offset={`${fillPercent * 100}%`} stopColor="#ffffff" />
-        </linearGradient>
-      </defs>
-      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill={`url(#${gradientId})`} />
-    </svg>
-  );
-};
 
 const ChevronDown = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none', marginLeft: 'auto', color: '#000' }}>
@@ -237,6 +218,11 @@ interface ShopProps {
   onSelectProduct: (product: Product) => void;
 }
 
+const PRICE_REGEX = /\B(?=(\d{3})+(?!\d))/g;
+const formatPrice = (price: number) => {
+  return price.toString().replace(PRICE_REGEX, ' ') + ' VND';
+};
+
 const Shop = ({ onSelectProduct }: ShopProps) => {
   const { products } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
@@ -257,10 +243,6 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const formatPrice = (price: number) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
-  };
 
   const filteredProducts = useMemo(() => {
     const lowerSearchTerm = searchTerm.toLowerCase();

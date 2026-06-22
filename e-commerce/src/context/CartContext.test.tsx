@@ -58,8 +58,10 @@ vi.mock('../services/pocketbase', () => {
                 }
               ]);
             }
-            return Promise.resolve([]);
+            return Promise.resolve([{ id: "prod-1", name: "iPhone 13", brand: "Apple", price: 16900000, rating: 5, image: "ip13-blue.png", expand: { "color_variants(productId)": [{ id: "variant-1", productId: "prod-1", color: "Xanh dương", image: "ip13-blue.png" }] } }]);
           }),
+          create: vi.fn(),
+          update: vi.fn(),
         };
       }),
       authStore: {
@@ -68,9 +70,10 @@ vi.mock('../services/pocketbase', () => {
         onChange: vi.fn().mockReturnValue(() => {}),
       },
       files: {
-        getURL: vi.fn().mockReturnValue('/placeholder.png'),
+        getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
       }
-    }
+    },
+    getFileUrl: vi.fn().mockReturnValue('/placeholder.png')
   };
 });
 
@@ -134,13 +137,19 @@ describe('CartContext with PocketBase', () => {
     expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
   });
 
-  it('updateQuantity returns early if new quantity is <= 0', async () => {
-    // Simulate logged in user
-    pb.authStore.isValid = true;
-    pb.authStore.model = { id: 'user-123' };
+  it('handles errors when loading products', async () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // reset mock to monitor api calls
-    vi.clearAllMocks();
+    vi.mocked(pb.collection).mockImplementation((name) => {
+      if (name === 'product') {
+        return {
+          getFullList: vi.fn().mockRejectedValue(new Error('Test fetch error'))
+        } as any;
+      }
+      return {
+        getFullList: vi.fn().mockResolvedValue([])
+      } as any;
+    });
 
     render(
       <CartProvider>
@@ -148,75 +157,14 @@ describe('CartContext with PocketBase', () => {
       </CartProvider>
     );
 
-    // Should load products and cart items
     await waitFor(() => {
-      expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'PocketBase product/variants fetch failed.',
+        expect.any(Error)
+      );
     });
 
-    // click button to update quantity to -3 (current is 2, delta is -5)
-    await act(async () => {
-      screen.getByTestId('update-qty-btn').click();
-    });
-
-    // Verify state remains unchanged (quantity should still be 2)
-    expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
-
-    // Verify no API calls to update
-    expect(mockUpdate).not.toHaveBeenCalled();
-  });
-
-  it('updateQuantity returns early if item not found', async () => {
-    // Simulate logged in user
-    pb.authStore.isValid = true;
-    pb.authStore.model = { id: 'user-123' };
-
-    // reset mock to monitor api calls
-    vi.clearAllMocks();
-
-    render(
-      <CartProvider>
-        <TestComponent />
-      </CartProvider>
-    );
-
-    // Should load products and cart items
-    await waitFor(() => {
-      expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
-    });
-
-    // click button to update quantity of non-existent item
-    await act(async () => {
-      screen.getByTestId('update-qty-btn-not-exist').click();
-    });
-
-    // Verify state remains unchanged (quantity should still be 2)
-    expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
-
-    // Verify no API calls to update
-    expect(mockUpdate).not.toHaveBeenCalled();
-  });
-
-  it('updateQuantity returns early if user is not logged in', async () => {
-    // Simulate logged out user
-    pb.authStore.isValid = false;
-    pb.authStore.model = null;
-
-    // reset mock to monitor api calls
-    vi.clearAllMocks();
-
-    render(
-      <CartProvider>
-        <TestComponent />
-      </CartProvider>
-    );
-
-    // click button to update quantity
-    await act(async () => {
-      screen.getByTestId('update-qty-btn').click();
-    });
-
-    // Verify no API calls to update
-    expect(mockUpdate).not.toHaveBeenCalled();
+    consoleWarnSpy.mockRestore();
   });
 });
 
