@@ -30,6 +30,7 @@ vi.mock('../services/pocketbase', () => {
   ];
 
   return {
+    getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
     pb: {
       collection: vi.fn().mockImplementation((name) => {
         return {
@@ -56,6 +57,8 @@ vi.mock('../services/pocketbase', () => {
             }
             return Promise.resolve([{ id: "prod-1", name: "iPhone 13", brand: "Apple", price: 16900000, rating: 5, image: "ip13-blue.png", expand: { "color_variants(productId)": [{ id: "variant-1", productId: "prod-1", color: "Xanh dương", image: "ip13-blue.png" }] } }]);
           }),
+          create: vi.fn(),
+          update: vi.fn(),
         };
       }),
       authStore: {
@@ -64,7 +67,7 @@ vi.mock('../services/pocketbase', () => {
         onChange: vi.fn().mockReturnValue(() => {}),
       },
       files: {
-        getURL: vi.fn().mockReturnValue('/placeholder.png'),
+        getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
       }
     },
     getFileUrl: vi.fn().mockReturnValue('/placeholder.png')

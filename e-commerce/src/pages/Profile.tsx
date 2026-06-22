@@ -65,8 +65,8 @@ const Profile = ({ onLogout }: ProfileProps) => {
         await pb.collection('users').authRefresh();
         showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
       } catch (err) {
-        console.error('Failed to update profile in PocketBase:', err);
-        showToast('Có lỗi xảy ra khi lưu thông tin lên PocketBase.', 'error');
+        console.warn('Failed to update profile in PocketBase:', err);
+        setNotification({message: 'Có lỗi xảy ra khi lưu thông tin lên PocketBase.', type: 'error'});
       }
     } else {
       dispatch(updateProfile(profile));

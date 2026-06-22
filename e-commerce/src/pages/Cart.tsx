@@ -30,7 +30,7 @@ const getInitialTotal = (): number => {
         return parsed.reduce((sum: number, item: { quantity?: number }) => sum + (item.quantity || 0), 0);
       }
     } catch (e) {
-      console.error('Failed to parse cart for Redux init:', e);
+      console.warn('Failed to parse cart for Redux init:', e);
     }
   }
   return 2; // Default fallback matching initial state

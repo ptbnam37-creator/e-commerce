@@ -85,28 +85,34 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
           return;
         }
       } catch (pbError) {
-        console.warn('PocketBase authentication failed or server offline. Falling back to mock auth...', pbError);
+        console.warn('PocketBase authentication failed or server offline.', pbError);
       }
 
-      // Fallback to mock login
-      const result = await new Promise<{ success: boolean; error?: string }>((resolve) => {
-        setTimeout(() => {
-          const isValidMockUser = 
-            (username === 'levanb' || username === 'Lê Văn B' || username === '0111111111' || username === 'levanb@gmail.com');
-          
-          if (isValidMockUser && password === '12345678') {
-            resolve({ success: true });
-          } else {
-            resolve({ success: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
-          }
-        }, 800); // Simulated network delay
-      });
+      if (import.meta.env.DEV) {
+        console.warn('Falling back to mock auth in DEV environment...');
+        // Fallback to mock login
+        const result = await new Promise<{ success: boolean; error?: string }>((resolve) => {
+          setTimeout(() => {
+            const isValidMockUser =
+              (username === 'levanb' || username === 'Lê Văn B' || username === '0111111111' || username === 'levanb@gmail.com');
 
-      if (result.success) {
-        setError('');
-        onLoginSuccess(username, rememberMe);
+            if (isValidMockUser && password === '12345678') {
+              resolve({ success: true });
+            } else {
+              resolve({ success: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
+            }
+          }, 800); // Simulated network delay
+        });
+
+        if (result.success) {
+          setError('');
+          onLoginSuccess(username, rememberMe);
+        } else {
+          setError(result.error || 'Đăng nhập thất bại');
+        }
       } else {
-        setError(result.error || 'Đăng nhập thất bại');
+        // In production, do not allow mock auth
+        setError('Tên đăng nhập hoặc mật khẩu không chính xác!');
       }
     } catch {
       setError('Đã xảy ra lỗi kết nối, vui lòng thử lại.');
