@@ -57,17 +57,21 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
       // Try to log in with PocketBase first
       try {
         let identity = username;
+        const isEmail = username.includes('@');
 
-        // Try to query the users collection by name, phone, email, or id
-        try {
-          const userList = await pb.collection('users').getList(1, 1, {
-            filter: `email = "${username}" || name = "${username}" || phone = "${username}" || id = "${username}"`
-          });
-          if (userList.items.length > 0) {
-            identity = userList.items[0].email; // use the found email to authenticate
+        // Only try to query the users collection if the username doesn't look like an email
+        if (!isEmail) {
+          // Try to query the users collection by name, phone, email, or id
+          try {
+            const userList = await pb.collection('users').getList(1, 1, {
+              filter: `email = "${username}" || name = "${username}" || phone = "${username}" || id = "${username}"`
+            });
+            if (userList.items.length > 0) {
+              identity = userList.items[0].email; // use the found email to authenticate
+            }
+          } catch (searchError) {
+            console.warn('Failed to pre-query user, attempting direct login...', searchError);
           }
-        } catch (searchError) {
-          console.warn('Failed to pre-query user, attempting direct login...', searchError);
         }
 
         const authData = await pb.collection('users').authWithPassword(identity, password);
