@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, updateProfile } from '../store/authStore';
 import { pb, getFileUrl } from '../services/pocketbase';
@@ -22,7 +22,9 @@ const Profile = ({ onLogout }: ProfileProps) => {
   });
 
   const [avatarUrl, setAvatarUrl] = useState(`${import.meta.env.BASE_URL}avatar.png`);
-  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const toastTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isPbLoggedIn && pb.authStore.model?.avatar) {
@@ -40,9 +42,17 @@ const Profile = ({ onLogout }: ProfileProps) => {
     }));
   };
 
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (toastTimeoutRef.current !== null) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToastType(type);
+    setToastMessage(message);
+    toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setNotification(null);
     if (isPbLoggedIn && pb.authStore.model) {
       try {
         await pb.collection('users').update(pb.authStore.model.id, {
@@ -53,14 +63,14 @@ const Profile = ({ onLogout }: ProfileProps) => {
         });
         // Refresh auth store to update local model
         await pb.collection('users').authRefresh();
-        setNotification({message: 'Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', type: 'success'});
+        showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
       } catch (err) {
         console.warn('Failed to update profile in PocketBase:', err);
         setNotification({message: 'Có lỗi xảy ra khi lưu thông tin lên PocketBase.', type: 'error'});
       }
     } else {
       dispatch(updateProfile(profile));
-      setNotification({message: 'Thông tin cá nhân đã được cập nhật thành công!', type: 'success'});
+      showToast('Thông tin cá nhân đã được cập nhật thành công!', 'success');
     }
   };
 
@@ -78,6 +88,23 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
   return (
     <div>
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: toastType === 'success' ? '#00d2ff' : '#ff4d4f',
+          color: toastType === 'success' ? '#0b1a30' : '#ffffff',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          boxShadow: `0 4px 16px ${toastType === 'success' ? 'rgba(0,210,255,0.3)' : 'rgba(255,77,79,0.3)'}`,
+          zIndex: 1000,
+          fontWeight: '600',
+          animation: 'slideIn 0.3s ease'
+        }}>
+          {toastMessage}
+        </div>
+      )}
       <div className="page-title-container">
         <h1 className="page-title">My Profile</h1>
       </div>
@@ -90,21 +117,6 @@ const Profile = ({ onLogout }: ProfileProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="profile-form">
-          {notification && (
-            <div style={{
-              backgroundColor: notification.type === 'success' ? 'rgba(82, 196, 26, 0.2)' : 'rgba(255, 77, 79, 0.2)',
-              border: `1px solid ${notification.type === 'success' ? '#52c41a' : '#ff4d4f'}`,
-              color: notification.type === 'success' ? '#389e0d' : '#cf1322',
-              padding: '10px',
-              borderRadius: '4px',
-              fontSize: '14px',
-              marginBottom: '16px',
-              textAlign: 'center'
-            }}>
-              {notification.message}
-            </div>
-          )}
-
           <div className="form-group">
             <label htmlFor="name">Họ và Tên</label>
             <input
