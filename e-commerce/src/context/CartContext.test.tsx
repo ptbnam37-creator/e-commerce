@@ -1,10 +1,12 @@
 import React from 'react';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { render, screen, waitFor, renderHook } from '@testing-library/react';
+import { render, screen, waitFor, renderHook, act } from '@testing-library/react';
 import { CartProvider, useCart } from './CartContext';
 import { pb } from '../services/pocketbase';
 
 // Mock PocketBase
+export const mockUpdate = vi.fn().mockResolvedValue({});
+
 vi.mock('../services/pocketbase', () => {
   const mockCartList = [
     {
@@ -34,6 +36,7 @@ vi.mock('../services/pocketbase', () => {
     pb: {
       collection: vi.fn().mockImplementation((name) => {
         return {
+          update: mockUpdate,
           getFullList: vi.fn().mockImplementation(() => {
             if (name === 'cart') {
               return Promise.resolve(mockCartList);
@@ -76,13 +79,15 @@ vi.mock('../services/pocketbase', () => {
 
 // A simple test component to consume the context
 const TestComponent = () => {
-  const { cart, products } = useCart();
+  const { cart, products, updateQuantity } = useCart();
   return (
     <div>
       <div data-testid="products-length">{products.length}</div>
       <div data-testid="cart-length">{cart.length}</div>
       <div data-testid="first-item-name">{cart.length > 0 ? cart[0].name : 'Empty'}</div>
       <div data-testid="first-item-qty">{cart.length > 0 ? cart[0].quantity : '0'}</div>
+      <button data-testid="update-qty-btn" onClick={() => updateQuantity('cart-record-1', -5)}>Update Qty</button>
+      <button data-testid="update-qty-btn-not-exist" onClick={() => updateQuantity('cart-record-not-exist', -5)}>Update Qty Not Exist</button>
     </div>
   );
 };
