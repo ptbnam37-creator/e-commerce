@@ -30,6 +30,7 @@ vi.mock('../services/pocketbase', () => {
   ];
 
   return {
+    getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
     pb: {
       collection: vi.fn().mockImplementation((name) => {
         return {
@@ -56,6 +57,8 @@ vi.mock('../services/pocketbase', () => {
             }
             return Promise.resolve([]);
           }),
+          create: vi.fn(),
+          update: vi.fn(),
         };
       }),
       authStore: {
@@ -64,7 +67,7 @@ vi.mock('../services/pocketbase', () => {
         onChange: vi.fn().mockReturnValue(() => {}),
       },
       files: {
-        getURL: vi.fn().mockReturnValue('/placeholder.png'),
+        getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
       }
     }
   };
@@ -126,6 +129,47 @@ describe('CartContext with PocketBase', () => {
 
     expect(screen.getByTestId('first-item-name')).toHaveTextContent('iPhone 13 (Xanh dương)');
     expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
+  });
+
+  it('logs error when addToCart fails on PocketBase', async () => {
+    // Simulate logged in user
+    pb.authStore.isValid = true;
+    pb.authStore.model = { id: 'user-123' };
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Mock pb.collection('cart').create to throw an error
+    const createMock = vi.fn().mockRejectedValue(new Error('Network Error'));
+    vi.mocked(pb.collection).mockImplementation((name) => {
+      return {
+        getFullList: vi.fn().mockResolvedValue([]),
+        create: createMock,
+        update: vi.fn()
+      } as any;
+    });
+
+    const { result } = renderHook(() => useCart(), { wrapper: CartProvider });
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(result.current.products.length).toBe(0);
+    });
+
+    const mockProduct = {
+      id: 'prod-2',
+      name: 'Test Product',
+      brand: 'Test Brand',
+      price: 1000,
+      rating: 5,
+      image: 'test.png',
+      colors: []
+    };
+
+    await result.current.addToCart(mockProduct, 'variant-new');
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to add to cart on PocketBase:', expect.any(Error));
+
+    consoleErrorSpy.mockRestore();
   });
 });
 
