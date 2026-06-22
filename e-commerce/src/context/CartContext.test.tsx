@@ -67,7 +67,7 @@ vi.mock('../services/pocketbase', () => {
         getURL: vi.fn().mockReturnValue('/placeholder.png'),
       }
     },
-    getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
+    getFileUrl: vi.fn().mockReturnValue('/placeholder.png')
   };
 });
 
@@ -129,24 +129,18 @@ describe('CartContext with PocketBase', () => {
     expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
   });
 
-  it('handles error when loading cart from PocketBase fails', async () => {
-    // Simulate logged in user
-    pb.authStore.isValid = true;
-    pb.authStore.model = { id: 'user-123' };
+  it('handles errors when loading products', async () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const mockError = new Error('PocketBase error');
-
-    // Override the mock to throw an error
-    (pb.collection as any).mockImplementation((name: string) => {
+    vi.mocked(pb.collection).mockImplementation((name) => {
+      if (name === 'product') {
+        return {
+          getFullList: vi.fn().mockRejectedValue(new Error('Test fetch error'))
+        } as any;
+      }
       return {
-        getFullList: vi.fn().mockImplementation(() => {
-          if (name === 'cart') {
-            return Promise.reject(mockError);
-          }
-          return Promise.resolve([{ id: "prod-1", name: "iPhone 13", brand: "Apple", price: 16900000, rating: 5, image: "ip13-blue.png", expand: { "color_variants(productId)": [{ id: "variant-1", productId: "prod-1", color: "Xanh dương", image: "ip13-blue.png" }] } }]);
-        }),
-      };
+        getFullList: vi.fn().mockResolvedValue([])
+      } as any;
     });
 
     render(
@@ -155,17 +149,14 @@ describe('CartContext with PocketBase', () => {
       </CartProvider>
     );
 
-    // Should load products
     await waitFor(() => {
-      expect(screen.getByTestId('products-length')).toHaveTextContent('1');
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'PocketBase product/variants fetch failed.',
+        expect.any(Error)
+      );
     });
 
-    // Verify console.error is called
-    await waitFor(() => {
-      expect(consoleError).toHaveBeenCalledWith('Failed to load cart from PocketBase:', mockError);
-    });
-
-    consoleError.mockRestore();
+    consoleWarnSpy.mockRestore();
   });
 });
 
