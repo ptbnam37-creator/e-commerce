@@ -89,7 +89,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       setCart(items);
     } catch (err) {
-      console.error('Failed to load cart from PocketBase:', err);
+      console.warn('Failed to load cart from PocketBase:', err);
     }
   };
 
@@ -222,7 +222,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setCart((prev) => [...prev, newCartItem]);
       }
     } catch (err) {
-      console.error('Failed to add to cart on PocketBase:', err);
+      console.warn('Failed to add to cart on PocketBase:', err);
     }
   };
 
@@ -247,7 +247,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         number: newQty
       });
     } catch (err) {
-      console.error('Failed to update quantity on PocketBase:', err);
+      console.warn('Failed to update quantity on PocketBase:', err);
       // Revert UI on failure
       setCart((prev) =>
         prev.map((item) =>
