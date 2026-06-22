@@ -64,7 +64,10 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
           // Try to query the users collection by name, phone, email, or id
           try {
             const userList = await pb.collection('users').getList(1, 1, {
-              filter: `email = "${username}" || name = "${username}" || phone = "${username}" || id = "${username}"`
+              filter: pb.filter(
+                'email = {:username} || name = {:username} || phone = {:username} || id = {:username}',
+                { username }
+              )
             });
             if (userList.items.length > 0) {
               identity = userList.items[0].email; // use the found email to authenticate
