@@ -39,7 +39,16 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, _setCartState] = useState<CartItem[]>([]);
+  const cartRef = React.useRef<CartItem[]>([]);
+
+  const setCart = React.useCallback((updater: CartItem[] | ((prev: CartItem[]) => CartItem[])) => {
+    _setCartState((prev) => {
+      const next = typeof updater === 'function' ? updater(cartRef.current) : updater;
+      cartRef.current = next;
+      return next;
+    });
+  }, []);
 
   // Function to load cart from PocketBase
   const loadCartFromPB = async () => {
@@ -180,7 +189,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const pendingAdditions = React.useRef<Set<string>>(new Set());
+  const actionQueue = React.useRef<Promise<void>>(Promise.resolve());
 
   const addToCart = async (product: Product, variantId?: string) => {
     if (!pb.authStore.isValid || !pb.authStore.model) {
@@ -193,111 +202,100 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    if (pendingAdditions.current.has(variantId)) {
-      // Prevent duplicate additions while the first request is pending
-      return;
-    }
+    actionQueue.current = actionQueue.current.then(async () => {
+      try {
+        const existing = cartRef.current.find((item) => item.variantId === variantId);
 
-    pendingAdditions.current.add(variantId);
-
-    try {
-      const existing = cart.find((item) => item.variantId === variantId);
-
-      if (existing) {
-        const newQty = existing.quantity + 1;
-        
-        // Optimistic update
-        setCart((prev) =>
-          prev.map((item) =>
-            item.cartId === existing.cartId ? { ...item, quantity: newQty } : item
-          )
-        );
-
-        try {
-          await pb.collection('cart').update(existing.cartId, {
-            number: newQty
-          });
-        } catch (err) {
-          console.warn('Failed to add to cart on PocketBase:', err);
-          // Revert UI on failure
+        if (existing) {
+          const newQty = existing.quantity + 1;
+          
           setCart((prev) =>
             prev.map((item) =>
-              item.cartId === existing.cartId ? { ...item, quantity: existing.quantity } : item
+              item.cartId === existing.cartId ? { ...item, quantity: newQty } : item
             )
           );
+
+          try {
+            await pb.collection('cart').update(existing.cartId, {
+              number: newQty
+            });
+          } catch (err) {
+            console.warn('Failed to add to cart on PocketBase:', err);
+            setCart((prev) =>
+              prev.map((item) =>
+                item.cartId === existing.cartId ? { ...item, quantity: existing.quantity } : item
+              )
+            );
+          }
+        } else {
+          const createdRecord = await pb.collection('cart').create({
+            user: pb.authStore.model.id,
+            product: variantId,
+            number: 1
+          });
+
+          const newCartItem: CartItem = {
+            ...product,
+            quantity: 1,
+            cartId: createdRecord.id,
+            variantId: variantId
+          };
+
+          setCart((prev) => [...prev, newCartItem]);
         }
-      } else {
-        // Wait for server to get the new cartId
-        const createdRecord = await pb.collection('cart').create({
-          user: pb.authStore.model.id,
-          product: variantId,
-          number: 1
-        });
-
-        // Reconstruct local CartItem
-        const newCartItem: CartItem = {
-          ...product,
-          quantity: 1,
-          cartId: createdRecord.id,
-          variantId: variantId
-        };
-
-        setCart((prev) => [...prev, newCartItem]);
+      } catch (err) {
+        console.warn('Failed to process add to cart:', err);
       }
-    } catch (err) {
-      console.warn('Failed to process add to cart:', err);
-    } finally {
-      pendingAdditions.current.delete(variantId);
-    }
+    }).catch(console.error);
   };
 
   const updateQuantity = async (cartId: string, delta: number) => {
     if (!pb.authStore.isValid) return;
 
-    const existing = cart.find((item) => item.cartId === cartId);
-    if (!existing) return;
+    actionQueue.current = actionQueue.current.then(async () => {
+      const existing = cartRef.current.find((item) => item.cartId === cartId);
+      if (!existing) return;
 
-    const newQty = existing.quantity + delta;
-    if (newQty <= 0) return;
+      const newQty = existing.quantity + delta;
+      if (newQty <= 0) return;
 
-    // Optimistic UI Update
-    setCart((prev) =>
-      prev.map((item) =>
-        item.cartId === cartId ? { ...item, quantity: newQty } : item
-      )
-    );
-
-    try {
-      await pb.collection('cart').update(cartId, {
-        number: newQty
-      });
-    } catch (err) {
-      console.warn('Failed to update quantity on PocketBase:', err);
-      // Revert UI on failure
       setCart((prev) =>
         prev.map((item) =>
-          item.cartId === cartId ? { ...item, quantity: existing.quantity } : item
+          item.cartId === cartId ? { ...item, quantity: newQty } : item
         )
       );
-    }
+
+      try {
+        await pb.collection('cart').update(cartId, {
+          number: newQty
+        });
+      } catch (err) {
+        console.warn('Failed to update quantity on PocketBase:', err);
+        setCart((prev) =>
+          prev.map((item) =>
+            item.cartId === cartId ? { ...item, quantity: existing.quantity } : item
+          )
+        );
+      }
+    }).catch(console.error);
   };
 
   const removeFromCart = async (cartId: string) => {
     if (!pb.authStore.isValid) return;
 
-    const removedItem = cart.find(item => item.cartId === cartId);
-    if (!removedItem) return;
+    actionQueue.current = actionQueue.current.then(async () => {
+      const removedItem = cartRef.current.find(item => item.cartId === cartId);
+      if (!removedItem) return;
 
-    // Optimistic UI Update
-    setCart((prev) => prev.filter((item) => item.cartId !== cartId));
+      setCart((prev) => prev.filter((item) => item.cartId !== cartId));
 
-    try {
-      await pb.collection('cart').delete(cartId);
-    } catch (err) {
-      console.warn('Failed to remove from cart on PocketBase:', err);
-      // Revert UI on failure
-      setCart((prev) => [...prev, removedItem]);
-    }
+      try {
+        await pb.collection('cart').delete(cartId);
+      } catch (err) {
+        console.warn('Failed to remove from cart on PocketBase:', err);
+        setCart((prev) => [...prev, removedItem]);
+      }
+    }).catch(console.error);
   };
 
   const subTotal = React.useMemo(() => {
