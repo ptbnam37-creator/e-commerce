@@ -66,7 +66,8 @@ vi.mock('../services/pocketbase', () => {
       files: {
         getURL: vi.fn().mockReturnValue('/placeholder.png'),
       }
-    }
+    },
+    getFileUrl: vi.fn().mockReturnValue('/placeholder.png')
   };
 });
 
@@ -126,6 +127,36 @@ describe('CartContext with PocketBase', () => {
 
     expect(screen.getByTestId('first-item-name')).toHaveTextContent('iPhone 13 (Xanh dương)');
     expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
+  });
+
+  it('handles errors when loading products', async () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    vi.mocked(pb.collection).mockImplementation((name) => {
+      if (name === 'product') {
+        return {
+          getFullList: vi.fn().mockRejectedValue(new Error('Test fetch error'))
+        } as any;
+      }
+      return {
+        getFullList: vi.fn().mockResolvedValue([])
+      } as any;
+    });
+
+    render(
+      <CartProvider>
+        <TestComponent />
+      </CartProvider>
+    );
+
+    await waitFor(() => {
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'PocketBase product/variants fetch failed.',
+        expect.any(Error)
+      );
+    });
+
+    consoleWarnSpy.mockRestore();
   });
 });
 
