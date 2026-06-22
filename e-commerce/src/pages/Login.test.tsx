@@ -8,12 +8,13 @@ import { pb } from '../services/pocketbase';
 vi.mock('../services/pocketbase', () => {
   return {
     pb: {
-      collection: vi.fn().mockImplementation((name) => {
+      collection: vi.fn().mockImplementation(() => {
         return {
           getList: vi.fn().mockRejectedValue(new Error('Connection failed')),
           authWithPassword: vi.fn().mockRejectedValue(new Error('Auth failed'))
         };
-      })
+      }),
+      filter: vi.fn().mockReturnValue('mocked-filter')
     }
   };
 });
