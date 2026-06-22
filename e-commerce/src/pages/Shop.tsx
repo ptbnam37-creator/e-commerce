@@ -237,6 +237,11 @@ interface ShopProps {
   onSelectProduct: (product: Product) => void;
 }
 
+const PRICE_REGEX = /\B(?=(\d{3})+(?!\d))/g;
+const formatPrice = (price: number) => {
+  return price.toString().replace(PRICE_REGEX, ' ') + ' VND';
+};
+
 const Shop = ({ onSelectProduct }: ShopProps) => {
   const { products } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
@@ -257,10 +262,6 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const formatPrice = (price: number) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
-  };
 
   const filteredProducts = useMemo(() => {
     const lowerSearchTerm = searchTerm.toLowerCase();
