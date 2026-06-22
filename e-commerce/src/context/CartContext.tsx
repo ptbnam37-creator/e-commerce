@@ -235,17 +235,25 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const newQty = existing.quantity + delta;
     if (newQty <= 0) return;
 
+    // Optimistic UI Update
+    setCart((prev) =>
+      prev.map((item) =>
+        item.cartId === cartId ? { ...item, quantity: newQty } : item
+      )
+    );
+
     try {
       await pb.collection('cart').update(cartId, {
         number: newQty
       });
-      setCart((prev) =>
-        prev.map((item) =>
-          item.cartId === cartId ? { ...item, quantity: newQty } : item
-        )
-      );
     } catch (err) {
       console.error('Failed to update quantity on PocketBase:', err);
+      // Revert UI on failure
+      setCart((prev) =>
+        prev.map((item) =>
+          item.cartId === cartId ? { ...item, quantity: existing.quantity } : item
+        )
+      );
     }
   };
 
