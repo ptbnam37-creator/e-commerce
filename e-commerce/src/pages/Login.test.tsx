@@ -8,6 +8,14 @@ import { pb } from '../services/pocketbase';
 vi.mock('../services/pocketbase', () => {
   return {
     pb: {
+      filter: vi.fn((expr, params) => {
+        // Mock implementation of pb.filter to prevent "pb.filter is not a function" error in tests
+        let result = expr;
+        for (const [key, value] of Object.entries(params || {})) {
+          result = result.replace(new RegExp(`{:${key}}`, 'g'), typeof value === 'string' ? `'${value}'` : value);
+        }
+        return result;
+      }),
       collection: vi.fn().mockImplementation((name) => {
         return {
           getList: vi.fn().mockRejectedValue(new Error('Connection failed')),
