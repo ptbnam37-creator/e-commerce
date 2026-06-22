@@ -264,7 +264,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       await pb.collection('cart').delete(cartId);
       setCart((prev) => prev.filter((item) => item.cartId !== cartId));
     } catch (err) {
-      console.error('Failed to remove from cart on PocketBase:', err);
+      console.warn('Failed to remove from cart on PocketBase:', err);
     }
   };
 

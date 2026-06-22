@@ -27,7 +27,7 @@ export function authReducer(state = false, action: AuthAction): boolean {
         }
       } catch (error) {
         // gracefully handle storage exceptions, e.g. QuotaExceededError or disabled cookies
-        console.error('Failed to save auth state to storage:', error);
+        console.warn('Failed to save auth state to storage:', error);
       }
       return true;
     case LOGOUT:
