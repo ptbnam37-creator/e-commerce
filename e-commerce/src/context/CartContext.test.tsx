@@ -5,7 +5,8 @@ import { CartProvider, useCart } from './CartContext';
 import { pb } from '../services/pocketbase';
 
 // Mock PocketBase
-vi.mock('../services/pocketbase', () => {
+vi.mock('../services/pocketbase', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../services/pocketbase')>();
   const mockCartList = [
     {
       id: 'cart-record-1',
@@ -30,6 +31,8 @@ vi.mock('../services/pocketbase', () => {
   ];
 
   return {
+    ...actual,
+    getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
     pb: {
       collection: vi.fn().mockImplementation((name) => {
         return {
