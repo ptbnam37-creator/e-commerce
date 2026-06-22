@@ -166,7 +166,7 @@ describe('authStore', () => {
       const localStorageSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('QuotaExceededError');
       });
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const { authStore, loginAction } = await import('./authStore');
 
       authStore.dispatch(loginAction('testuser', true));
@@ -183,7 +183,7 @@ describe('authStore', () => {
       const sessionStorageSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('QuotaExceededError');
       });
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const { authStore, loginAction } = await import('./authStore');
 
       authStore.dispatch(loginAction('testuser', false));

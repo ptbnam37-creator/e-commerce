@@ -196,15 +196,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       if (existing) {
         const newQty = existing.quantity + 1;
-        await pb.collection('cart').update(existing.cartId, {
-          number: newQty
-        });
+        
+        // Optimistic update
         setCart((prev) =>
           prev.map((item) =>
             item.cartId === existing.cartId ? { ...item, quantity: newQty } : item
           )
         );
+
+        try {
+          await pb.collection('cart').update(existing.cartId, {
+            number: newQty
+          });
+        } catch (err) {
+          console.warn('Failed to add to cart on PocketBase:', err);
+          // Revert UI on failure
+          setCart((prev) =>
+            prev.map((item) =>
+              item.cartId === existing.cartId ? { ...item, quantity: existing.quantity } : item
+            )
+          );
+        }
       } else {
+        // Wait for server to get the new cartId
         const createdRecord = await pb.collection('cart').create({
           user: pb.authStore.model.id,
           product: variantId,
@@ -222,7 +236,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setCart((prev) => [...prev, newCartItem]);
       }
     } catch (err) {
-      console.warn('Failed to add to cart on PocketBase:', err);
+      console.warn('Failed to process add to cart:', err);
     }
   };
 
@@ -260,11 +274,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const removeFromCart = async (cartId: string) => {
     if (!pb.authStore.isValid) return;
 
+    const removedItem = cart.find(item => item.cartId === cartId);
+    if (!removedItem) return;
+
+    // Optimistic UI Update
+    setCart((prev) => prev.filter((item) => item.cartId !== cartId));
+
     try {
       await pb.collection('cart').delete(cartId);
-      setCart((prev) => prev.filter((item) => item.cartId !== cartId));
     } catch (err) {
       console.warn('Failed to remove from cart on PocketBase:', err);
+      // Revert UI on failure
+      setCart((prev) => [...prev, removedItem]);
     }
   };
 

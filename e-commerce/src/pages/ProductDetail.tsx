@@ -24,6 +24,22 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
   const toastTimeoutRef = useRef<number | null>(null);
   const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]?.name || '');
 
+  React.useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current !== null) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const showToast = (message: string) => {
+    if (toastTimeoutRef.current !== null) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToastMessage(message);
+    toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
+  };
+
   const totalItems = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
   if (!product) {
@@ -53,7 +69,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
     const finalName = hasVariants ? `${product.name} (${selectedColor || colors[0]?.name})` : product.name;
     
     if (!variantId) {
-      alert('Sản phẩm này chưa có biến thể. Vui lòng liên hệ quản trị viên!');
+      showToast('Sản phẩm này chưa có biến thể. Vui lòng liên hệ quản trị viên!');
       return;
     }
 
@@ -63,11 +79,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
       image: mainImage
     }, variantId);
 
-    if (toastTimeoutRef.current !== null) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-    setToastMessage(`Đã thêm ${finalName} vào giỏ hàng!`);
-    toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
+    showToast(`Đã thêm ${finalName} vào giỏ hàng!`);
   };
 
   const handleBuyNow = () => {
@@ -76,7 +88,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
     const finalName = hasVariants ? `${product.name} (${selectedColor || colors[0]?.name})` : product.name;
 
     if (!variantId) {
-      alert('Sản phẩm này chưa có biến thể. Vui lòng liên hệ quản trị viên!');
+      showToast('Sản phẩm này chưa có biến thể. Vui lòng liên hệ quản trị viên!');
       return;
     }
     

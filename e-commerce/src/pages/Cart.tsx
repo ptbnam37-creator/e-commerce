@@ -1,58 +1,5 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useCart, CartItem } from '../context/CartContext.tsx';
-import { configureStore } from '@reduxjs/toolkit';
-import { Provider, useSelector, useDispatch } from 'react-redux';
-
-interface CartAction {
-  type: string;
-  payload: number;
-}
-
-// Redux reducer handling the quantity increments/decrements
-function counter(state = 2, action: CartAction) {
-  if (action.type === 'increment') {
-    // Divide by 1000 to convert the payload (e.g. 1000) to 1 unit
-    return state + (action.payload / 1000);
-  }
-  if (action.type === 'decrement') {
-    return state - (action.payload / 1000);
-  }
-  return state;
-}
-
-// Read initial total quantity from localStorage
-const getInitialTotal = (): number => {
-  const saved = localStorage.getItem('cart');
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) {
-        return parsed.reduce((sum: number, item: { quantity?: number }) => sum + (item.quantity || 0), 0);
-      }
-    } catch (e) {
-      console.warn('Failed to parse cart for Redux init:', e);
-    }
-  }
-  return 2; // Default fallback matching initial state
-};
-
-// Global Redux store initialized dynamically
-const store = configureStore({ reducer: counter, preloadedState: getInitialTotal() });
-
-// Redux Action creators
-function deposit(cost: number) {
-  return {
-    type: 'increment',
-    payload: cost
-  };
-}
-
-function withdraw(cost: number) {
-  return {
-    type: 'decrement',
-    payload: cost
-  };
-}
 
 const TrashIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -63,24 +10,11 @@ const TrashIcon = () => (
   </svg>
 );
 
-const CartInner = () => {
+const Cart = () => {
   const { cart, updateQuantity, removeFromCart, subTotal, tax, total } = useCart();
 
-  // React-Redux hook subscribing to the Redux store state
-  const totalItems = useSelector((state: number) => state);
-  const dispatch = useDispatch();
-
-  // Sync Redux store state with the actual total items in the cart
-  const actualTotal = useMemo(() => cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0), [cart]);
-  useEffect(() => {
-    if (actualTotal !== totalItems) {
-      // Re-initialize or adjust store if cart content changes from details page or removals
-      const difference = actualTotal - totalItems;
-      if (difference !== 0) {
-        dispatch(deposit(difference * 1000));
-      }
-    }
-  }, [actualTotal, totalItems, dispatch]);
+  // Calculate total items directly from the cart state
+  const totalItems = useMemo(() => cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0), [cart]);
 
   const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
@@ -100,7 +34,6 @@ const CartInner = () => {
       <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '0px' }}>
         <h1 className="page-title" style={{ fontSize: '24px', fontWeight: 'bold' }}>Cart</h1>
         <span className="item-count" style={{ alignSelf: 'flex-end', marginBottom: '8px', fontSize: '14px' }}>
-          {/* {totalItems} {totalItems === 1 ? 'Item' : 'Items'} in cart */}
           {totalItems} sản phẩm trong giỏ hàng
         </span>
       </div>
@@ -108,7 +41,6 @@ const CartInner = () => {
       <div className="cart-items-list">
         {cart.map((item: CartItem) => (
           <div key={item.cartId} className="cart-item-card">
-
             {/* Product image */}
             <div className="cart-item-image-wrapper">
               <img src={item.image} alt={item.name} className="cart-item-image" />
@@ -126,10 +58,7 @@ const CartInner = () => {
                 <div className="cart-item-actions">
                   <button
                     className="qty-btn"
-                    onClick={() => {
-                      dispatch(deposit(1000));
-                      updateQuantity(item.cartId, 1);
-                    }}
+                    onClick={() => updateQuantity(item.cartId, 1)}
                   >
                     +
                   </button>
@@ -138,7 +67,6 @@ const CartInner = () => {
                     className="qty-btn"
                     onClick={() => {
                       if (item.quantity > 1) {
-                        dispatch(withdraw(1000));
                         updateQuantity(item.cartId, -1);
                       }
                     }}
@@ -175,15 +103,6 @@ const CartInner = () => {
         </div>
       </div>
     </div>
-  );
-};
-
-const Cart = () => {
-  const localStore = useMemo(() => store, []);
-  return (
-    <Provider store={localStore}>
-      <CartInner />
-    </Provider>
   );
 };
 
