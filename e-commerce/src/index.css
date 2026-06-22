@@ -1019,7 +1019,7 @@ body {
 
   .cart-item-card {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: stretch;
     text-align: left;
     gap: 12px;
     padding: 16px 0;
