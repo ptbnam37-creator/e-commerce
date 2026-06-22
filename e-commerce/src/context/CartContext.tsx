@@ -228,20 +228,33 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             );
           }
         } else {
-          const createdRecord = await pb.collection('cart').create({
-            user: pb.authStore.model.id,
-            product: variantId,
-            number: 1
-          });
-
-          const newCartItem: CartItem = {
+          const tempCartId = `temp-${Date.now()}`;
+          const optimisticItem: CartItem = {
             ...product,
             quantity: 1,
-            cartId: createdRecord.id,
+            cartId: tempCartId,
             variantId: variantId
           };
 
-          setCart((prev) => [...prev, newCartItem]);
+          // Optimistic UI Update
+          setCart((prev) => [...prev, optimisticItem]);
+
+          try {
+            const createdRecord = await pb.collection('cart').create({
+              user: pb.authStore.model.id,
+              product: variantId,
+              number: 1
+            });
+
+            // Replace temporary ID with the real PocketBase ID
+            setCart((prev) =>
+              prev.map(item => item.cartId === tempCartId ? { ...item, cartId: createdRecord.id } : item)
+            );
+          } catch (err) {
+            console.warn('Failed to add to cart on PocketBase:', err);
+            // Revert UI on failure
+            setCart((prev) => prev.filter(item => item.cartId !== tempCartId));
+          }
         }
       } catch (err) {
         console.warn('Failed to process add to cart:', err);
