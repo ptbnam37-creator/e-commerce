@@ -66,7 +66,8 @@ vi.mock('../services/pocketbase', () => {
       files: {
         getURL: vi.fn().mockReturnValue('/placeholder.png'),
       }
-    }
+    },
+    getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
   };
 });
 

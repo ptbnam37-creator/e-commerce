@@ -115,7 +115,7 @@ describe('Cart Component', () => {
     expect(mockUpdateQuantity).toHaveBeenCalledWith('cart-1', 1);
 
     // Click remove button (x)
-    const removeBtn = screen.getByText('x');
+    const removeBtn = screen.getByTitle('Xóa sản phẩm');
     fireEvent.click(removeBtn);
     expect(mockRemoveFromCart).toHaveBeenCalledWith('cart-1');
   });
