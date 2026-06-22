@@ -180,6 +180,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
+  const pendingAdditions = React.useRef<Set<string>>(new Set());
+
   const addToCart = async (product: Product, variantId?: string) => {
     if (!pb.authStore.isValid || !pb.authStore.model) {
       alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
@@ -190,6 +192,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       console.warn('Missing variantId for product:', product.name);
       return;
     }
+
+    if (pendingAdditions.current.has(variantId)) {
+      // Prevent duplicate additions while the first request is pending
+      return;
+    }
+
+    pendingAdditions.current.add(variantId);
 
     try {
       const existing = cart.find((item) => item.variantId === variantId);
@@ -237,6 +246,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (err) {
       console.warn('Failed to process add to cart:', err);
+    } finally {
+      pendingAdditions.current.delete(variantId);
     }
   };
 
