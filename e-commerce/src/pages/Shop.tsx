@@ -278,7 +278,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       {/* Header bar: Shop title left, Search & Filter right */}
       <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '24px', alignItems: 'center' }}>
         <h1 className="page-title" style={{ fontSize: '28px', fontWeight: 'bold' }}>Shop</h1>
-        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }} ref={filterDropdownRef}>
           {/* Small search box */}
           <div className="search-box-wrapper" style={{ minWidth: '180px', maxWidth: '220px' }}>
@@ -294,7 +294,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
           </div>
 
           {/* Funnel Filter button */}
-          <button 
+          <button
             onClick={() => setShowFilters(!showFilters)}
             style={{
               background: showFilters ? 'rgba(0, 210, 255, 0.15)' : '#f0f0f0',
@@ -340,8 +340,8 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       ) : (
         <div className="products-grid">
           {filteredProducts.map((product) => (
-            <div 
-              key={product.id} 
+            <div
+              key={product.id}
               className="product-card"
               onClick={() => onSelectProduct(product)}
               title="Click to view details"
@@ -357,13 +357,14 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
                   }}
                 />
               </div>
-              
+
               <div className="product-info-column">
                 <h2 className="product-name">{product.name}</h2>
                 <div className="product-price">{formatPrice(product.price)}</div>
-                
+
                 {/* Gold stars rating */}
-                <div className="product-rating">
+                <div className="product-rating" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                  <span style={{ fontSize: '23px', fontWeight: 'normal', marginRight: '4px', paddingTop: '4px', lineHeight: '28px' }}>{product.rating}</span>
                   {STARS.map((star) => {
                     const fillPercent = Math.min(Math.max(product.rating - (star - 1), 0), 1);
                     return <StarIcon key={star} fillPercent={fillPercent} />;

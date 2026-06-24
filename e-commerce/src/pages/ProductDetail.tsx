@@ -272,7 +272,8 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             {formatPrice(product.price)}
           </div>
 
-          <div style={{ display: 'flex', gap: '4px' }}>
+          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <span style={{ fontSize: '23px', marginRight: '4px', paddingTop: '4px', lineHeight: '28px' }}>{product.rating}</span>
             {STARS.map((star) => {
               const fillPercent = Math.min(Math.max(product.rating - (star - 1), 0), 1);
               return <StarIcon key={star} fillPercent={fillPercent} />;
