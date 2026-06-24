@@ -43,7 +43,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const cartRef = React.useRef<CartItem[]>([]);
 
   const setCart = React.useCallback((updater: CartItem[] | ((prev: CartItem[]) => CartItem[])) => {
-    _setCartState((prev) => {
+    _setCartState(() => {
       const next = typeof updater === 'function' ? updater(cartRef.current) : updater;
       cartRef.current = next;
       return next;
@@ -51,13 +51,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Function to load cart from PocketBase
-  const loadCartFromPB = async () => {
+  const loadCartFromPB = React.useCallback(async () => {
     if (!pb.authStore.isValid || !pb.authStore.model) {
       setCart([]);
       return;
     }
     try {
-      const records = await pb.collection('cart').getFullList<any>({
+      const records = await pb.collection('cart').getFullList({
         filter: `user = "${pb.authStore.model.id}"`,
         expand: 'product,product.productId',
         sort: 'id'
@@ -68,7 +68,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         const prod = variant?.expand?.productId;
         if (!variant || !prod) return null;
 
-        let imageUrl = prod.image;
+        let imageUrl;
         if (Array.isArray(prod.image) && prod.image.length > 0) {
           imageUrl = getFileUrl(prod, prod.image[0]);
         } else if (typeof prod.image === 'string' && prod.image !== '') {
@@ -100,13 +100,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       console.warn('Failed to load cart from PocketBase:', err);
     }
-  };
+  }, [setCart]);
 
   // Load products from PocketBase database
   React.useEffect(() => {
     const loadProducts = async () => {
       try {
-        const productRecords = await pb.collection('product').getFullList<any>({
+        const productRecords = await pb.collection('product').getFullList({
           expand: 'color_variants(productId)',
           sort: 'id'
         });
@@ -134,6 +134,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
             // Find matching color variants from the expanded relation
             const productVariants = record.expand?.['color_variants(productId)'] || [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const colorsArr = productVariants.map((v: any) => {
               let varImageUrl = '';
               let varImageFilename = '';
@@ -187,7 +188,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       loadCartFromPB();
     });
     return () => unsubscribe();
-  }, []);
+  }, [loadCartFromPB]);
 
   const actionQueue = React.useRef<Promise<void>>(Promise.resolve());
 
@@ -241,7 +242,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
           try {
             const createdRecord = await pb.collection('cart').create({
-              user: pb.authStore.model.id,
+              user: pb.authStore.model!.id,
               product: variantId,
               number: 1
             });

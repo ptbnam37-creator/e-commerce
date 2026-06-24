@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import App from './App';
 import { useSelector, useDispatch } from 'react-redux';
-import { useCart } from './context/CartContext';
+
 import { pb } from './services/pocketbase';
 
 // Mock Redux
@@ -92,7 +92,9 @@ describe('App Component', () => {
     vi.mocked(useSelector).mockReturnValue(true);
 
     // Valid user for header rendering
+    // @ts-expect-error: mock readonly
     pb.authStore.isValid = true;
+    // @ts-expect-error: mock readonly
     pb.authStore.model = { avatar: 'avatar.png' };
 
     render(<App />);

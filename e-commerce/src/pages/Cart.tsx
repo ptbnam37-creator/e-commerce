@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useCart, CartItem } from '../context/CartContext.tsx';
 
 const TrashIcon = () => (

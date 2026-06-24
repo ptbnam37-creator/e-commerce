@@ -224,7 +224,7 @@ function AppContent() {
   const dispatch = useDispatch();
 
   const handleLoginSuccess = (username: string, rememberMe: boolean) => {
-    dispatch(loginAction(username, rememberMe));
+    dispatch(loginAction({ username, rememberMe }));
   };
 
   const handleLogout = () => {

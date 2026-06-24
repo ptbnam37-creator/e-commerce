@@ -1,9 +1,9 @@
-import PocketBase from 'pocketbase';
+import PocketBase, { RecordModel } from 'pocketbase';
 
 export const pb = new PocketBase('https://e-commerce-backend-73cc.onrender.com');
 pb.autoCancellation(false);
 
 // Helper to get file URL from PocketBase
-export const getFileUrl = (record: any, filename: string): string => {
+export const getFileUrl = (record: RecordModel, filename: string): string => {
   return pb.files.getURL(record, filename) || '';
 };

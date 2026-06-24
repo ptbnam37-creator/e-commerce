@@ -1,22 +1,14 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export const LOGIN = 'auth/login';
-export const LOGOUT = 'auth/logout';
+export const getInitialAuthState = (): boolean => {
+  return localStorage.getItem('isLoggedIn') === 'true' || sessionStorage.getItem('isLoggedIn') === 'true';
+};
 
-interface LoginAction {
-  type: typeof LOGIN;
-  payload: { rememberMe: boolean; username: string };
-}
-
-interface LogoutAction {
-  type: typeof LOGOUT;
-}
-
-type AuthAction = LoginAction | LogoutAction;
-
-export function authReducer(state = false, action: AuthAction): boolean {
-  switch (action.type) {
-    case LOGIN:
+const authSlice = createSlice({
+  name: 'auth',
+  initialState: getInitialAuthState(),
+  reducers: {
+    loginAction(_state, action: PayloadAction<{ rememberMe: boolean; username: string }>) {
       try {
         if (action.payload.rememberMe) {
           localStorage.setItem('isLoggedIn', 'true');
@@ -26,24 +18,22 @@ export function authReducer(state = false, action: AuthAction): boolean {
           sessionStorage.setItem('username', action.payload.username);
         }
       } catch (error) {
-        // gracefully handle storage exceptions, e.g. QuotaExceededError or disabled cookies
         console.warn('Failed to save auth state to storage:', error);
       }
       return true;
-    case LOGOUT:
+    },
+    logoutAction() {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('username');
       sessionStorage.removeItem('isLoggedIn');
       sessionStorage.removeItem('username');
       return false;
-    default:
-      return state;
+    }
   }
-}
+});
 
-export const getInitialAuthState = (): boolean => {
-  return localStorage.getItem('isLoggedIn') === 'true' || sessionStorage.getItem('isLoggedIn') === 'true';
-};
+export const { loginAction, logoutAction } = authSlice.actions;
+export const authReducer = authSlice.reducer;
 
 export interface ProfileData {
   name: string;
@@ -96,11 +86,3 @@ export const authStore = configureStore({
 
 export type RootState = ReturnType<typeof authStore.getState>;
 
-export const loginAction = (username: string, rememberMe: boolean) => ({
-  type: LOGIN,
-  payload: { username, rememberMe },
-});
-
-export const logoutAction = () => ({
-  type: LOGOUT,
-});

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('authStore', () => {
   beforeEach(() => {
@@ -77,8 +77,8 @@ describe('authStore', () => {
 
   describe('authReducer', () => {
     it('handles LOGIN with rememberMe = true', async () => {
-      const { authReducer, LOGIN } = await import('./authStore');
-      const action = { type: LOGIN, payload: { rememberMe: true, username: 'testuser' } };
+      const { authReducer } = await import('./authStore');
+      const action = { type: 'auth/loginAction', payload: { rememberMe: true, username: 'testuser' } };
 
       const newState = authReducer(false, action);
 
@@ -89,8 +89,8 @@ describe('authStore', () => {
     });
 
     it('handles LOGIN with rememberMe = false', async () => {
-      const { authReducer, LOGIN } = await import('./authStore');
-      const action = { type: LOGIN, payload: { rememberMe: false, username: 'testuser' } };
+      const { authReducer } = await import('./authStore');
+      const action = { type: 'auth/loginAction', payload: { rememberMe: false, username: 'testuser' } };
 
       const newState = authReducer(false, action);
 
@@ -106,10 +106,10 @@ describe('authStore', () => {
       sessionStorage.setItem('isLoggedIn', 'true');
       sessionStorage.setItem('username', 'testuser');
 
-      const { authReducer, LOGOUT } = await import('./authStore');
-      const action = { type: LOGOUT };
+      const { authReducer } = await import('./authStore');
+      const action = { type: 'auth/logoutAction' };
 
-      const newState = authReducer(true, action as any);
+      const newState = authReducer(true, action);
 
       expect(newState).toBe(false);
       expect(localStorage.getItem('isLoggedIn')).toBeNull();
@@ -122,8 +122,8 @@ describe('authStore', () => {
       const { authReducer } = await import('./authStore');
       const action = { type: 'UNKNOWN' };
 
-      const newState = authReducer(false, action as any);
-      const newStateTrue = authReducer(true, action as any);
+      const newState = authReducer(false, action);
+      const newStateTrue = authReducer(true, action);
 
       expect(newState).toBe(false);
       expect(newStateTrue).toBe(true);
@@ -135,7 +135,7 @@ describe('authStore', () => {
       const sessionStorageSpy = vi.spyOn(sessionStorage, 'setItem');
       const { authStore, loginAction } = await import('./authStore');
 
-      authStore.dispatch(loginAction('testuser', true));
+      authStore.dispatch(loginAction({ username: 'testuser', rememberMe: true }));
 
       expect(authStore.getState().auth).toBe(true);
       expect(localStorage.getItem('isLoggedIn')).toBe('true');
@@ -150,7 +150,7 @@ describe('authStore', () => {
       const localStorageSpy = vi.spyOn(localStorage, 'setItem');
       const { authStore, loginAction } = await import('./authStore');
 
-      authStore.dispatch(loginAction('testuser', false));
+      authStore.dispatch(loginAction({ username: 'testuser', rememberMe: false }));
 
       expect(authStore.getState().auth).toBe(true);
       expect(sessionStorage.getItem('isLoggedIn')).toBe('true');
@@ -169,7 +169,7 @@ describe('authStore', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const { authStore, loginAction } = await import('./authStore');
 
-      authStore.dispatch(loginAction('testuser', true));
+      authStore.dispatch(loginAction({ username: 'testuser', rememberMe: true }));
 
       // auth should still be true even if storage fails
       expect(authStore.getState().auth).toBe(true);
@@ -186,7 +186,7 @@ describe('authStore', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const { authStore, loginAction } = await import('./authStore');
 
-      authStore.dispatch(loginAction('testuser', false));
+      authStore.dispatch(loginAction({ username: 'testuser', rememberMe: false }));
 
       // auth should still be true even if storage fails
       expect(authStore.getState().auth).toBe(true);

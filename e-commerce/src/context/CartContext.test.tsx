@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { render, screen, waitFor, renderHook, act } from '@testing-library/react';
+import { render, screen, waitFor, renderHook } from '@testing-library/react';
 import { CartProvider, useCart } from './CartContext';
 import { pb } from '../services/pocketbase';
 
@@ -61,7 +61,7 @@ vi.mock('../services/pocketbase', () => {
             return Promise.resolve([{ id: "prod-1", name: "iPhone 13", brand: "Apple", price: 16900000, rating: 5, image: "ip13-blue.png", expand: { "color_variants(productId)": [{ id: "variant-1", productId: "prod-1", color: "Xanh dương", image: "ip13-blue.png" }] } }]);
           }),
           create: vi.fn(),
-          update: vi.fn(),
+
         };
       }),
       authStore: {
@@ -73,8 +73,7 @@ vi.mock('../services/pocketbase', () => {
         getFileUrl: vi.fn().mockReturnValue('/placeholder.png'),
       }
     },
-    getFileUrl: vi.fn().mockReturnValue('/placeholder.png')
-  };
+    }
 });
 
 // A simple test component to consume the context
@@ -95,7 +94,9 @@ const TestComponent = () => {
 describe('CartContext with PocketBase', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    // @ts-expect-error: mock readonly
     pb.authStore.isValid = false;
+    // @ts-expect-error: mock readonly
     pb.authStore.model = null;
   });
 
@@ -118,8 +119,10 @@ describe('CartContext with PocketBase', () => {
 
   it('loads cart items from PocketBase when user is logged in', async () => {
     // Simulate logged in user
+    // @ts-expect-error: mock readonly
     pb.authStore.isValid = true;
-    pb.authStore.model = { id: 'user-123' };
+    // @ts-expect-error: mock readonly
+    pb.authStore.model = { id: 'user-1' };
 
     render(
       <CartProvider>
@@ -144,11 +147,11 @@ describe('CartContext with PocketBase', () => {
       if (name === 'product') {
         return {
           getFullList: vi.fn().mockRejectedValue(new Error('Test fetch error'))
-        } as any;
+        } as unknown as ReturnType<typeof pb.collection>;
       }
       return {
         getFullList: vi.fn().mockResolvedValue([])
-      } as any;
+      } as unknown as ReturnType<typeof pb.collection>;
     });
 
     render(

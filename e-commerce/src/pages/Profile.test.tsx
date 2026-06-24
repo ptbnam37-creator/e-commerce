@@ -1,9 +1,9 @@
-import React from 'react';
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Profile from './Profile';
 import { useSelector, useDispatch } from 'react-redux';
-import { pb } from '../services/pocketbase';
+
 
 // Mock react-redux hooks
 vi.mock('react-redux', () => {

@@ -1,8 +1,8 @@
-import React from 'react';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Login from './Login';
-import { pb } from '../services/pocketbase';
+
 
 // Mock PocketBase
 vi.mock('../services/pocketbase', () => {
@@ -16,7 +16,7 @@ vi.mock('../services/pocketbase', () => {
         }
         return result;
       }),
-      collection: vi.fn().mockImplementation((name) => {
+      collection: vi.fn().mockImplementation(() => {
         return {
           getList: vi.fn().mockRejectedValue(new Error('Connection failed')),
           authWithPassword: vi.fn().mockRejectedValue(new Error('Auth failed'))

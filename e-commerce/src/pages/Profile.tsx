@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from 'react';
+import { useState, useRef, ChangeEvent, FormEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, updateProfile } from '../store/authStore';
 import { pb, getFileUrl } from '../services/pocketbase';
@@ -21,18 +21,13 @@ const Profile = ({ onLogout }: ProfileProps) => {
     address: isPbLoggedIn ? (pb.authStore.model?.address || '') : storedProfile.address,
   });
 
-  const [avatarUrl, setAvatarUrl] = useState(`${import.meta.env.BASE_URL}avatar.png`);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error'>('success');
   const toastTimeoutRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (isPbLoggedIn && pb.authStore.model?.avatar) {
-      setAvatarUrl(getFileUrl(pb.authStore.model, pb.authStore.model.avatar));
-    } else {
-      setAvatarUrl(`${import.meta.env.BASE_URL}avatar.png`);
-    }
-  }, [isPbLoggedIn]);
+  const avatarUrl = isPbLoggedIn && pb.authStore.model?.avatar 
+    ? getFileUrl(pb.authStore.model, pb.authStore.model.avatar) 
+    : `${import.meta.env.BASE_URL}avatar.png`;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,7 +61,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
         showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
       } catch (err) {
         console.warn('Failed to update profile in PocketBase:', err);
-        setNotification({message: 'Có lỗi xảy ra khi lưu thông tin lên PocketBase.', type: 'error'});
+        showToast('Có lỗi xảy ra khi lưu thông tin lên PocketBase.', 'error');
       }
     } else {
       dispatch(updateProfile(profile));
