@@ -63,6 +63,10 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
     ? (colors.find(c => c.name === selectedColor)?.image || product.image)
     : product.image;
 
+  const currentIndex = hasVariants ? colors.findIndex(c => c.name === (selectedColor || colors[0]?.name)) : -1;
+  const isFirst = currentIndex <= 0;
+  const isLast = currentIndex === colors.length - 1;
+
   const handleAdd = () => {
     const chosenColorObj = colors.find(c => c.name === selectedColor);
     const variantId = chosenColorObj?.id || (colors.length > 0 ? colors[0].id : undefined);
@@ -192,13 +196,47 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            gap: '24px',
             padding: '10px'
           }}>
+            {hasVariants && colors.length > 1 && (
+              <button
+                disabled={isFirst}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isFirst) {
+                    setSelectedColor(colors[currentIndex - 1].name);
+                  }
+                }}
+                style={{
+                  flexShrink: 0,
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #dcdcdc',
+                  backgroundColor: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: isFirst ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                  color: isFirst ? '#ccc' : '#555',
+                  fontSize: '16px',
+                  transition: 'all 0.2s',
+                  opacity: isFirst ? 0.5 : 1
+                }}
+                onMouseOver={(e) => { if (!isFirst) { e.currentTarget.style.borderColor = '#00c0ff'; e.currentTarget.style.color = '#00c0ff'; } }}
+                onMouseOut={(e) => { if (!isFirst) { e.currentTarget.style.borderColor = '#dcdcdc'; e.currentTarget.style.color = '#555'; } }}
+              >
+                &#10094;
+              </button>
+            )}
+
             <img 
               src={mainImage} 
               alt={product.name} 
               style={{
-                maxWidth: '100%',
+                maxWidth: 'calc(100% - 130px)',
                 maxHeight: '100%',
                 objectFit: 'contain',
                 transition: 'all 0.3s ease'
@@ -208,6 +246,39 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
                 target.src = '/samsung_a31.png';
               }}
             />
+
+            {hasVariants && colors.length > 1 && (
+              <button
+                disabled={isLast}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isLast) {
+                    setSelectedColor(colors[currentIndex + 1].name);
+                  }
+                }}
+                style={{
+                  flexShrink: 0,
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #dcdcdc',
+                  backgroundColor: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: isLast ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                  color: isLast ? '#ccc' : '#555',
+                  fontSize: '16px',
+                  transition: 'all 0.2s',
+                  opacity: isLast ? 0.5 : 1
+                }}
+                onMouseOver={(e) => { if (!isLast) { e.currentTarget.style.borderColor = '#00c0ff'; e.currentTarget.style.color = '#00c0ff'; } }}
+                onMouseOut={(e) => { if (!isLast) { e.currentTarget.style.borderColor = '#dcdcdc'; e.currentTarget.style.color = '#555'; } }}
+              >
+                &#10095;
+              </button>
+            )}
           </div>
 
           {/* Color variant thumbnails - Only render if product has color variants */}
