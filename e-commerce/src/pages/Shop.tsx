@@ -364,7 +364,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
                 {/* Gold stars rating */}
                 <div className="product-rating" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                  <span style={{ fontSize: '23px', fontWeight: 'normal', marginRight: '4px', paddingTop: '4px', lineHeight: '28px' }}>{product.rating}</span>
+                  <span style={{ fontSize: '23px', color: '#444444', marginRight: '4px', paddingTop: '4px', lineHeight: '28px' }}>{product.rating}</span>
                   {STARS.map((star) => {
                     const fillPercent = Math.min(Math.max(product.rating - (star - 1), 0), 1);
                     return <StarIcon key={star} fillPercent={fillPercent} />;
