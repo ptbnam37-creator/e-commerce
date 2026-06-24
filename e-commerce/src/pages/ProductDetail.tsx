@@ -212,7 +212,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
 
           {/* Color variant thumbnails - Only render if product has color variants */}
           {hasVariants && (
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               {colors.map((c) => (
                 <div 
                   key={c.name}
@@ -223,7 +223,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
                     padding: '6px',
                     cursor: 'pointer',
                     textAlign: 'center',
-                    width: '68px',
+                    width: '76px',
                     backgroundColor: '#ffffff',
                     transition: 'all 0.2s'
                   }}
@@ -243,7 +243,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
                       }}
                     />
                   </div>
-                  <div style={{ fontSize: '10px', color: '#666', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '11px', color: '#666', whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: '1.2' }}>
                     {c.name}
                   </div>
                 </div>
