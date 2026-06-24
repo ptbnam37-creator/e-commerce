@@ -67,11 +67,6 @@ body {
 .logo-img {
   height: 40px;
   width: auto;
-  transition: transform 0.3s ease;
-}
-
-.logo-container:hover .logo-img {
-  transform: rotate(-5deg) scale(1.05);
 }
 
 .app-title {
