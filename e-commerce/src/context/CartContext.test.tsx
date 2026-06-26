@@ -6,6 +6,7 @@ import { pb } from '../services/pocketbase';
 
 // Mock PocketBase
 export const mockUpdate = vi.fn().mockResolvedValue({});
+export const mockDelete = vi.fn().mockResolvedValue({});
 
 vi.mock('../services/pocketbase', () => {
   const mockCartList = [
@@ -37,6 +38,7 @@ vi.mock('../services/pocketbase', () => {
       collection: vi.fn().mockImplementation((name) => {
         return {
           update: mockUpdate,
+          delete: mockDelete,
           getFullList: vi.fn().mockImplementation(() => {
             if (name === 'cart') {
               return Promise.resolve(mockCartList);
@@ -78,7 +80,7 @@ vi.mock('../services/pocketbase', () => {
 
 // A simple test component to consume the context
 const TestComponent = () => {
-  const { cart, products, updateQuantity } = useCart();
+  const { cart, products, updateQuantity, removeFromCart } = useCart();
   return (
     <div>
       <div data-testid="products-length">{products.length}</div>
@@ -87,6 +89,7 @@ const TestComponent = () => {
       <div data-testid="first-item-qty">{cart.length > 0 ? cart[0].quantity : '0'}</div>
       <button data-testid="update-qty-btn" onClick={() => updateQuantity('cart-record-1', -5)}>Update Qty</button>
       <button data-testid="update-qty-btn-not-exist" onClick={() => updateQuantity('cart-record-not-exist', -5)}>Update Qty Not Exist</button>
+      <button data-testid="remove-from-cart-btn" onClick={() => removeFromCart('cart-record-1')}>Remove</button>
     </div>
   );
 };
@@ -138,6 +141,44 @@ describe('CartContext with PocketBase', () => {
 
     expect(screen.getByTestId('first-item-name')).toHaveTextContent('iPhone 13 (Xanh dương)');
     expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
+  });
+
+  it('handles errors when removing from cart', async () => {
+    // Simulate logged in user
+    // @ts-expect-error: mock readonly
+    pb.authStore.isValid = true;
+    // @ts-expect-error: mock readonly
+    pb.authStore.model = { id: 'user-1' };
+
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const mockError = new Error('Test delete error');
+    mockDelete.mockRejectedValueOnce(mockError);
+
+    render(
+      <CartProvider>
+        <TestComponent />
+      </CartProvider>
+    );
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
+    });
+
+    // Click remove
+    screen.getByTestId('remove-from-cart-btn').click();
+
+    await waitFor(() => {
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Failed to remove from cart on PocketBase:',
+        mockError
+      );
+    });
+
+    // Cart length should still be 1 because it reverted
+    expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
+
+    consoleWarnSpy.mockRestore();
   });
 
   it('handles errors when loading products', async () => {
