@@ -117,6 +117,22 @@ describe('Cart Component', () => {
     // Click remove button (title="Xóa sản phẩm")
     const removeBtn = screen.getByTitle('Xóa sản phẩm');
     fireEvent.click(removeBtn);
+    
+    // Verify modal appears
+    expect(screen.getByTestId('delete-modal')).toBeInTheDocument();
+    
+    // Cancel deletion
+    const cancelBtn = screen.getByText('Huỷ');
+    fireEvent.click(cancelBtn);
+    expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
+    expect(mockRemoveFromCart).not.toHaveBeenCalled();
+
+    // Re-open modal and confirm deletion
+    fireEvent.click(removeBtn);
+    const confirmBtn = screen.getByText('Xoá');
+    fireEvent.click(confirmBtn);
+    
     expect(mockRemoveFromCart).toHaveBeenCalledWith('cart-1');
+    expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
   });
 });

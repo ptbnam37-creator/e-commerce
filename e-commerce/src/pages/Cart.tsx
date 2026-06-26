@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useCart, CartItem } from '../context/CartContext.tsx';
 
 const TrashIcon = () => (
@@ -12,6 +12,22 @@ const TrashIcon = () => (
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, subTotal, tax, total } = useCart();
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+  const confirmDelete = (cartId: string) => {
+    setItemToDelete(cartId);
+  };
+
+  const handleConfirm = () => {
+    if (itemToDelete) {
+      removeFromCart(itemToDelete);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleCancel = () => {
+    setItemToDelete(null);
+  };
 
   // Calculate total items directly from the cart state
   const totalItems = useMemo(() => cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0), [cart]);
@@ -75,7 +91,7 @@ const Cart = () => {
                   </button>
                   <button
                     className="remove-btn"
-                    onClick={() => removeFromCart(item.cartId)}
+                    onClick={() => confirmDelete(item.cartId)}
                     title="Xóa sản phẩm"
                   >
                     <TrashIcon />
@@ -102,6 +118,46 @@ const Cart = () => {
           <span>{formatPrice(total)}</span>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {itemToDelete && (
+        <div className="delete-confirm-modal" data-testid="delete-modal" style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '8px',
+            maxWidth: '400px',
+            width: '90%',
+            textAlign: 'center',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+          }}>
+            <h3 style={{ marginTop: 0, color: '#333' }}>Xác nhận xoá</h3>
+            <p style={{ color: '#666', marginBottom: '24px' }}>Bạn có chắc chắn muốn xoá sản phẩm này khỏi giỏ hàng?</p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button 
+                onClick={handleCancel}
+                style={{ padding: '8px 24px', border: '1px solid #dcdcdc', borderRadius: '4px', backgroundColor: 'white', cursor: 'pointer', fontWeight: '500', color: '#333' }}
+              >
+                Huỷ
+              </button>
+              <button 
+                onClick={handleConfirm}
+                style={{ padding: '8px 24px', border: 'none', borderRadius: '4px', backgroundColor: '#e53935', color: 'white', cursor: 'pointer', fontWeight: '500' }}
+              >
+                Xoá
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
