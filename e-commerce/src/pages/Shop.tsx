@@ -1,8 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useCart, Product } from '../context/CartContext';
 import { StarIcon } from '../components/icons/StarIcon';
-import { Pagination, Button } from 'antd';
-import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 
 const STARS = [1, 2, 3, 4, 5];
 
@@ -23,6 +22,27 @@ const ChevronDown = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none', marginLeft: 'auto', color: '#000' }}>
     <polyline points="6 9 12 15 18 9" />
   </svg>
+);
+
+const PaginationArrow = ({ disabled, onClick, children }: { disabled: boolean; onClick: () => void; children: React.ReactNode }) => (
+  <button
+    disabled={disabled}
+    onClick={onClick}
+    style={{
+      background: 'none',
+      border: 'none',
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      opacity: disabled ? 0.3 : 1,
+      color: '#8b9ab3',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '4px',
+      transition: 'opacity 0.2s'
+    }}
+  >
+    {children}
+  </button>
 );
 
 interface FilterDropdownProps {
@@ -415,30 +435,50 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* Pagination Controls */}
       {filteredProducts.length > ITEMS_PER_PAGE && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '32px', gap: '8px' }}>
-          <Button 
-            type="text" 
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(1)}
-            icon={<DoubleLeftOutlined style={{ fontSize: '11px' }} />}
-            style={{ color: currentPage === 1 ? '#ccc' : '#666' }}
-          />
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '32px', color: '#8b9ab3', fontSize: '18px', fontWeight: '500' }}>
+          
+          <PaginationArrow disabled={currentPage === 1} onClick={() => setCurrentPage(1)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="11 17 6 12 11 7" />
+              <polyline points="18 17 13 12 18 7" />
+            </svg>
+          </PaginationArrow>
 
-          <Pagination
-            simple
-            current={currentPage}
-            total={filteredProducts.length}
-            pageSize={ITEMS_PER_PAGE}
-            onChange={(page) => setCurrentPage(page)}
-          />
+          <PaginationArrow disabled={currentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </PaginationArrow>
 
-          <Button 
-            type="text" 
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(totalPages)}
-            icon={<DoubleRightOutlined style={{ fontSize: '11px' }} />}
-            style={{ color: currentPage === totalPages ? '#ccc' : '#666' }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ 
+              border: '1px solid #cbd2d9', 
+              borderRadius: '4px', 
+              padding: '4px 16px',
+              minWidth: '40px',
+              textAlign: 'center',
+              color: '#475669',
+              background: '#fff'
+            }}>
+              {currentPage}
+            </div>
+            <span>/</span>
+            <span>{totalPages}</span>
+          </div>
+
+          <PaginationArrow disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </PaginationArrow>
+
+          <PaginationArrow disabled={currentPage === totalPages} onClick={() => setCurrentPage(totalPages)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="13 17 18 12 13 7" />
+              <polyline points="6 17 11 12 6 7" />
+            </svg>
+          </PaginationArrow>
+
         </div>
       )}
     </div>
