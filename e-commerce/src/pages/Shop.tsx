@@ -437,12 +437,9 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       {filteredProducts.length > ITEMS_PER_PAGE && (
         <div style={{ 
           position: 'fixed', 
-          bottom: '0', 
+          bottom: '24px', 
           left: '0', 
           width: '100%', 
-          backgroundColor: '#ffffff', 
-          boxShadow: '0 -4px 12px rgba(0,0,0,0.05)', 
-          padding: '16px 0', 
           zIndex: 100,
           display: 'flex', 
           justifyContent: 'center', 
@@ -451,51 +448,61 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
           color: '#8b9ab3', 
           fontSize: '18px', 
           fontWeight: '500',
-          paddingBottom: 'max(16px, env(safe-area-inset-bottom))'
+          pointerEvents: 'none' // allow clicking through empty space
         }}>
-          
-          <PaginationArrow disabled={currentPage === 1} onClick={() => setCurrentPage(1)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="11 17 6 12 11 7" />
-              <polyline points="18 17 13 12 18 7" />
-            </svg>
-          </PaginationArrow>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            pointerEvents: 'auto', // re-enable clicks for the pagination itself
+            padding: '8px 16px',
+            borderRadius: '100px',
+            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(8px)', // Add a subtle blur so it's readable over scrolling content
+            boxShadow: '0 4px 16px rgba(0,0,0,0.08)'
+          }}>
+            <PaginationArrow disabled={currentPage === 1} onClick={() => setCurrentPage(1)}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="11 17 6 12 11 7" />
+                <polyline points="18 17 13 12 18 7" />
+              </svg>
+            </PaginationArrow>
 
-          <PaginationArrow disabled={currentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </PaginationArrow>
+            <PaginationArrow disabled={currentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </PaginationArrow>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ 
-              border: '1px solid #cbd2d9', 
-              borderRadius: '4px', 
-              padding: '4px 16px',
-              minWidth: '40px',
-              textAlign: 'center',
-              color: '#475669',
-              background: '#fff'
-            }}>
-              {currentPage}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ 
+                border: '1px solid #cbd2d9', 
+                borderRadius: '4px', 
+                padding: '4px 16px',
+                minWidth: '40px',
+                textAlign: 'center',
+                color: '#475669',
+                background: '#fff'
+              }}>
+                {currentPage}
+              </div>
+              <span>/</span>
+              <span>{totalPages}</span>
             </div>
-            <span>/</span>
-            <span>{totalPages}</span>
+
+            <PaginationArrow disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </PaginationArrow>
+
+            <PaginationArrow disabled={currentPage === totalPages} onClick={() => setCurrentPage(totalPages)}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="13 17 18 12 13 7" />
+                <polyline points="6 17 11 12 6 7" />
+              </svg>
+            </PaginationArrow>
           </div>
-
-          <PaginationArrow disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </PaginationArrow>
-
-          <PaginationArrow disabled={currentPage === totalPages} onClick={() => setCurrentPage(totalPages)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="13 17 18 12 13 7" />
-              <polyline points="6 17 11 12 6 7" />
-            </svg>
-          </PaginationArrow>
-
         </div>
       )}
     </div>
