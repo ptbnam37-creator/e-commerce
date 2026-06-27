@@ -189,8 +189,11 @@ const Profile = ({ onLogout }: ProfileProps) => {
               style={{ 
                 flex: 1, 
                 marginTop: 0,
-                opacity: hasChanges ? 1 : 0.6,
-                cursor: hasChanges ? 'pointer' : 'not-allowed'
+                backgroundColor: hasChanges ? undefined : '#e0e0e0',
+                color: hasChanges ? undefined : '#888',
+                border: hasChanges ? undefined : '1px solid #dcdcdc',
+                cursor: hasChanges ? 'pointer' : 'not-allowed',
+                boxShadow: hasChanges ? undefined : 'none'
               }}
             >
               Lưu thay đổi
