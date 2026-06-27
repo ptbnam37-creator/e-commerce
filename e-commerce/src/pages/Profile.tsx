@@ -51,7 +51,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
     }
     setToastType(type);
     setToastMessage(message);
-    toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 2000);
+    toastTimeoutRef.current = window.setTimeout(() => setToastMessage(''), 4000);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -86,8 +86,10 @@ const Profile = ({ onLogout }: ProfileProps) => {
             emailChangeSuccess = true;
           } catch (err) {
             console.warn('Failed to request email change:', err);
-            showToast('Lỗi: Chưa cấu hình máy chủ gửi mail (SMTP) để đổi email.', 'error');
+            showToast('Lỗi: Cấu hình hệ thống mail chưa hoàn thiện. Vui lòng thử lại sau.', 'error');
           }
+          // Revert email field to current DB email because the change is either pending or failed
+          setProfile(prev => ({ ...prev, email: pb.authStore.model?.email || '' }));
         }
 
         // Only call API if there's actually something to update
@@ -96,13 +98,13 @@ const Profile = ({ onLogout }: ProfileProps) => {
           await pb.collection('users').authRefresh();
           
           if (emailChangeRequested && emailChangeSuccess) {
-            showToast('Cập nhật thông tin thành công! Vui lòng kiểm tra hòm thư để xác nhận email mới.', 'success');
+            showToast('Lưu thành công! Vui lòng kiểm tra email để xác nhận đổi địa chỉ.', 'success');
           } else if (!emailChangeRequested) {
             showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
           }
         } else {
           if (emailChangeRequested && emailChangeSuccess) {
-            showToast('Đã gửi link xác nhận đến email mới của bạn!', 'success');
+            showToast('Đã gửi link xác nhận đến hòm thư mới của bạn!', 'success');
           } else if (!emailChangeRequested) {
             showToast('Không có thay đổi nào để lưu.', 'success');
           }
