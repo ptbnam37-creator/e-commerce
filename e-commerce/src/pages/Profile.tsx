@@ -189,9 +189,9 @@ const Profile = ({ onLogout }: ProfileProps) => {
               style={{ 
                 flex: 1, 
                 marginTop: 0,
-                backgroundColor: hasChanges ? undefined : '#8c8c8c',
+                backgroundColor: hasChanges ? undefined : '#8a8a8a',
                 color: hasChanges ? undefined : '#ffffff',
-                border: hasChanges ? undefined : '1px solid #8c8c8c',
+                border: hasChanges ? undefined : '1px solid #8a8a8a',
                 cursor: hasChanges ? 'pointer' : 'not-allowed',
                 boxShadow: hasChanges ? undefined : 'none'
               }}
