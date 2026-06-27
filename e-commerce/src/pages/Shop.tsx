@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { useCart, Product } from '../context/CartContext';
 import { StarIcon } from '../components/icons/StarIcon';
 import { Pagination, Button } from 'antd';
+import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
 
 const STARS = [1, 2, 3, 4, 5];
 
@@ -414,18 +415,14 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* Pagination Controls */}
       {filteredProducts.length > ITEMS_PER_PAGE && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '32px', gap: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '32px', gap: '8px' }}>
           <Button 
             type="text" 
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(1)}
-            style={{ color: currentPage === 1 ? '#ccc' : '#666', padding: '0 8px', display: 'flex', alignItems: 'center', height: '32px' }}
-          >
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="11 17 6 12 11 7" />
-              <polyline points="18 17 13 12 18 7" />
-            </svg>
-          </Button>
+            icon={<DoubleLeftOutlined style={{ fontSize: '11px' }} />}
+            style={{ color: currentPage === 1 ? '#ccc' : '#666' }}
+          />
 
           <Pagination
             simple
@@ -439,13 +436,9 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
             type="text" 
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(totalPages)}
-            style={{ color: currentPage === totalPages ? '#ccc' : '#666', padding: '0 8px', display: 'flex', alignItems: 'center', height: '32px' }}
-          >
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="13 17 18 12 13 7" />
-              <polyline points="6 17 11 12 6 7" />
-            </svg>
-          </Button>
+            icon={<DoubleRightOutlined style={{ fontSize: '11px' }} />}
+            style={{ color: currentPage === totalPages ? '#ccc' : '#666' }}
+          />
         </div>
       )}
     </div>
