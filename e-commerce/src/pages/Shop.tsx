@@ -476,8 +476,8 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
               <div style={{ 
                 border: '1px solid #cbd2d9', 
                 borderRadius: '4px', 
-                padding: '4px 16px',
-                minWidth: '40px',
+                padding: '4px 0',
+                width: '48px',
                 textAlign: 'center',
                 color: '#475669',
                 background: '#fff'
