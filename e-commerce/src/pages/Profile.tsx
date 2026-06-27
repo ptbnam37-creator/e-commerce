@@ -85,7 +85,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
           try {
             await pb.send('/api/change-email', {
               method: 'POST',
-              body: { email: profile.email }
+              body: { id: pb.authStore.model.id, email: profile.email }
             });
             emailChangeSuccess = true;
           } catch (err) {
