@@ -71,15 +71,25 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
     if (isPbLoggedIn && pb.authStore.model) {
       try {
-        await pb.collection('users').update(pb.authStore.model.id, {
-          name: profile.name,
-          email: profile.email,
-          phone: profile.phone,
-          address: profile.address
-        });
-        // Refresh auth store to update local model
-        await pb.collection('users').authRefresh();
-        showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
+        const updateData: Record<string, string> = {};
+        if (profile.name !== pb.authStore.model.name) updateData.name = profile.name;
+        if (profile.phone !== pb.authStore.model.phone) updateData.phone = profile.phone;
+        if (profile.address !== pb.authStore.model.address) updateData.address = profile.address;
+
+        if (profile.email !== pb.authStore.model.email) {
+          showToast('Tính năng đổi email hiện không khả dụng (yêu cầu cấu hình máy chủ gửi mail).', 'error');
+          return;
+        }
+
+        // Only call API if there's actually something to update
+        if (Object.keys(updateData).length > 0) {
+          await pb.collection('users').update(pb.authStore.model.id, updateData);
+          // Refresh auth store to update local model
+          await pb.collection('users').authRefresh();
+          showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
+        } else {
+          showToast('Không có thay đổi nào để lưu.', 'success');
+        }
       } catch (err) {
         console.warn('Failed to update profile in PocketBase:', err);
         showToast('Có lỗi xảy ra khi lưu thông tin lên PocketBase.', 'error');
@@ -153,6 +163,9 @@ const Profile = ({ onLogout }: ProfileProps) => {
               name="email"
               value={profile.email}
               onChange={handleChange}
+              disabled
+              title="Tính năng đổi email hiện không được hỗ trợ"
+              style={{ backgroundColor: '#f5f5f5', color: '#888', cursor: 'not-allowed' }}
               required
             />
           </div>
