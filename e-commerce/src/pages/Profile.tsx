@@ -76,19 +76,36 @@ const Profile = ({ onLogout }: ProfileProps) => {
         if (profile.phone !== pb.authStore.model.phone) updateData.phone = profile.phone;
         if (profile.address !== pb.authStore.model.address) updateData.address = profile.address;
 
+        let emailChangeSuccess = false;
+        let emailChangeRequested = false;
+        
         if (profile.email !== pb.authStore.model.email) {
-          showToast('Tính năng đổi email hiện không khả dụng (yêu cầu cấu hình máy chủ gửi mail).', 'error');
-          return;
+          emailChangeRequested = true;
+          try {
+            await pb.collection('users').requestEmailChange(profile.email);
+            emailChangeSuccess = true;
+          } catch (err) {
+            console.warn('Failed to request email change:', err);
+            showToast('Lỗi: Chưa cấu hình máy chủ gửi mail (SMTP) để đổi email.', 'error');
+          }
         }
 
         // Only call API if there's actually something to update
         if (Object.keys(updateData).length > 0) {
           await pb.collection('users').update(pb.authStore.model.id, updateData);
-          // Refresh auth store to update local model
           await pb.collection('users').authRefresh();
-          showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
+          
+          if (emailChangeRequested && emailChangeSuccess) {
+            showToast('Cập nhật thông tin thành công! Vui lòng kiểm tra hòm thư để xác nhận email mới.', 'success');
+          } else if (!emailChangeRequested) {
+            showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
+          }
         } else {
-          showToast('Không có thay đổi nào để lưu.', 'success');
+          if (emailChangeRequested && emailChangeSuccess) {
+            showToast('Đã gửi link xác nhận đến email mới của bạn!', 'success');
+          } else if (!emailChangeRequested) {
+            showToast('Không có thay đổi nào để lưu.', 'success');
+          }
         }
       } catch (err) {
         console.warn('Failed to update profile in PocketBase:', err);
@@ -163,9 +180,6 @@ const Profile = ({ onLogout }: ProfileProps) => {
               name="email"
               value={profile.email}
               onChange={handleChange}
-              disabled
-              title="Tính năng đổi email hiện không được hỗ trợ"
-              style={{ backgroundColor: '#f5f5f5', color: '#888', cursor: 'not-allowed' }}
               required
             />
           </div>
