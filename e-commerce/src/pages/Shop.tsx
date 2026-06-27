@@ -34,12 +34,13 @@ interface FilterDropdownProps {
   setMaxRating: (val: number) => void;
   priceFromOptions: { value: number; label: string }[];
   priceToOptions: { value: number; label: string }[];
+  onReset: () => void;
 }
 
 const FilterDropdown = ({
   minPrice, setMinPrice, maxPrice, setMaxPrice,
   minRating, setMinRating, maxRating, setMaxRating,
-  priceFromOptions, priceToOptions
+  priceFromOptions, priceToOptions, onReset
 }: FilterDropdownProps) => (
   <div style={{
     position: 'absolute',
@@ -60,9 +61,27 @@ const FilterDropdown = ({
       fontWeight: 'bold',
       fontSize: '18px',
       padding: '12px 0',
-      borderBottom: '1px solid #c0c0c0'
+      borderBottom: '1px solid #c0c0c0',
+      position: 'relative'
     }}>
       Filter
+      <button
+        onClick={onReset}
+        style={{
+          position: 'absolute',
+          right: '16px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          background: 'none',
+          border: 'none',
+          color: '#e53935',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: 'normal'
+        }}
+      >
+        Reset
+      </button>
     </div>
 
     {/* Body */}
@@ -231,6 +250,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   const [maxPrice, setMaxPrice] = useState<number>(999999999);
   const [minRating, setMinRating] = useState<number>(0);
   const [maxRating, setMaxRating] = useState<number>(5);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close filter dropdown on click outside
@@ -253,6 +273,23 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       return matchesSearch && matchesPrice && matchesRating;
     });
   }, [products, searchTerm, minPrice, maxPrice, minRating, maxRating]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, minPrice, maxPrice, minRating, maxRating]);
+
+  const ITEMS_PER_PAGE = 8;
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const currentProducts = filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setMinPrice(0);
+    setMaxPrice(999999999);
+    setMinRating(0);
+    setMaxRating(5);
+  };
 
   // Price select options
   const priceFromOptions = [
@@ -326,6 +363,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
               setMaxRating={setMaxRating}
               priceFromOptions={priceFromOptions}
               priceToOptions={priceToOptions}
+              onReset={handleResetFilters}
             />
           )}
         </div>
@@ -339,7 +377,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
         </div>
       ) : (
         <div className="products-grid">
-          {filteredProducts.map((product) => (
+          {currentProducts.map((product) => (
             <div
               key={product.id}
               className="product-card"
@@ -373,6 +411,29 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {filteredProducts.length > ITEMS_PER_PAGE && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '32px' }}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            style={{ padding: '8px 16px', border: '1px solid #dcdcdc', borderRadius: '4px', background: '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.5 : 1, transition: 'all 0.2s' }}
+          >
+            Trước
+          </button>
+          <span style={{ padding: '8px 16px', background: '#f0f0f0', borderRadius: '4px', fontWeight: '500' }}>
+            Trang {currentPage} / {totalPages}
+          </span>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            style={{ padding: '8px 16px', border: '1px solid #dcdcdc', borderRadius: '4px', background: '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.5 : 1, transition: 'all 0.2s' }}
+          >
+            Sau
+          </button>
         </div>
       )}
     </div>

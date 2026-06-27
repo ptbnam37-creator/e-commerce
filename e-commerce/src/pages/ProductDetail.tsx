@@ -196,37 +196,19 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            gap: '24px',
+            gap: '12px',
             padding: '10px'
           }}>
             {hasVariants && colors.length > 1 && (
               <button
                 disabled={isFirst}
+                className="carousel-btn"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!isFirst) {
                     setSelectedColor(colors[currentIndex - 1].name);
                   }
                 }}
-                style={{
-                  flexShrink: 0,
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  border: `1.5px solid ${isFirst ? '#ccc' : '#dcdcdc'}`,
-                  backgroundColor: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: isFirst ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  color: isFirst ? '#ccc' : '#555',
-                  fontSize: '16px',
-                  transition: 'all 0.2s',
-                  opacity: isFirst ? 0.5 : 1
-                }}
-                onMouseOver={(e) => { if (!isFirst) { e.currentTarget.style.borderColor = '#00c0ff'; e.currentTarget.style.color = '#00c0ff'; } }}
-                onMouseOut={(e) => { if (!isFirst) { e.currentTarget.style.borderColor = '#dcdcdc'; e.currentTarget.style.color = '#555'; } }}
               >
                 &#10094;
               </button>
@@ -250,31 +232,13 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             {hasVariants && colors.length > 1 && (
               <button
                 disabled={isLast}
+                className="carousel-btn"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!isLast) {
                     setSelectedColor(colors[currentIndex + 1].name);
                   }
                 }}
-                style={{
-                  flexShrink: 0,
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  border: `1.5px solid ${isLast ? '#ccc' : '#dcdcdc'}`,
-                  backgroundColor: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: isLast ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  color: isLast ? '#ccc' : '#555',
-                  fontSize: '16px',
-                  transition: 'all 0.2s',
-                  opacity: isLast ? 0.5 : 1
-                }}
-                onMouseOver={(e) => { if (!isLast) { e.currentTarget.style.borderColor = '#00c0ff'; e.currentTarget.style.color = '#00c0ff'; } }}
-                onMouseOut={(e) => { if (!isLast) { e.currentTarget.style.borderColor = '#dcdcdc'; e.currentTarget.style.color = '#555'; } }}
               >
                 &#10095;
               </button>
