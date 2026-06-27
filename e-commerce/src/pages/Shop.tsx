@@ -330,7 +330,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   ];
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', paddingBottom: '100px' }}>
       {/* Header bar: Shop title left, Search & Filter right */}
       <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '24px', alignItems: 'center' }}>
         <h1 className="page-title" style={{ fontSize: '28px', fontWeight: 'bold' }}>Shop</h1>
@@ -435,7 +435,24 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* Pagination Controls */}
       {filteredProducts.length > ITEMS_PER_PAGE && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '32px', color: '#8b9ab3', fontSize: '18px', fontWeight: '500' }}>
+        <div style={{ 
+          position: 'fixed', 
+          bottom: '0', 
+          left: '0', 
+          width: '100%', 
+          backgroundColor: '#ffffff', 
+          boxShadow: '0 -4px 12px rgba(0,0,0,0.05)', 
+          padding: '16px 0', 
+          zIndex: 100,
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          gap: '16px', 
+          color: '#8b9ab3', 
+          fontSize: '18px', 
+          fontWeight: '500',
+          paddingBottom: 'max(16px, env(safe-area-inset-bottom))'
+        }}>
           
           <PaginationArrow disabled={currentPage === 1} onClick={() => setCurrentPage(1)}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
