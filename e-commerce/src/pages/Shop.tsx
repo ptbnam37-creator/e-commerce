@@ -330,7 +330,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   ];
 
   return (
-    <div style={{ position: 'relative', paddingBottom: '100px' }}>
+    <div style={{ position: 'relative', paddingBottom: '80px' }}>
       {/* Header bar: Shop title left, Search & Filter right */}
       <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '24px', alignItems: 'center' }}>
         <h1 className="page-title" style={{ fontSize: '28px', fontWeight: 'bold' }}>Shop</h1>
@@ -437,7 +437,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       {filteredProducts.length > ITEMS_PER_PAGE && (
         <div style={{ 
           position: 'sticky', 
-          bottom: '24px', 
+          bottom: '12px', 
           zIndex: 100,
           display: 'flex', 
           justifyContent: 'center', 
