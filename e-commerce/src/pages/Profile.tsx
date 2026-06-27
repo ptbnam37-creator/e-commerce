@@ -14,20 +14,12 @@ const Profile = ({ onLogout }: ProfileProps) => {
   // Initialize with PocketBase data if logged in via PocketBase, else fallback
   const isPbLoggedIn = pb.authStore.isValid && pb.authStore.model;
 
-  const originalProfile = {
+  const [profile, setProfile] = useState({
     name: isPbLoggedIn ? (pb.authStore.model?.name || '') : storedProfile.name,
     email: isPbLoggedIn ? (pb.authStore.model?.email || '') : storedProfile.email,
     phone: isPbLoggedIn ? (pb.authStore.model?.phone || '') : storedProfile.phone,
     address: isPbLoggedIn ? (pb.authStore.model?.address || '') : storedProfile.address,
-  };
-
-  const [profile, setProfile] = useState(originalProfile);
-
-  const hasChanges = 
-    profile.name !== originalProfile.name ||
-    profile.email !== originalProfile.email ||
-    profile.phone !== originalProfile.phone ||
-    profile.address !== originalProfile.address;
+  });
 
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error'>('success');
@@ -56,6 +48,19 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(profile.email)) {
+      showToast('Email không hợp lệ!', 'error');
+      return;
+    }
+
+    const phoneRegex = /^(0|\+84)\d{9}$/;
+    if (!phoneRegex.test(profile.phone)) {
+      showToast('Số điện thoại không hợp lệ (phải bắt đầu bằng 0 hoặc +84 và đủ 10 số)!', 'error');
+      return;
+    }
+
     if (isPbLoggedIn && pb.authStore.model) {
       try {
         await pb.collection('users').update(pb.authStore.model.id, {
@@ -169,17 +174,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
           </div>
 
           <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
-            <button 
-              type="submit" 
-              className="save-profile-btn" 
-              disabled={!hasChanges}
-              style={{ 
-                flex: 1, 
-                marginTop: 0,
-                opacity: hasChanges ? 1 : 0.5,
-                cursor: hasChanges ? 'pointer' : 'not-allowed'
-              }}
-            >
+            <button type="submit" className="save-profile-btn" style={{ flex: 1, marginTop: 0 }}>
               Lưu thay đổi
             </button>
             <button 

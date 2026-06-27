@@ -51,6 +51,20 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
       return;
     }
     
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^(0|\+84)\d{9}$/;
+
+    if (username.includes('@') && !emailRegex.test(username)) {
+      setError('Email không hợp lệ!');
+      return;
+    }
+
+    // Check if username consists only of digits, +, or spaces, implying it's a phone number
+    if (/^[\d\s+]+$/.test(username) && !phoneRegex.test(username.replace(/\s+/g, ''))) {
+      setError('Số điện thoại không hợp lệ (phải bắt đầu bằng 0 hoặc +84 và đủ 10 số)!');
+      return;
+    }
+    
     setIsLoading(true);
 
     try {
