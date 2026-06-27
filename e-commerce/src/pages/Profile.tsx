@@ -78,36 +78,34 @@ const Profile = ({ onLogout }: ProfileProps) => {
 
         let emailChangeSuccess = false;
         let emailChangeRequested = false;
+        let otherChangesSuccess = false;
         
         if (profile.email !== pb.authStore.model.email) {
           emailChangeRequested = true;
           try {
-            await pb.collection('users').requestEmailChange(profile.email);
+            await pb.send('/api/change-email', {
+              method: 'POST',
+              body: { email: profile.email }
+            });
             emailChangeSuccess = true;
           } catch (err) {
-            console.warn('Failed to request email change:', err);
-            showToast('Lỗi: Cấu hình hệ thống mail chưa hoàn thiện. Vui lòng thử lại sau.', 'error');
+            console.warn('Failed to update email via custom hook:', err);
+            showToast('Lỗi: Bạn cần khởi động lại PocketBase để tính năng này hoạt động.', 'error');
+            // Revert email field if failed
+            setProfile(prev => ({ ...prev, email: pb.authStore.model?.email || '' }));
           }
-          // Revert email field to current DB email because the change is either pending or failed
-          setProfile(prev => ({ ...prev, email: pb.authStore.model?.email || '' }));
         }
 
-        // Only call API if there's actually something to update
         if (Object.keys(updateData).length > 0) {
           await pb.collection('users').update(pb.authStore.model.id, updateData);
+          otherChangesSuccess = true;
+        }
+
+        if (emailChangeSuccess || otherChangesSuccess) {
           await pb.collection('users').authRefresh();
-          
-          if (emailChangeRequested && emailChangeSuccess) {
-            showToast('Lưu thành công! Vui lòng kiểm tra email để xác nhận đổi địa chỉ.', 'success');
-          } else if (!emailChangeRequested) {
-            showToast('Thông tin cá nhân đã được cập nhật thành công lên PocketBase!', 'success');
-          }
-        } else {
-          if (emailChangeRequested && emailChangeSuccess) {
-            showToast('Đã gửi link xác nhận đến hòm thư mới của bạn!', 'success');
-          } else if (!emailChangeRequested) {
-            showToast('Không có thay đổi nào để lưu.', 'success');
-          }
+          showToast('Thông tin cá nhân đã được cập nhật thành công!', 'success');
+        } else if (!emailChangeRequested && !otherChangesSuccess) {
+          showToast('Không có thay đổi nào để lưu.', 'success');
         }
       } catch (err) {
         console.warn('Failed to update profile in PocketBase:', err);
