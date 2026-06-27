@@ -414,7 +414,19 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* Pagination Controls */}
       {filteredProducts.length > ITEMS_PER_PAGE && (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '32px', gap: '4px' }}>
+          <Button 
+            type="text" 
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(1)}
+            style={{ color: currentPage === 1 ? '#ccc' : '#666', padding: '0 8px', display: 'flex', alignItems: 'center', height: '32px' }}
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="11 17 6 12 11 7" />
+              <polyline points="18 17 13 12 18 7" />
+            </svg>
+          </Button>
+
           <Pagination
             simple
             current={currentPage}
@@ -422,6 +434,18 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
             pageSize={ITEMS_PER_PAGE}
             onChange={(page) => setCurrentPage(page)}
           />
+
+          <Button 
+            type="text" 
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(totalPages)}
+            style={{ color: currentPage === totalPages ? '#ccc' : '#666', padding: '0 8px', display: 'flex', alignItems: 'center', height: '32px' }}
+          >
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="13 17 18 12 13 7" />
+              <polyline points="6 17 11 12 6 7" />
+            </svg>
+          </Button>
         </div>
       )}
     </div>
