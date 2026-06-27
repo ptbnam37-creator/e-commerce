@@ -416,11 +416,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       {filteredProducts.length > ITEMS_PER_PAGE && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
           <Pagination
+            simple
             current={currentPage}
             total={filteredProducts.length}
             pageSize={ITEMS_PER_PAGE}
             onChange={(page) => setCurrentPage(page)}
-            showSizeChanger={false}
           />
         </div>
       )}
