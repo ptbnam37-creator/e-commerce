@@ -330,7 +330,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   ];
 
   return (
-    <div style={{ position: 'relative', paddingBottom: '80px' }}>
+    <div style={{ position: 'relative', paddingBottom: '24px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
       {/* Header bar: Shop title left, Search & Filter right */}
       <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '24px', alignItems: 'center' }}>
         <h1 className="page-title" style={{ fontSize: '28px', fontWeight: 'bold' }}>Shop</h1>
@@ -390,12 +390,12 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* 2-Column Horizontal Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="empty-state">
+        <div className="empty-state" style={{ marginBottom: '80px', flex: 1 }}>
           <h2>Không tìm thấy sản phẩm nào</h2>
           <p>Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.</p>
         </div>
       ) : (
-        <div className="products-grid">
+        <div className="products-grid" style={{ marginBottom: '80px', flex: 1 }}>
           {currentProducts.map((product) => (
             <div
               key={product.id}
