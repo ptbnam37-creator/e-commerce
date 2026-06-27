@@ -79,7 +79,14 @@ const Profile = ({ onLogout }: ProfileProps) => {
         let emailChangeSuccess = false;
         let emailChangeRequested = false;
         let otherChangesSuccess = false;
+
+        // 1. Update other info FIRST (because changing email invalidates token)
+        if (Object.keys(updateData).length > 0) {
+          await pb.collection('users').update(pb.authStore.model.id, updateData);
+          otherChangesSuccess = true;
+        }
         
+        // 2. Update email SECOND
         if (profile.email !== pb.authStore.model.email) {
           emailChangeRequested = true;
           try {
@@ -88,20 +95,22 @@ const Profile = ({ onLogout }: ProfileProps) => {
               body: { id: pb.authStore.model.id, email: profile.email }
             });
             emailChangeSuccess = true;
-          } catch (err) {
+          } catch (err: any) {
             console.warn('Failed to update email via custom hook:', err);
-            showToast('Lỗi: Bạn cần khởi động lại PocketBase để tính năng này hoạt động.', 'error');
+            showToast(`Lỗi: ${err.message || 'Không thể cập nhật email'}`, 'error');
             // Revert email field if failed
             setProfile(prev => ({ ...prev, email: pb.authStore.model?.email || '' }));
           }
         }
 
-        if (Object.keys(updateData).length > 0) {
-          await pb.collection('users').update(pb.authStore.model.id, updateData);
-          otherChangesSuccess = true;
-        }
-
-        if (emailChangeSuccess || otherChangesSuccess) {
+        // 3. Handle UI state
+        if (emailChangeSuccess) {
+          showToast('Cập nhật email thành công! Vui lòng đăng nhập lại.', 'success');
+          // Wait a bit before logging out so user can read the toast
+          setTimeout(() => {
+            onLogout();
+          }, 2000);
+        } else if (otherChangesSuccess) {
           await pb.collection('users').authRefresh();
           showToast('Thông tin cá nhân đã được cập nhật thành công!', 'success');
         } else if (!emailChangeRequested && !otherChangesSuccess) {
