@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useCart, Product } from '../context/CartContext';
 import { StarIcon } from '../components/icons/StarIcon';
+import { Pagination, Button } from 'antd';
 
 const STARS = [1, 2, 3, 4, 5];
 
@@ -65,23 +66,20 @@ const FilterDropdown = ({
       position: 'relative'
     }}>
       Filter
-      <button
+      <Button
+        type="text"
+        danger
         onClick={onReset}
         style={{
           position: 'absolute',
-          right: '16px',
+          right: '8px',
           top: '50%',
           transform: 'translateY(-50%)',
-          background: 'none',
-          border: 'none',
-          color: '#e53935',
-          cursor: 'pointer',
-          fontSize: '14px',
-          fontWeight: 'normal'
+          fontSize: '14px'
         }}
       >
         Reset
-      </button>
+      </Button>
     </div>
 
     {/* Body */}
@@ -416,24 +414,14 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* Pagination Controls */}
       {filteredProducts.length > ITEMS_PER_PAGE && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '32px' }}>
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-            style={{ padding: '8px 16px', border: '1px solid #dcdcdc', borderRadius: '4px', background: '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.5 : 1, transition: 'all 0.2s' }}
-          >
-            Trước
-          </button>
-          <span style={{ padding: '8px 16px', background: '#f0f0f0', borderRadius: '4px', fontWeight: '500' }}>
-            Trang {currentPage} / {totalPages}
-          </span>
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-            style={{ padding: '8px 16px', border: '1px solid #dcdcdc', borderRadius: '4px', background: '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.5 : 1, transition: 'all 0.2s' }}
-          >
-            Sau
-          </button>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+          <Pagination
+            current={currentPage}
+            total={filteredProducts.length}
+            pageSize={ITEMS_PER_PAGE}
+            onChange={(page) => setCurrentPage(page)}
+            showSizeChanger={false}
+          />
         </div>
       )}
     </div>
