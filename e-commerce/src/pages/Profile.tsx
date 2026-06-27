@@ -14,12 +14,20 @@ const Profile = ({ onLogout }: ProfileProps) => {
   // Initialize with PocketBase data if logged in via PocketBase, else fallback
   const isPbLoggedIn = pb.authStore.isValid && pb.authStore.model;
 
-  const [profile, setProfile] = useState({
+  const initialProfile = {
     name: isPbLoggedIn ? (pb.authStore.model?.name || '') : storedProfile.name,
     email: isPbLoggedIn ? (pb.authStore.model?.email || '') : storedProfile.email,
     phone: isPbLoggedIn ? (pb.authStore.model?.phone || '') : storedProfile.phone,
     address: isPbLoggedIn ? (pb.authStore.model?.address || '') : storedProfile.address,
-  });
+  };
+
+  const [profile, setProfile] = useState(initialProfile);
+
+  const hasChanges = 
+    profile.name !== initialProfile.name ||
+    profile.email !== initialProfile.email ||
+    profile.phone !== initialProfile.phone ||
+    profile.address !== initialProfile.address;
 
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error'>('success');
@@ -174,7 +182,17 @@ const Profile = ({ onLogout }: ProfileProps) => {
           </div>
 
           <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
-            <button type="submit" className="save-profile-btn" style={{ flex: 1, marginTop: 0 }}>
+            <button 
+              type="submit" 
+              className="save-profile-btn" 
+              disabled={!hasChanges}
+              style={{ 
+                flex: 1, 
+                marginTop: 0,
+                opacity: hasChanges ? 1 : 0.6,
+                cursor: hasChanges ? 'pointer' : 'not-allowed'
+              }}
+            >
               Lưu thay đổi
             </button>
             <button 
