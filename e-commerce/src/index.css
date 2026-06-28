@@ -1157,3 +1157,14 @@ body {
   border-color: #ccc;
   color: #ccc;
 }
+
+/* Default Pagination Container */
+.pagination-container {
+  bottom: 12px;
+}
+
+@media screen and (max-width: 768px) {
+  .pagination-container {
+    bottom: 80px !important;
+  }
+}

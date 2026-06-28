@@ -466,10 +466,9 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* Pagination Controls */}
       {filteredProducts.length > itemsPerPage && (
-        <div style={{ 
+        <div className="pagination-container" style={{ 
           marginTop: 'auto',
           position: 'sticky', 
-          bottom: '12px', 
           zIndex: 100,
           display: 'flex', 
           justifyContent: 'center', 
