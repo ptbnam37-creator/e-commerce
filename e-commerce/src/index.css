@@ -847,8 +847,8 @@ body {
 
   .content-area {
     padding: 16px;
-    padding-bottom: 90px;
-    /* Leave space for bottom navigation bar */
+    padding-bottom: 140px;
+    /* Leave space for bottom navigation bar and fixed pagination */
   }
 
   /* Transform Sidebar into Bottom Navigation */
@@ -1165,6 +1165,11 @@ body {
 
 @media screen and (max-width: 768px) {
   .pagination-container {
+    position: fixed !important;
     bottom: 80px !important;
+    left: 0;
+    right: 0;
+    margin-top: 0 !important;
+    background: transparent;
   }
 }
