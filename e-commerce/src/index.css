@@ -403,8 +403,10 @@ body {
 
 /* Shop Page 2-Column Horizontal Grid */
 .products-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 40px 60px;
   padding: 10px 0;
 }
@@ -412,7 +414,7 @@ body {
 .product-card {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   gap: 24px;
   background: transparent;
   border: none;
@@ -420,6 +422,8 @@ body {
   cursor: pointer;
   transition: transform 0.2s ease, filter 0.2s;
   user-select: none;
+  flex: 1 1 calc(50% - 30px);
+  min-width: 300px;
 }
 
 .product-card:hover {
@@ -828,7 +832,7 @@ body {
 /* --- Intermediate Responsive Rules --- */
 @media screen and (max-width: 1200px) {
   .products-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 }
 
@@ -933,7 +937,7 @@ body {
 
   /* Products Grid adjustment */
   .products-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 24px;
   }
 
