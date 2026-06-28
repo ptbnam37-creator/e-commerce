@@ -299,9 +299,31 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
     setCurrentPage(1);
   }, [searchTerm, minPrice, maxPrice, minRating, maxRating]);
 
-  const ITEMS_PER_PAGE = 8;
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const currentProducts = filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
+
+  useEffect(() => {
+    const calculateItemsPerPage = () => {
+      // Estimated available height (window height minus header, footer, padding, etc.)
+      const availableHeight = window.innerHeight - 350; 
+      // Approximate height of a single product card
+      const cardHeight = 160; 
+      
+      let rows = Math.floor(availableHeight / cardHeight);
+      if (rows < 1) rows = 1;
+
+      // Check if mobile layout (1 column) or desktop (2 columns)
+      const isMobile = window.innerWidth <= 1200;
+      const cols = isMobile ? 1 : 2;
+      
+      setItemsPerPage(rows * cols);
+    };
+
+    calculateItemsPerPage();
+    window.addEventListener('resize', calculateItemsPerPage);
+    return () => window.removeEventListener('resize', calculateItemsPerPage);
+  }, []);
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const currentProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleResetFilters = () => {
     setSearchTerm('');
@@ -441,7 +463,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       )}
 
       {/* Pagination Controls */}
-      {filteredProducts.length > ITEMS_PER_PAGE && (
+      {filteredProducts.length > itemsPerPage && (
         <div style={{ 
           position: 'sticky', 
           bottom: '12px', 
