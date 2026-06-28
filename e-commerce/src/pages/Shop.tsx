@@ -304,15 +304,14 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   useEffect(() => {
     const calculateItemsPerPage = () => {
       const isMobile = window.innerWidth <= 1200;
-      // Dùng offset vừa đủ. Vì grid sẽ tự kéo giãn (flex: 1) và giãn đều (space-between)
-      // nên không cần lo khoảng trống thừa ở đáy bị dồn lại.
-      const offset = isMobile ? 320 : 350;
+      // Đã cho phép thanh cuộn, dùng Math.ceil để luôn có đủ sản phẩm lấp đầy
+      const offset = isMobile ? 150 : 250;
       const availableHeight = window.innerHeight - offset; 
+      const cardHeight = isMobile ? 160 : 180; 
       
-      const cardHeight = isMobile ? 154 : 170; 
-      
-      let rows = Math.floor(availableHeight / cardHeight);
-      if (rows < 1) rows = 1;
+      let rows = Math.ceil(availableHeight / cardHeight);
+      if (rows < 4 && isMobile) rows = 4; // Mobile ít nhất 4 dòng để chắc chắn có thanh cuộn
+      if (rows < 2 && !isMobile) rows = 3;
 
       const cols = isMobile ? 1 : 2;
       
