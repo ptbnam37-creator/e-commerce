@@ -413,58 +413,61 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* 2-Column Horizontal Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="empty-state" style={{ marginBottom: '80px' }}>
+        <div className="empty-state" style={{ marginBottom: '80px', flex: 1 }}>
           <h2>Không tìm thấy sản phẩm nào</h2>
           <p>Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.</p>
         </div>
       ) : (
-        <div className="products-grid" style={{ marginBottom: '80px' }}>
-          {currentProducts.map((product) => (
-            <div
-              key={product.id}
-              className="product-card"
-              onClick={() => onSelectProduct(product)}
-              title="Click to view details"
-            >
-              <div className="product-image-container">
-                <img
-                  src={
-                    Array.isArray(product.image) && product.image.length > 0
-                      ? getFileUrl(product, product.image[0])
-                      : (product.image && typeof product.image === 'string' && product.image.startsWith('http')
-                        ? product.image
-                        : getFileUrl(product, product.image))
-                  }
-                  alt={product.name}
-                  className="product-image"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/samsung_a31.png';
-                  }}
-                />
-              </div>
+        <div style={{ flex: 1 }}>
+          <div className="products-grid" style={{ marginBottom: '80px' }}>
+            {currentProducts.map((product) => (
+              <div
+                key={product.id}
+                className="product-card"
+                onClick={() => onSelectProduct(product)}
+                title="Click to view details"
+              >
+                <div className="product-image-container">
+                  <img
+                    src={
+                      Array.isArray(product.image) && product.image.length > 0
+                        ? getFileUrl(product, product.image[0])
+                        : (product.image && typeof product.image === 'string' && product.image.startsWith('http')
+                          ? product.image
+                          : getFileUrl(product, product.image))
+                    }
+                    alt={product.name}
+                    className="product-image"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/samsung_a31.png';
+                    }}
+                  />
+                </div>
 
-              <div className="product-info-column">
-                <h2 className="product-name">{product.name}</h2>
-                <div className="product-price">{formatPrice(product.price)}</div>
+                <div className="product-info-column">
+                  <h2 className="product-name">{product.name}</h2>
+                  <div className="product-price">{formatPrice(product.price)}</div>
 
-                {/* Gold stars rating */}
-                <div className="product-rating" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                  <span style={{ fontSize: '23px', color: '#444444', marginRight: '4px', paddingTop: '4px', lineHeight: '28px' }}>{product.rating}</span>
-                  {STARS.map((star) => {
-                    const fillPercent = Math.min(Math.max(product.rating - (star - 1), 0), 1);
-                    return <StarIcon key={star} fillPercent={fillPercent} />;
-                  })}
+                  {/* Gold stars rating */}
+                  <div className="product-rating" style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                    <span style={{ fontSize: '23px', color: '#444444', marginRight: '4px', paddingTop: '4px', lineHeight: '28px' }}>{product.rating}</span>
+                    {STARS.map((star) => {
+                      const fillPercent = Math.min(Math.max(product.rating - (star - 1), 0), 1);
+                      return <StarIcon key={star} fillPercent={fillPercent} />;
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
       {/* Pagination Controls */}
       {filteredProducts.length > itemsPerPage && (
         <div style={{ 
+          marginTop: 'auto',
           position: 'sticky', 
           bottom: '12px', 
           zIndex: 100,
