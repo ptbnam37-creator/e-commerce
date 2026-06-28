@@ -304,15 +304,12 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   useEffect(() => {
     const calculateItemsPerPage = () => {
       const isMobile = window.innerWidth <= 1200;
-      // Tránh tuyệt đối việc chạm vào pagination:
-      // Top section thực tế bao gồm Header + Title + Search + Filter/Ratings ~ 300px
-      // Bottom section cần giữ khoảng trống: Pagination bottom (80px) + Pagination height (40px) + Khoảng cách an toàn (80px) = 200px
-      // Tổng offset = 300 + 200 = 500px
-      const offset = isMobile ? 500 : 450;
+      // Dùng offset vừa đủ. Vì grid sẽ tự kéo giãn (flex: 1) và giãn đều (space-between)
+      // nên không cần lo khoảng trống thừa ở đáy bị dồn lại.
+      const offset = isMobile ? 320 : 350;
       const availableHeight = window.innerHeight - offset; 
       
-      // Tăng cardHeight lên một chút để bù trừ cho padding/margin
-      const cardHeight = isMobile ? 165 : 170; 
+      const cardHeight = isMobile ? 154 : 170; 
       
       let rows = Math.floor(availableHeight / cardHeight);
       if (rows < 1) rows = 1;
