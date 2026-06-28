@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { useCart, Product } from '../context/CartContext';
 import { StarIcon } from '../components/icons/StarIcon';
+import { getFileUrl } from '../services/pocketbase';
 
 const STARS = [1, 2, 3, 4, 5];
 
@@ -215,7 +216,11 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             )}
 
             <img 
-              src={mainImage} 
+              src={
+                mainImage && typeof mainImage === 'string' && mainImage.startsWith('http')
+                  ? mainImage
+                  : getFileUrl(product, mainImage)
+              }
               alt={product.name} 
               style={{
                 maxWidth: 'calc(100% - 130px)',

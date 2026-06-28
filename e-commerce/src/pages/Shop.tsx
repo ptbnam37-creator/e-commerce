@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { getFileUrl } from '../services/pocketbase';
 import { useCart, Product } from '../context/CartContext';
 import { StarIcon } from '../components/icons/StarIcon';
 import { Button } from 'antd';
@@ -405,7 +406,13 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
             >
               <div className="product-image-container">
                 <img
-                  src={product.image}
+                  src={
+                    Array.isArray(product.image) && product.image.length > 0
+                      ? getFileUrl(product, product.image[0])
+                      : (product.image && typeof product.image === 'string' && product.image.startsWith('http')
+                        ? product.image
+                        : getFileUrl(product, product.image))
+                  }
                   alt={product.name}
                   className="product-image"
                   onError={(e) => {
