@@ -28,6 +28,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  overflow-y: scroll; /* Force scrollbar to prevent layout shift */
 }
 
 .app-container {
@@ -1163,8 +1164,8 @@ body {
 
 /* Default Pagination Container */
 .pagination-container {
-  /* no special positioning, just rely on marginTop: auto */
   padding-top: 16px;
+  bottom: 12px;
 }
 
 @media screen and (max-width: 768px) {
