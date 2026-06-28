@@ -304,10 +304,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   useEffect(() => {
     const calculateItemsPerPage = () => {
       const isMobile = window.innerWidth <= 1200;
-      // Exact offset to avoid scrollbar
-      const offset = isMobile ? 310 : 350;
+      // Use a very safe offset on mobile to guarantee no scrollbar
+      const offset = isMobile ? 380 : 350;
       const availableHeight = window.innerHeight - offset; 
-      const cardHeight = isMobile ? 150 : 160; 
+      // Assume cards take up more height on mobile to be safe
+      const cardHeight = isMobile ? 180 : 160; 
       
       let rows = Math.floor(availableHeight / cardHeight);
       if (rows < 1) rows = 1;

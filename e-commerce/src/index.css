@@ -849,7 +849,7 @@ body {
 
   .content-area {
     padding: 16px;
-    padding-bottom: 90px;
+    padding-bottom: 70px;
     display: flex;
     flex-direction: column;
   }
@@ -1169,6 +1169,12 @@ body {
 
 @media screen and (max-width: 768px) {
   .pagination-container {
-    padding-top: 24px;
+    position: fixed !important;
+    bottom: 80px !important;
+    left: 0;
+    right: 0;
+    margin-top: 0 !important;
+    background: transparent;
+    padding-top: 0;
   }
 }
