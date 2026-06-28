@@ -413,12 +413,12 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
       {/* 2-Column Horizontal Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="empty-state" style={{ marginBottom: '80px', flex: 1 }}>
+        <div className="empty-state" style={{ marginBottom: '80px' }}>
           <h2>Không tìm thấy sản phẩm nào</h2>
           <p>Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.</p>
         </div>
       ) : (
-        <div className="products-grid" style={{ marginBottom: '80px', flex: 1 }}>
+        <div className="products-grid" style={{ marginBottom: '80px' }}>
           {currentProducts.map((product) => (
             <div
               key={product.id}
