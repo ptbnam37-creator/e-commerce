@@ -304,11 +304,15 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   useEffect(() => {
     const calculateItemsPerPage = () => {
       const isMobile = window.innerWidth <= 1200;
-      // Use a very safe offset on mobile to guarantee no scrollbar
-      const offset = isMobile ? 380 : 350;
+      // Theo yêu cầu: khoảng cách từ SP đến pagination >= khoảng cách từ pagination đến đáy (80px)
+      // Top section (Header + Title + Search) ~ 190px
+      // Bottom section: Pagination bottom (80px) + Pagination height (40px) + Gap (80px) = 200px
+      // Tổng offset = 190 + 200 = 390px
+      const offset = isMobile ? 390 : 350;
       const availableHeight = window.innerHeight - offset; 
-      // Assume cards take up more height on mobile to be safe
-      const cardHeight = isMobile ? 180 : 160; 
+      
+      // Card height + gap (130px + 24px = 154px)
+      const cardHeight = isMobile ? 154 : 160; 
       
       let rows = Math.floor(availableHeight / cardHeight);
       if (rows < 1) rows = 1;
