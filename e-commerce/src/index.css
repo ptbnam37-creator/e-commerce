@@ -218,6 +218,8 @@ body {
   flex: 1;
   padding: 30px;
   background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -847,8 +849,9 @@ body {
 
   .content-area {
     padding: 16px;
-    padding-bottom: 140px;
-    /* Leave space for bottom navigation bar and fixed pagination */
+    padding-bottom: 90px;
+    display: flex;
+    flex-direction: column;
   }
 
   /* Transform Sidebar into Bottom Navigation */
@@ -1160,16 +1163,12 @@ body {
 
 /* Default Pagination Container */
 .pagination-container {
-  bottom: 12px;
+  /* no special positioning, just rely on marginTop: auto */
+  padding-top: 16px;
 }
 
 @media screen and (max-width: 768px) {
   .pagination-container {
-    position: fixed !important;
-    bottom: 80px !important;
-    left: 0;
-    right: 0;
-    margin-top: 0 !important;
-    background: transparent;
+    padding-top: 24px;
   }
 }

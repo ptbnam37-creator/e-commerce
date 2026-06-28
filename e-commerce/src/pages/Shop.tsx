@@ -304,15 +304,13 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   useEffect(() => {
     const calculateItemsPerPage = () => {
       const isMobile = window.innerWidth <= 1200;
-      // Use a smaller offset on mobile and use Math.ceil to show more products
-      const offset = isMobile ? 180 : 320;
+      // Exact offset to avoid scrollbar
+      const offset = isMobile ? 310 : 350;
       const availableHeight = window.innerHeight - offset; 
-      // Approximate height of a single product card
-      const cardHeight = 160; 
+      const cardHeight = isMobile ? 150 : 160; 
       
-      let rows = Math.ceil(availableHeight / cardHeight);
-      if (rows < 3 && isMobile) rows = 4; // Show at least 4 items on mobile to avoid empty space
-      if (rows < 1 && !isMobile) rows = 1;
+      let rows = Math.floor(availableHeight / cardHeight);
+      if (rows < 1) rows = 1;
 
       const cols = isMobile ? 1 : 2;
       
@@ -354,7 +352,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   ];
 
   return (
-    <div style={{ position: 'relative', paddingBottom: '24px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+    <div style={{ flex: 1, position: 'relative', paddingBottom: '24px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
       {/* Header bar: Shop title left, Search & Filter right */}
       <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '24px', alignItems: 'center' }}>
         <h1 className="page-title" style={{ fontSize: '28px', fontWeight: 'bold' }}>Shop</h1>
