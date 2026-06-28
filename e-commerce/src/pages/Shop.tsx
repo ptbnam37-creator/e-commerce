@@ -303,16 +303,17 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
   useEffect(() => {
     const calculateItemsPerPage = () => {
-      // Estimated available height (window height minus header, footer, padding, etc.)
-      const availableHeight = window.innerHeight - 350; 
+      const isMobile = window.innerWidth <= 1200;
+      // Use a smaller offset on mobile and use Math.ceil to show more products
+      const offset = isMobile ? 180 : 320;
+      const availableHeight = window.innerHeight - offset; 
       // Approximate height of a single product card
       const cardHeight = 160; 
       
-      let rows = Math.floor(availableHeight / cardHeight);
-      if (rows < 1) rows = 1;
+      let rows = Math.ceil(availableHeight / cardHeight);
+      if (rows < 3 && isMobile) rows = 4; // Show at least 4 items on mobile to avoid empty space
+      if (rows < 1 && !isMobile) rows = 1;
 
-      // Check if mobile layout (1 column) or desktop (2 columns)
-      const isMobile = window.innerWidth <= 1200;
       const cols = isMobile ? 1 : 2;
       
       setItemsPerPage(rows * cols);
