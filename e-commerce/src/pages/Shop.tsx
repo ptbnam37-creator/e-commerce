@@ -475,12 +475,14 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{ 
                 border: '1px solid #cbd2d9', 
-                borderRadius: '4px', 
-                padding: '4px 0',
-                width: '48px',
+                borderRadius: '6px', 
+                padding: '8px 12px',
+                minWidth: '64px',
                 textAlign: 'center',
                 color: '#475669',
-                background: '#fff'
+                background: '#fff',
+                fontSize: '20px',
+                fontWeight: '600'
               }}>
                 {currentPage}
               </div>
