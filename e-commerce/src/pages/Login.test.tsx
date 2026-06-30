@@ -32,6 +32,7 @@ describe('Login Component', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     mockOnLoginSuccess.mockClear();
+    vi.stubEnv('VITE_MOCK_PASSWORD', '12345678');
   });
 
   it('renders login form items correctly', () => {
