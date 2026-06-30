@@ -26,6 +26,48 @@ vi.mock('../services/pocketbase', () => {
   };
 });
 
+  it('displays fallback error message when an unexpected error occurs', async () => {
+    // We can simulate an unexpected error reaching the outer catch block by intercepting one of the methods used inside the block.
+    // However, the issue description points at import.meta.env.DEV fallback, where the mocked pocketbase fails.
+    // Wait, the goal is: "We already have tests mocking PocketBase login in Login.test.tsx. It's straightforward to mock it to reject with an error and check if the expected error message ('Đã xảy ra lỗi kết nối, vui lòng thử lại.' or fallback) is shown."
+    // Ah, if PocketBase login rejects, and it falls back to import.meta.env.DEV, AND if that inner promise ALSO fails,
+    // it will throw and reach the outer catch block!
+    // But the mock auth inner promise never rejects; it just resolves to { success: false, ... }.
+    // But what if import.meta.env.DEV is false? Then it goes to the 'else' block and sets error "Tên đăng nhập...".
+    // Wait, the outer catch block is:
+    // catch { setError('Đã xảy ra lỗi kết nối, vui lòng thử lại.'); }
+    // It says "uncovered error path". Which path is that?
+    // If PocketBase rejects, it's caught by inner catch (line 101).
+    // Then it checks import.meta.env.DEV.
+    // What could throw to reach the outer catch block (line 131)?
+    // E.g. if `pb.collection('users').getList(...)` throws? No, that's caught by inner-inner catch (line 90).
+    // If `pb.collection('users').authWithPassword` throws? Caught by inner catch (line 101).
+    // So if the outer block doesn't throw, how can we cover it?
+    // Perhaps if we mock `setIsLoading` to throw? No, that's not natural.
+    // What if we mock `import.meta.env.DEV` to be a getter that throws? (We tried, didn't work).
+    // Let's just mock `onLoginSuccess` to throw! But onLoginSuccess is only called on success, so we'd have to make the mock succeed.
+    // But if mock logic succeeds, onLoginSuccess(..., ...) throws, it is caught by outer catch block. Let's do that!
+
+    const throwingMock = vi.fn().mockImplementation(() => {
+      throw new Error('Unexpected error in success handler');
+    });
+
+    render(<Login onLoginSuccess={throwingMock} />);
+
+    const usernameInput = screen.getByPlaceholderText('Tên đăng nhập, Email hoặc số điện thoại');
+    const passwordInput = screen.getByPlaceholderText('Mật khẩu');
+    const submitButton = screen.getByRole('button', { name: 'Đăng nhập' });
+
+    // Enter valid mock credentials to reach onLoginSuccess
+    fireEvent.change(usernameInput, { target: { value: 'levanb' } });
+    fireEvent.change(passwordInput, { target: { value: '12345678' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Đã xảy ra lỗi kết nối, vui lòng thử lại.')).toBeInTheDocument();
+    });
+  });
+
 describe('Login Component', () => {
   const mockOnLoginSuccess = vi.fn();
 

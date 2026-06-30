@@ -1,0 +1,30 @@
+--- src/pages/Login.test.tsx
++++ src/pages/Login.test.tsx
+@@ -94,5 +94,22 @@
+     await waitFor(() => {
+       expect(mockOnLoginSuccess).toHaveBeenCalledWith('levanb', false);
+     });
+   });
++
++  it('displays fallback error message when an unexpected error occurs during production mock', async () => {
++    // Forcibly override import.meta.env.DEV just for this test
++    const origDev = import.meta.env.DEV;
++    // Mock import.meta.env.DEV to be false by passing vitest's vi.stubGlobal
++    vi.stubGlobal('import', { meta: { env: { DEV: false } } });
++
++    render(<Login onLoginSuccess={mockOnLoginSuccess} />);
++
++    const usernameInput = screen.getByPlaceholderText('Tên đăng nhập, Email hoặc số điện thoại');
++    const passwordInput = screen.getByPlaceholderText('Mật khẩu');
++    const submitButton = screen.getByRole('button', { name: 'Đăng nhập' });
++
++    fireEvent.change(usernameInput, { target: { value: 'levanb' } });
++    fireEvent.change(passwordInput, { target: { value: '12345678' } });
++    fireEvent.click(submitButton);
++
++    await waitFor(() => {
++      expect(screen.getByText('Đã xảy ra lỗi kết nối, vui lòng thử lại.')).toBeInTheDocument();
++    });
++    vi.unstubAllGlobals();
++  });
+ });
