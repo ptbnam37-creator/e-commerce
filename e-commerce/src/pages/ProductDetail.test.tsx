@@ -10,6 +10,19 @@ vi.mock('../context/CartContext', () => {
   };
 });
 
+// Mock pocketbase to prevent actual getFileUrl behavior during tests
+vi.mock('../services/pocketbase', () => {
+  return {
+    pb: {
+      files: {
+        getURL: vi.fn(),
+      },
+      autoCancellation: vi.fn(),
+    },
+    getFileUrl: vi.fn((_record, filename) => filename),
+  };
+});
+
 describe('ProductDetail Component', () => {
   const mockOnBackToShop = vi.fn();
   const mockOnGoToCart = vi.fn();

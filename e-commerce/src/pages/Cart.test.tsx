@@ -135,4 +135,50 @@ describe('Cart Component', () => {
     expect(mockRemoveFromCart).toHaveBeenCalledWith('cart-1');
     expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument();
   });
+
+  it('formats large numbers correctly', () => {
+    const mockCartItems = [
+      {
+        id: 'prod-large-num',
+        cartId: 'cart-2',
+        name: 'Super Expensive Item',
+        brand: 'Luxury',
+        rating: 5,
+        description: 'Very expensive',
+        price: 1234567890,
+        image: '/expensive.png',
+        colors: [],
+        quantity: 1,
+        variantId: 'variant-2',
+      },
+    ];
+
+    vi.mocked(useCart).mockReturnValue({
+      products: [],
+      cart: mockCartItems,
+      addToCart: vi.fn(),
+      updateQuantity: mockUpdateQuantity,
+      removeFromCart: mockRemoveFromCart,
+      subTotal: 1234567890,
+      tax: 123456789,
+      total: 1358024679,
+    });
+
+    render(<Cart />);
+
+    // Format expected prices based on the formatPrice function inside Cart.tsx:
+    // 1234567890 -> "1 234 567 890 VND"
+    // 123456789 -> "123 456 789 VND"
+    // 1358024679 -> "1 358 024 679 VND"
+
+    // Both the item price and the subtotal will be '1 234 567 890 VND'
+    const elements = screen.getAllByText('1 234 567 890 VND');
+    expect(elements).toHaveLength(2);
+    expect(elements[0]).toBeInTheDocument();
+    expect(elements[1]).toBeInTheDocument();
+
+    // Check totals
+    expect(screen.getByText('123 456 789 VND')).toBeInTheDocument(); // Tax
+    expect(screen.getByText('1 358 024 679 VND')).toBeInTheDocument(); // Total
+  });
 });
