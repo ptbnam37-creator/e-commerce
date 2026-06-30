@@ -87,8 +87,8 @@ const TestComponent = () => {
       <div data-testid="cart-length">{cart.length}</div>
       <div data-testid="first-item-name">{cart.length > 0 ? cart[0].name : 'Empty'}</div>
       <div data-testid="first-item-qty">{cart.length > 0 ? cart[0].quantity : '0'}</div>
-      <button data-testid="update-qty-btn" onClick={() => updateQuantity('cart-record-1', -5)}>Update Qty</button>
-      <button data-testid="update-qty-btn-not-exist" onClick={() => updateQuantity('cart-record-not-exist', -5)}>Update Qty Not Exist</button>
+      <button data-testid="update-qty-btn" onClick={() => updateQuantity('cart-record-1', 1)}>Update Qty</button>
+      <button data-testid="update-qty-btn-not-exist" onClick={() => updateQuantity('cart-record-not-exist', 1)}>Update Qty Not Exist</button>
       <button data-testid="remove-from-cart-btn" onClick={() => removeFromCart('cart-record-1')}>Remove</button>
     </div>
   );
@@ -141,6 +141,45 @@ describe('CartContext with PocketBase', () => {
 
     expect(screen.getByTestId('first-item-name')).toHaveTextContent('iPhone 13 (Xanh dương)');
     expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
+  });
+
+  it('handles errors when updating quantity', async () => {
+    // Simulate logged in user
+    // @ts-expect-error: mock readonly
+    pb.authStore.isValid = true;
+    // @ts-expect-error: mock readonly
+    pb.authStore.model = { id: 'user-1' };
+
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const mockError = new Error('Test update error');
+    mockUpdate.mockRejectedValueOnce(mockError);
+
+    render(
+      <CartProvider>
+        <TestComponent />
+      </CartProvider>
+    );
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
+      expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
+    });
+
+    // Click update quantity
+    screen.getByTestId('update-qty-btn').click();
+
+    await waitFor(() => {
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Failed to update quantity on PocketBase:',
+        mockError
+      );
+    });
+
+    // Quantity should revert to original value
+    expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
+
+    consoleWarnSpy.mockRestore();
   });
 
   it('handles errors when removing from cart', async () => {
