@@ -11,6 +11,13 @@ vi.mock('../context/CartContext', () => {
   };
 });
 
+// Mock PocketBase
+vi.mock('../services/pocketbase', () => {
+  return {
+    getFileUrl: vi.fn((record, filename) => filename),
+  };
+});
+
 describe('Shop Component', () => {
   const mockOnSelectProduct = vi.fn();
   const mockProducts = [
