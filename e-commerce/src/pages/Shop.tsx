@@ -4,6 +4,15 @@ import { useCart, Product } from '../context/CartContext';
 import { StarIcon } from '../components/icons/StarIcon';
 import { Button } from 'antd';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const debounce = <T extends (...args: any[]) => void>(func: T, wait: number) => {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+};
+
 const STARS = [1, 2, 3, 4, 5];
 
 const SearchIcon = () => (
@@ -318,9 +327,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       setItemsPerPage(rows * cols);
     };
 
+    const debouncedCalculate = debounce(calculateItemsPerPage, 150);
+
     calculateItemsPerPage();
-    window.addEventListener('resize', calculateItemsPerPage);
-    return () => window.removeEventListener('resize', calculateItemsPerPage);
+    window.addEventListener('resize', debouncedCalculate);
+    return () => window.removeEventListener('resize', debouncedCalculate);
   }, []);
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const currentProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
