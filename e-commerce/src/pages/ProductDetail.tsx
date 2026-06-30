@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { useCart, Product } from '../context/CartContext';
 import { StarIcon } from '../components/icons/StarIcon';
 import { getFileUrl } from '../services/pocketbase';
+import { ColorThumbnails } from '../components/ColorThumbnails';
 
 const STARS = [1, 2, 3, 4, 5];
 
@@ -252,43 +253,11 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
 
           {/* Color variant thumbnails - Only render if product has color variants */}
           {hasVariants && (
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {colors.map((c) => (
-                <div 
-                  key={c.name}
-                  onClick={() => setSelectedColor(c.name)}
-                  style={{
-                    border: selectedColor === c.name ? '1.5px solid #00c0ff' : '1px solid #dcdcdc',
-                    borderRadius: '4px',
-                    padding: '6px',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                    width: '76px',
-                    backgroundColor: '#ffffff',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <div style={{ width: '48px', height: '48px', margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img 
-                      src={c.image} 
-                      alt={c.name} 
-                      style={{
-                        maxWidth: '100%',
-                        maxHeight: '100%',
-                        objectFit: 'contain'
-                      }}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/samsung_a31.png';
-                      }}
-                    />
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#666', whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: '1.2' }}>
-                    {c.name}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ColorThumbnails
+              colors={colors}
+              selectedColor={selectedColor}
+              onSelectColor={setSelectedColor}
+            />
           )}
         </div>
 
