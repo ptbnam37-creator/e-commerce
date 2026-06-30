@@ -7,6 +7,7 @@ import { pb } from '../services/pocketbase';
 // Mock PocketBase
 export const mockUpdate = vi.fn().mockResolvedValue({});
 export const mockDelete = vi.fn().mockResolvedValue({});
+export const mockCreate = vi.fn().mockResolvedValue({});
 
 vi.mock('../services/pocketbase', () => {
   const mockCartList = [
@@ -62,7 +63,7 @@ vi.mock('../services/pocketbase', () => {
             }
             return Promise.resolve([{ id: "prod-1", name: "iPhone 13", brand: "Apple", price: 16900000, rating: 5, image: "ip13-blue.png", expand: { "color_variants(productId)": [{ id: "variant-1", productId: "prod-1", color: "Xanh dương", image: "ip13-blue.png" }] } }]);
           }),
-          create: vi.fn(),
+          create: mockCreate,
 
         };
       }),
@@ -80,13 +81,14 @@ vi.mock('../services/pocketbase', () => {
 
 // A simple test component to consume the context
 const TestComponent = () => {
-  const { cart, products, updateQuantity, removeFromCart } = useCart();
+  const { cart, products, updateQuantity, removeFromCart, addToCart } = useCart();
   return (
     <div>
       <div data-testid="products-length">{products.length}</div>
       <div data-testid="cart-length">{cart.length}</div>
       <div data-testid="first-item-name">{cart.length > 0 ? cart[0].name : 'Empty'}</div>
       <div data-testid="first-item-qty">{cart.length > 0 ? cart[0].quantity : '0'}</div>
+      <button data-testid="add-to-cart-btn" onClick={() => { if (products.length > 0) addToCart(products[0], 'variant-new'); }}>Add To Cart</button>
       <button data-testid="update-qty-btn" onClick={() => updateQuantity('cart-record-1', -5)}>Update Qty</button>
       <button data-testid="update-qty-btn-not-exist" onClick={() => updateQuantity('cart-record-not-exist', -5)}>Update Qty Not Exist</button>
       <button data-testid="remove-from-cart-btn" onClick={() => removeFromCart('cart-record-1')}>Remove</button>
@@ -141,6 +143,44 @@ describe('CartContext with PocketBase', () => {
 
     expect(screen.getByTestId('first-item-name')).toHaveTextContent('iPhone 13 (Xanh dương)');
     expect(screen.getByTestId('first-item-qty')).toHaveTextContent('2');
+  });
+
+  it('reverts optimistic cart update if addToCart fails on PocketBase', async () => {
+    // Simulate logged in user
+    // @ts-expect-error: mock readonly
+    pb.authStore.isValid = true;
+    // @ts-expect-error: mock readonly
+    pb.authStore.model = { id: 'user-1' };
+
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const mockError = new Error('Test create error');
+    mockCreate.mockRejectedValueOnce(mockError);
+
+    render(
+      <CartProvider>
+        <TestComponent />
+      </CartProvider>
+    );
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
+    });
+
+    // Click add to cart
+    screen.getByTestId('add-to-cart-btn').click();
+
+    await waitFor(() => {
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Failed to add to cart on PocketBase:',
+        mockError
+      );
+    });
+
+    // Cart length should revert back to 1
+    expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
+
+    consoleWarnSpy.mockRestore();
   });
 
   it('handles errors when removing from cart', async () => {

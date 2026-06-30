@@ -10,6 +10,14 @@ vi.mock('../context/CartContext', () => {
   };
 });
 
+vi.mock('../services/pocketbase', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../services/pocketbase')>();
+  return {
+    ...actual,
+    getFileUrl: vi.fn((record, filename) => filename),
+  };
+});
+
 describe('ProductDetail Component', () => {
   const mockOnBackToShop = vi.fn();
   const mockOnGoToCart = vi.fn();
