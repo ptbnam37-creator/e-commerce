@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { pb, getFileUrl } from '../services/pocketbase';
+import { RecordModel } from 'pocketbase';
 
 export interface ProductColor {
   id: string;
@@ -134,8 +135,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
             // Find matching color variants from the expanded relation
             const productVariants = record.expand?.['color_variants(productId)'] || [];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const colorsArr = productVariants.map((v: any) => {
+            const colorsArr = productVariants.map((v: RecordModel) => {
               let varImageUrl = '';
               let varImageFilename = '';
 
