@@ -286,11 +286,12 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
 
   const filteredProducts = useMemo(() => {
     const lowerSearchTerm = searchTerm.toLowerCase();
+    const hasSearch = lowerSearchTerm.length > 0;
     return products.filter((product) => {
-      const matchesSearch = product.name.toLowerCase().includes(lowerSearchTerm);
-      const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
-      const matchesRating = product.rating >= minRating && product.rating <= maxRating;
-      return matchesSearch && matchesPrice && matchesRating;
+      if (product.price < minPrice || product.price > maxPrice) return false;
+      if (product.rating < minRating || product.rating > maxRating) return false;
+      if (hasSearch && !product.name.toLowerCase().includes(lowerSearchTerm)) return false;
+      return true;
     });
   }, [products, searchTerm, minPrice, maxPrice, minRating, maxRating]);
 
