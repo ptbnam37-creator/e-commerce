@@ -260,56 +260,64 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       } catch (err) {
         console.warn('Failed to process add to cart:', err);
       }
-    }).catch(console.error);
+    });
   };
 
   const updateQuantity = async (cartId: string, delta: number) => {
     if (!pb.authStore.isValid) return;
 
     actionQueue.current = actionQueue.current.then(async () => {
-      const existing = cartRef.current.find((item) => item.cartId === cartId);
-      if (!existing) return;
-
-      const newQty = existing.quantity + delta;
-      if (newQty <= 0) return;
-
-      setCart((prev) =>
-        prev.map((item) =>
-          item.cartId === cartId ? { ...item, quantity: newQty } : item
-        )
-      );
-
       try {
-        await pb.collection('cart').update(cartId, {
-          number: newQty
-        });
-      } catch (err) {
-        console.warn('Failed to update quantity on PocketBase:', err);
+        const existing = cartRef.current.find((item) => item.cartId === cartId);
+        if (!existing) return;
+
+        const newQty = existing.quantity + delta;
+        if (newQty <= 0) return;
+
         setCart((prev) =>
           prev.map((item) =>
-            item.cartId === cartId ? { ...item, quantity: existing.quantity } : item
+            item.cartId === cartId ? { ...item, quantity: newQty } : item
           )
         );
+
+        try {
+          await pb.collection('cart').update(cartId, {
+            number: newQty
+          });
+        } catch (err) {
+          console.warn('Failed to update quantity on PocketBase:', err);
+          setCart((prev) =>
+            prev.map((item) =>
+              item.cartId === cartId ? { ...item, quantity: existing.quantity } : item
+            )
+          );
+        }
+      } catch (err) {
+        console.error('Failed to process update quantity:', err);
       }
-    }).catch(console.error);
+    });
   };
 
   const removeFromCart = async (cartId: string) => {
     if (!pb.authStore.isValid) return;
 
     actionQueue.current = actionQueue.current.then(async () => {
-      const removedItem = cartRef.current.find(item => item.cartId === cartId);
-      if (!removedItem) return;
-
-      setCart((prev) => prev.filter((item) => item.cartId !== cartId));
-
       try {
-        await pb.collection('cart').delete(cartId);
+        const removedItem = cartRef.current.find(item => item.cartId === cartId);
+        if (!removedItem) return;
+
+        setCart((prev) => prev.filter((item) => item.cartId !== cartId));
+
+        try {
+          await pb.collection('cart').delete(cartId);
+        } catch (err) {
+          console.warn('Failed to remove from cart on PocketBase:', err);
+          setCart((prev) => [...prev, removedItem]);
+        }
       } catch (err) {
-        console.warn('Failed to remove from cart on PocketBase:', err);
-        setCart((prev) => [...prev, removedItem]);
+        console.error('Failed to process remove from cart:', err);
       }
-    }).catch(console.error);
+    });
   };
 
   const subTotal = React.useMemo(() => {
