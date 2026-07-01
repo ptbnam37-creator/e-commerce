@@ -47,8 +47,8 @@ const getInitialProfileState = (): ProfileData => {
   if (saved) {
     try {
       return JSON.parse(saved);
-    } catch {
-      // ignore
+    } catch (error) {
+      console.warn('Failed to parse profile data from localStorage:', error);
     }
   }
   return {
