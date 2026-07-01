@@ -3,6 +3,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import ProductDetail from './ProductDetail';
 import { useCart } from '../context/CartContext';
 
+// Mock getFileUrl to just return the filename to avoid empty string test failures
+vi.mock('../services/pocketbase', () => {
+  return {
+    getFileUrl: vi.fn((_product, filename) => filename),
+  };
+});
+
 // Mock useCart hook
 vi.mock('../context/CartContext', () => {
   return {
