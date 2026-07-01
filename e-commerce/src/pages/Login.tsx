@@ -110,7 +110,8 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
             const isValidMockUser =
               (username === 'levanb' || username === 'Lê Văn B' || username === '0111111111' || username === 'levanb@gmail.com');
 
-            if (isValidMockUser && password === '12345678') {
+            const mockPassword = import.meta.env.VITE_MOCK_PASSWORD;
+            if (isValidMockUser && mockPassword && password === mockPassword) {
               resolve({ success: true });
             } else {
               resolve({ success: false, error: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
