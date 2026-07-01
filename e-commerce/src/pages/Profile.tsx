@@ -95,9 +95,10 @@ const Profile = ({ onLogout }: ProfileProps) => {
               body: { id: pb.authStore.model.id, email: profile.email }
             });
             emailChangeSuccess = true;
-          } catch (err: any) {
+          } catch (err: unknown) {
             console.warn('Failed to update email via custom hook:', err);
-            showToast(`Lỗi: ${err.message || 'Không thể cập nhật email'}`, 'error');
+            const errorMessage = err instanceof Error ? err.message : 'Không thể cập nhật email';
+            showToast(`Lỗi: ${errorMessage}`, 'error');
             // Revert email field if failed
             setProfile(prev => ({ ...prev, email: pb.authStore.model?.email || '' }));
           }
