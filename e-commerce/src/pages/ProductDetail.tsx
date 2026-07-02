@@ -186,6 +186,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
         {/* Left Side: Product Image & Color Thumbnails */}
         <div className="product-detail-left" style={{
           flex: '1 1 320px',
+          minWidth: 0,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -264,6 +265,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
         {/* Right Side: Product Details info */}
         <div className="product-detail-right" style={{
           flex: '1.2 1 350px',
+          minWidth: 0,
           display: 'flex',
           flexDirection: 'column',
           gap: '24px',
