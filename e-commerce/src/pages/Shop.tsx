@@ -305,9 +305,17 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   }, [products, searchTerm, minPrice, maxPrice, minRating, maxRating]);
 
   // Reset page when filters change
-  useEffect(() => {
+  const [prevFilters, setPrevFilters] = useState({ searchTerm, minPrice, maxPrice, minRating, maxRating });
+  if (
+    searchTerm !== prevFilters.searchTerm ||
+    minPrice !== prevFilters.minPrice ||
+    maxPrice !== prevFilters.maxPrice ||
+    minRating !== prevFilters.minRating ||
+    maxRating !== prevFilters.maxRating
+  ) {
+    setPrevFilters({ searchTerm, minPrice, maxPrice, minRating, maxRating });
     setCurrentPage(1);
-  }, [searchTerm, minPrice, maxPrice, minRating, maxRating]);
+  }
 
   const [itemsPerPage, setItemsPerPage] = useState(8);
 
