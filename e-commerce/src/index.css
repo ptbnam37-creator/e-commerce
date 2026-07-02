@@ -866,6 +866,7 @@ body {
   /* Transform Sidebar into Bottom Navigation */
   .app-sidebar {
     position: fixed;
+    top: auto;
     bottom: 0;
     left: 0;
     right: 0;
