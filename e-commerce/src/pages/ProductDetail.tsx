@@ -273,7 +273,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
             {product.name}
           </h2>
 
-          <p style={{ fontSize: '15px', color: '#333333', lineHeight: 1.6, margin: 0 }}>
+          <p style={{ fontSize: '15px', color: '#333333', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-line' }}>
             {product.description}
           </p>
 
