@@ -375,7 +375,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
   return (
     <div style={{ flex: 1, position: 'relative', paddingBottom: '24px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
       {/* Header bar: Shop title left, Search & Filter right */}
-      <div className="page-title-container" style={{ borderBottom: 'none', marginBottom: '24px', alignItems: 'center' }}>
+      <div className="page-title-container" style={{ marginBottom: '24px', alignItems: 'center' }}>
         <h1 className="page-title" style={{ fontSize: '28px', fontWeight: 'bold' }}>Shop</h1>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }} ref={filterDropdownRef}>

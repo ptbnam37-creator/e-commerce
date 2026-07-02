@@ -238,6 +238,7 @@ body {
   background-color: #ffffff;
   z-index: 100;
   padding-top: 30px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .page-title {
