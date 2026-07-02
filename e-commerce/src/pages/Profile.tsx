@@ -190,6 +190,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
               name="email"
               value={profile.email}
               onChange={handleChange}
+              placeholder="Nhập email của bạn"
               required
             />
           </div>
@@ -197,11 +198,12 @@ const Profile = ({ onLogout }: ProfileProps) => {
           <div className="form-group">
             <label htmlFor="phone">Số điện thoại</label>
             <input
-              type="text"
+              type="tel"
               id="phone"
               name="phone"
               value={profile.phone}
               onChange={handleChange}
+              placeholder="Nhập số điện thoại của bạn"
               required
             />
           </div>
