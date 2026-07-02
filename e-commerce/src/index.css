@@ -223,8 +223,6 @@ body {
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 /* Page Common Styles */
@@ -235,7 +233,7 @@ body {
   margin-bottom: 24px;
   padding-bottom: 12px;
   position: sticky;
-  top: 0;
+  top: 70px;
   margin-top: -30px;
   background-color: #ffffff;
   z-index: 100;
