@@ -5,6 +5,7 @@ import { getFileUrl } from '../services/pocketbase';
 import { ColorThumbnails } from '../components/ColorThumbnails';
 
 const STARS = [1, 2, 3, 4, 5];
+const PRICE_FORMAT_REGEX = /\B(?=(\d{3})+(?!\d))/g;
 
 const CartIconHeader = () => (
   <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" strokeWidth="2" style={{ cursor: 'pointer' }}>
@@ -54,7 +55,7 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
   }
 
   const formatPrice = (price: number) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' VND';
+    return price.toString().replace(PRICE_FORMAT_REGEX, ' ') + ' VND';
   };
 
   const hasVariants = !!(product.colors && product.colors.length > 0);
