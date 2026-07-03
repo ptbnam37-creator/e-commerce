@@ -33,9 +33,9 @@ const Profile = ({ onLogout }: ProfileProps) => {
   const [toastType, setToastType] = useState<'success' | 'error'>('success');
   const toastTimeoutRef = useRef<number | null>(null);
 
-  const avatarUrl = isPbLoggedIn && pb.authStore.model?.avatar 
+  const avatarUrl = (isPbLoggedIn && pb.authStore.model?.avatar
     ? getFileUrl(pb.authStore.model, pb.authStore.model.avatar) 
-    : `${import.meta.env.BASE_URL}avatar.png`;
+    : '') || `${import.meta.env.BASE_URL}avatar.png`;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
