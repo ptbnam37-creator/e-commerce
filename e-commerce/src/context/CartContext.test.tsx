@@ -1,7 +1,8 @@
 
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { render, screen, waitFor, renderHook } from '@testing-library/react';
-import { CartProvider, useCart } from './CartContext';
+import { CartProvider } from './CartProvider';
+import { useCart } from '../hooks/useCart';
 import { pb } from '../services/pocketbase';
 
 // Mock PocketBase

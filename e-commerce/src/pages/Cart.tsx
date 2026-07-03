@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { useCart, CartItem } from '../context/CartContext.tsx';
+import { CartItem } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 
 const TrashIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

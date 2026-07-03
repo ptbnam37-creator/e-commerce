@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { getFileUrl } from '../services/pocketbase';
-import { useCart, Product } from '../context/CartContext';
+import { Product } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 import { StarIcon } from '../components/icons/StarIcon';
 import { Button } from 'antd';
 

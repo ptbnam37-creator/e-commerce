@@ -1,14 +1,17 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import ProductDetail from './ProductDetail';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 
 // Mock useCart hook
-vi.mock('../context/CartContext', () => {
-  return {
-    useCart: vi.fn(),
-  };
-});
+vi.mock('../hooks/useCart', () => ({
+  useCart: vi.fn(),
+}));
+vi.mock('../services/pocketbase', () => ({
+  getFileUrl: vi.fn((_, img) => img),
+  pb: { authStore: { isValid: true } }
+}));
+
 
 describe('ProductDetail Component', () => {
   const mockOnBackToShop = vi.fn();

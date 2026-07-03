@@ -2,10 +2,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Shop from './Shop';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 
 // Mock useCart hook
-vi.mock('../context/CartContext', () => {
+vi.mock('../hooks/useCart', () => {
   return {
     useCart: vi.fn(),
   };

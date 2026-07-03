@@ -15,7 +15,10 @@ vi.mock('react-redux', () => {
 });
 
 // Mock CartContext
-vi.mock('./context/CartContext', () => {
+vi.mock('./context/CartProvider', () => ({
+  CartProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+vi.mock('./hooks/useCart', () => {
   const mockProducts = [
     {
       id: 'prod-1',

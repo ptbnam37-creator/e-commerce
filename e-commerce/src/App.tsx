@@ -1,6 +1,8 @@
 import React, { useState, Suspense, useMemo } from 'react';
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
-import { CartProvider, useCart, Product } from './context/CartContext';
+import { Product } from './context/CartContext';
+import { CartProvider } from './context/CartProvider';
+import { useCart } from './hooks/useCart';
 import { loginAction, logoutAction } from './store/authStore';
 import { useSelector, useDispatch } from 'react-redux';
 import { pb, getFileUrl } from './services/pocketbase';

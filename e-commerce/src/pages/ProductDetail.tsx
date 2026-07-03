@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { useCart, Product } from '../context/CartContext';
+import { Product } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 import { StarIcon } from '../components/icons/StarIcon';
 import { getFileUrl } from '../services/pocketbase';
 
