@@ -458,11 +458,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
                 <div className="product-image-container">
                   <img
                     src={
-                      Array.isArray(product.image) && product.image.length > 0
+                      (Array.isArray(product.image) && product.image.length > 0
                         ? getFileUrl(product, product.image[0])
                         : (product.image && typeof product.image === 'string' && product.image.startsWith('http')
                           ? product.image
-                          : getFileUrl(product, product.image))
+                          : getFileUrl(product, product.image))) || undefined
                     }
                     alt={product.name}
                     className="product-image"
