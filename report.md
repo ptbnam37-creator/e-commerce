@@ -49,55 +49,55 @@ Frontend của nền tảng thương mại điện tử là một ứng dụng R
 ## 6. Danh sách kiểm thử mở rộng (Extended Test Checklist)
 
 ### 6.1. Xác thực & Quản lý Phiên (Authentication & Session Management)
-- [ ] **Đăng nhập thành công (Mock & Real):** Nhập thông tin hợp lệ (ví dụ: `levanb`, `12345678`), đảm bảo trạng thái "Đang đăng nhập..." xuất hiện và chuyển hướng đến trang Shop thành công.
-- [ ] **Đăng nhập thất bại:** Nhập sai thông tin. Xác minh thông báo lỗi màu đỏ ("Tên đăng nhập hoặc mật khẩu không chính xác!") hiển thị ngay trên các ô input.
-- [ ] **Nút "Ghi nhớ đăng nhập" (Session vs Local Storage):**
+- [x] **Đăng nhập thành công (Mock & Real):** Nhập thông tin hợp lệ (ví dụ: `levanb`, `12345678`), đảm bảo trạng thái "Đang đăng nhập..." xuất hiện và chuyển hướng đến trang Shop thành công.
+- [x] **Đăng nhập thất bại:** Nhập sai thông tin. Xác minh thông báo lỗi màu đỏ ("Tên đăng nhập hoặc mật khẩu không chính xác!") hiển thị ngay trên các ô input.
+- [x] **Nút "Ghi nhớ đăng nhập" (Session vs Local Storage):**
   - Đã chọn (Check): Đăng nhập, đóng tab, mở lại và xác minh người dùng vẫn đang đăng nhập (sử dụng `localStorage`).
   - Không chọn (Uncheck): Đăng nhập, đóng tab, mở lại và xác minh người dùng bị văng ra màn hình login (sử dụng `sessionStorage`).
-- [ ] **Luồng Đăng xuất (Logout Flow):** Chuyển đến menu profile, nhấn "Đăng xuất" và xác minh trạng thái Redux đã bị xóa. Trình duyệt không thể dùng nút "Back" để quay lại trang shop (tránh lỗ hổng bảo mật).
+- [x] **Luồng Đăng xuất (Logout Flow):** Chuyển đến menu profile, nhấn "Đăng xuất" và xác minh trạng thái Redux đã bị xóa. Trình duyệt không thể dùng nút "Back" để quay lại trang shop (tránh lỗ hổng bảo mật).
 
 ### 6.2. Quản lý Hồ sơ (Profile Management)
-- [ ] **Render Lần đầu:** Truy cập `/profile`. Xác minh các trường dữ liệu được điền tự động theo trạng thái mặc định của Redux (ví dụ: Lê Văn B, levanb@gmail.com).
-- [ ] **Cập nhật Hồ sơ:** Thay đổi số điện thoại hoặc địa chỉ, lưu form và xác minh dữ liệu mới vẫn tồn tại sau khi refresh trang (thông qua `localStorage.setItem('profileData', ...)`).
-- [ ] **Xử lý JSON không hợp lệ:** Mô phỏng dữ liệu hỏng bằng cách set `profileData` thành `{invalid-json` trong DevTools. Làm mới trang và đảm bảo ứng dụng chuyển về profile mặc định mà không bị sập (crash).
+- [x] **Render Lần đầu:** Truy cập `/profile`. Xác minh các trường dữ liệu được điền tự động theo trạng thái mặc định của Redux (ví dụ: Lê Văn B, levanb@gmail.com).
+- [x] **Cập nhật Hồ sơ:** Thay đổi số điện thoại hoặc địa chỉ, lưu form và xác minh dữ liệu mới vẫn tồn tại sau khi refresh trang (thông qua `localStorage.setItem('profileData', ...)`).
+- [x] **Xử lý JSON không hợp lệ:** Mô phỏng dữ liệu hỏng bằng cách set `profileData` thành `{invalid-json` trong DevTools. Làm mới trang và đảm bảo ứng dụng chuyển về profile mặc định mà không bị sập (crash).
 
 ### 6.3. Cửa hàng & Bộ lọc (Shop & Product Filtering)
-- [ ] **Bố cục dạng lưới tương thích (Responsive Grid Layout):**
+- [x] **Bố cục dạng lưới tương thích (Responsive Grid Layout):**
   - Desktop (w > 1200px): Lưới nhiều cột với thẻ sản phẩm lớn.
   - Mobile (w <= 1200px): Thu gọn về 1 cột và tự động tính toán số hàng bằng thuật toán toán học.
-- [ ] **Tìm kiếm với Debounce (Debounced Search):** Gõ liên tục vào ô tìm kiếm và xác minh danh sách sản phẩm chỉ cập nhật SAU KHI bạn ngừng gõ một khoảng thời gian (debounce delay).
-- [ ] **Edge Cases cho Bộ lọc (Filter Dropdown):**
+- [x] **Tìm kiếm với Debounce (Debounced Search):** Gõ liên tục vào ô tìm kiếm và xác minh danh sách sản phẩm chỉ cập nhật SAU KHI bạn ngừng gõ một khoảng thời gian (debounce delay).
+- [x] **Edge Cases cho Bộ lọc (Filter Dropdown):**
   - Cài đặt Giá tối thiểu (minPrice) cao hơn Giá tối đa (maxPrice). Xác minh ứng dụng tự động sửa maxPrice bằng với minPrice.
   - Nhấp ra ngoài vùng dropdown và xác minh nó tự động đóng lại (nhờ `useRef` outside click handler).
-- [ ] **Trạng thái Trống (Empty State):** Tìm kiếm chuỗi không tồn tại (ví dụ: `zzxy123`). Xác minh thông báo "Không tìm thấy sản phẩm nào" hiển thị chuẩn.
-- [ ] **Giữ phân trang an toàn (Pagination Persistence):** Ở trang 2, gõ từ khóa tìm kiếm. Xác minh `Shop.tsx` tự động reset về Trang 1 để tránh lỗi hiển thị trang trống vô lý.
+- [x] **Trạng thái Trống (Empty State):** Tìm kiếm chuỗi không tồn tại (ví dụ: `zzxy123`). Xác minh thông báo "Không tìm thấy sản phẩm nào" hiển thị chuẩn.
+- [x] **Giữ phân trang an toàn (Pagination Persistence):** Ở trang 2, gõ từ khóa tìm kiếm. Xác minh `Shop.tsx` tự động reset về Trang 1 để tránh lỗi hiển thị trang trống vô lý.
 
 ### 6.4. Chi tiết Sản phẩm (Product Details)
-- [ ] **Hình ảnh dự phòng (Image Fallback):** Xóa đường dẫn ảnh, xác minh thuộc tính `onError` tự động chuyển ảnh hỏng thành ảnh mặc định `/samsung_a31.png`.
-- [ ] **Chọn màu sắc (Color Selection Variants):**
+- [x] **Hình ảnh dự phòng (Image Fallback):** Xóa đường dẫn ảnh, xác minh thuộc tính `onError` tự động chuyển ảnh hỏng thành ảnh mặc định `/samsung_a31.png`.
+- [x] **Chọn màu sắc (Color Selection Variants):**
   - Nhấp vào các hình thu nhỏ (ColorThumbnails) và xác minh màu đã chọn (selectedColor) được cập nhật trên giao diện.
   - Nhấn "Thêm vào giỏ hàng" và xác minh thông báo Toast hiện lên đúng biến thể màu vừa chọn.
-- [ ] **Toast Debounce:** Nhấn liên tục "Thêm vào giỏ hàng" 5 lần. Xác minh bộ đếm thời gian của Toast tự khởi động lại chứ không sinh ra 5 thông báo đè lên nhau.
+- [x] **Toast Debounce:** Nhấn liên tục "Thêm vào giỏ hàng" 5 lần. Xác minh bộ đếm thời gian của Toast tự khởi động lại chứ không sinh ra 5 thông báo đè lên nhau.
 
 ### 6.5. Quản lý Giỏ hàng (Cart Management)
-- [ ] **Giao diện Trống (Empty Cart View):** Hiển thị màn hình "Giỏ hàng của bạn đang trống" nếu không có sản phẩm.
-- [ ] **Thêm và Gộp sản phẩm (Add & Deduplicate):**
+- [x] **Giao diện Trống (Empty Cart View):** Hiển thị màn hình "Giỏ hàng của bạn đang trống" nếu không có sản phẩm.
+- [x] **Thêm và Gộp sản phẩm (Add & Deduplicate):**
   - Thêm một biến thể sản phẩm 2 lần. Xác minh số lượng tăng lên 2 thay vì sinh ra 2 dòng.
   - Thêm cùng sản phẩm nhưng khác màu. Xác minh nó sinh ra 2 dòng sản phẩm riêng biệt nhờ phân biệt bằng `variantId`.
-- [ ] **Điều chỉnh Số lượng (Quantity Adjustments):**
+- [x] **Điều chỉnh Số lượng (Quantity Adjustments):**
   - Tăng số lượng (+). Xác minh Tạm tính, Thuế, và Tổng tiền được tính toán lại ngay lập tức nhờ `useMemo`.
   - Giảm số lượng (-) xuống mức 1. Nhấn nút trừ lần nữa phải vô hiệu hóa hoặc hiện xác nhận xóa (không cho xuống 0).
-- [ ] **Xóa sản phẩm (Deletion Flow):** Nhấn icon Thùng rác. Hiện hộp thoại xác nhận. Nhấn "Đồng ý" và xác minh sản phẩm bay khỏi danh sách, tính toán tiền gộp lại chuẩn xác.
-- [ ] **Đồng bộ Database (Database Sync):** Kiểm tra xem những thay đổi trong Context có được lưu lên backend `pb.collection('carts').update` khi chạy PocketBase thật hay không.
+- [x] **Xóa sản phẩm (Deletion Flow):** Nhấn icon Thùng rác. Hiện hộp thoại xác nhận. Nhấn "Đồng ý" và xác minh sản phẩm bay khỏi danh sách, tính toán tiền gộp lại chuẩn xác.
+- [x] **Đồng bộ Database (Database Sync):** Kiểm tra xem những thay đổi trong Context có được lưu lên backend `pb.collection('carts').update` khi chạy PocketBase thật hay không.
 
 ### 6.6. Giao diện & Độ chịu tải UI (Visual & UI Tolerances)
-- [ ] **Xuống dòng dài (Long Text Wrapping):** Kiểm tra tên sản phẩm hoặc mô tả cực kỳ dài. Đảm bảo text được cắt bằng dấu chấm lửng `...` chứ không phá vỡ giao diện Flexbox.
-- [ ] **Đánh giá Sao (Star Rating Math):** Thuật toán hiển thị số sao (ví dụ: 4.5 sao) sẽ render 4 sao đầy và 1 sao bị cắt đôi một cách chính xác dựa trên logic `fillPercent`.
+- [x] **Xuống dòng dài (Long Text Wrapping):** Kiểm tra tên sản phẩm hoặc mô tả cực kỳ dài. Đảm bảo text được cắt bằng dấu chấm lửng `...` chứ không phá vỡ giao diện Flexbox.
+- [x] **Đánh giá Sao (Star Rating Math):** Thuật toán hiển thị số sao (ví dụ: 4.5 sao) sẽ render 4 sao đầy và 1 sao bị cắt đôi một cách chính xác dựa trên logic `fillPercent`.
 
 ### 6.7. Kiểm thử Tự động & Chất lượng Code (Automated Tests & Code Quality)
-- [ ] **Vitest:** Chạy `npx vitest run` và đảm bảo toàn bộ các bài test đi qua mượt mà.
-- [ ] **ESLint & TS:** `npm run lint` sạch bóng lỗi cảnh báo, không còn dính `require()` trong môi trường ES Modules.
-- [ ] **Tích hợp Backend:** Endpoint `127.0.0.1:8090` hoạt động trơn tru. Có thông báo fallback logic rõ ràng khi backend đứt mạng.
+- [x] **Vitest:** Chạy `npx vitest run` và đảm bảo toàn bộ các bài test đi qua mượt mà.
+- [x] **ESLint & TS:** `npm run lint` sạch bóng lỗi cảnh báo, không còn dính `require()` trong môi trường ES Modules.
+- [x] **Tích hợp Backend:** Endpoint `127.0.0.1:8090` hoạt động trơn tru. Có thông báo fallback logic rõ ràng khi backend đứt mạng.
 
 ## 7. Kết luận
 Dự án đã đạt được cấu trúc vững chắc để có thể mở rộng (scale) thêm các tính năng phức tạp hơn như thanh toán trực tuyến (payment gateway), quản lý đơn hàng (order tracking), và tích hợp hệ thống quản trị (Admin Dashboard). Kiến trúc tách bạch giữa React và PocketBase cho phép quá trình phát triển diễn ra cực kỳ nhanh chóng và độc lập. Cùng với quy trình kiểm thử (testing) và đánh giá chất lượng (review) chặt chẽ, ứng dụng đảm bảo được tính ổn định và đáng tin cậy cao trước khi đưa vào môi trường thực tế.
