@@ -274,6 +274,7 @@ const formatPrice = (price: number) => {
 const Shop = ({ onSelectProduct }: ShopProps) => {
   const { products } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [minPrice, setMinPrice] = useState<number>(0);
   const [maxPrice, setMaxPrice] = useState<number>(999999999);
@@ -293,8 +294,15 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const filteredProducts = useMemo(() => {
-    const lowerSearchTerm = searchTerm.toLowerCase();
+    const lowerSearchTerm = debouncedSearchTerm.toLowerCase();
     const hasSearch = lowerSearchTerm.length > 0;
     return products.filter((product) => {
       if (product.price < minPrice || product.price > maxPrice) return false;
@@ -302,18 +310,18 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       if (hasSearch && !product.name.toLowerCase().includes(lowerSearchTerm)) return false;
       return true;
     });
-  }, [products, searchTerm, minPrice, maxPrice, minRating, maxRating]);
+  }, [products, debouncedSearchTerm, minPrice, maxPrice, minRating, maxRating]);
 
   // Reset page when filters change
-  const [prevFilters, setPrevFilters] = useState({ searchTerm, minPrice, maxPrice, minRating, maxRating });
+  const [prevFilters, setPrevFilters] = useState({ debouncedSearchTerm, minPrice, maxPrice, minRating, maxRating });
   if (
-    searchTerm !== prevFilters.searchTerm ||
+    debouncedSearchTerm !== prevFilters.debouncedSearchTerm ||
     minPrice !== prevFilters.minPrice ||
     maxPrice !== prevFilters.maxPrice ||
     minRating !== prevFilters.minRating ||
     maxRating !== prevFilters.maxRating
   ) {
-    setPrevFilters({ searchTerm, minPrice, maxPrice, minRating, maxRating });
+    setPrevFilters({ debouncedSearchTerm, minPrice, maxPrice, minRating, maxRating });
     setCurrentPage(1);
   }
 

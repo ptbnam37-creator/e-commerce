@@ -84,6 +84,8 @@ const Cart = () => {
                     onClick={() => {
                       if (item.quantity > 1) {
                         updateQuantity(item.cartId, -1);
+                      } else {
+                        confirmDelete(item.cartId);
                       }
                     }}
                   >

@@ -1,5 +1,5 @@
 
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Shop from './Shop';
 import { useCart } from '../context/CartContext';
@@ -62,7 +62,7 @@ describe('Shop Component', () => {
     expect(screen.getByText('8 990 000 VND')).toBeInTheDocument();
   });
 
-  it('filters products based on search input', () => {
+  it('filters products based on search input', async () => {
     vi.mocked(useCart).mockReturnValue({
       products: mockProducts,
       cart: [],
@@ -81,20 +81,26 @@ describe('Shop Component', () => {
     // Type 'iPhone'
     fireEvent.change(searchInput, { target: { value: 'iPhone' } });
 
-    expect(screen.getByText('iPhone 13 128GB')).toBeInTheDocument();
-    expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('iPhone 13 128GB')).toBeInTheDocument();
+      expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
+    });
 
     // Type case-insensitive search
     fireEvent.change(searchInput, { target: { value: 'oppo' } });
 
-    expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
-    expect(screen.getByText('Oppo Reno 11F')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
+      expect(screen.getByText('Oppo Reno 11F')).toBeInTheDocument();
+    });
 
     // Clear search
     fireEvent.change(searchInput, { target: { value: '' } });
 
-    expect(screen.getByText('iPhone 13 128GB')).toBeInTheDocument();
-    expect(screen.getByText('Oppo Reno 11F')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('iPhone 13 128GB')).toBeInTheDocument();
+      expect(screen.getByText('Oppo Reno 11F')).toBeInTheDocument();
+    });
   });
 
   it('triggers onSelectProduct callback when clicking a product card', () => {
@@ -117,7 +123,7 @@ describe('Shop Component', () => {
     expect(mockOnSelectProduct).toHaveBeenCalledWith(mockProducts[0]);
   });
 
-  it('renders empty state when no products match the search term', () => {
+  it('renders empty state when no products match the search term', async () => {
     vi.mocked(useCart).mockReturnValue({
       products: mockProducts,
       cart: [],
@@ -136,10 +142,12 @@ describe('Shop Component', () => {
     // Type a term that matches no products
     fireEvent.change(searchInput, { target: { value: 'NonExistentProduct' } });
 
-    expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
-    expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
-    expect(screen.getByText('Không tìm thấy sản phẩm nào')).toBeInTheDocument();
-    expect(screen.getByText('Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
+      expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
+      expect(screen.getByText('Không tìm thấy sản phẩm nào')).toBeInTheDocument();
+      expect(screen.getByText('Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.')).toBeInTheDocument();
+    });
   });
 
   it('filters products based on min and max price', () => {
