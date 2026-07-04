@@ -497,6 +497,7 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
         <div className="pagination-container" style={{ 
           marginTop: 'auto',
           position: 'sticky', 
+          bottom: '24px',
           zIndex: 100,
           display: 'flex', 
           justifyContent: 'center', 
