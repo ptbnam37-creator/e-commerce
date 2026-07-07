@@ -122,7 +122,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
         <div className="header-right">
           {/* Profile Avatar redirects to My Profile page */}
           <img 
-            src={((pb.authStore.isValid && pb.authStore.model?.avatar) ? getFileUrl(pb.authStore.model, pb.authStore.model.avatar) : '') || `${import.meta.env.BASE_URL}avatar.png`}
+            src={(pb.authStore.isValid && pb.authStore.model?.avatar) ? getFileUrl(pb.authStore.model, pb.authStore.model.avatar) : `${import.meta.env.BASE_URL}avatar.png`}
             alt="User Profile" 
             className="user-avatar" 
             style={{ cursor: 'pointer' }}

@@ -220,9 +220,9 @@ const ProductDetail = ({ product, onBackToShop, onGoToCart }: ProductDetailProps
 
             <img 
               src={
-                (mainImage && typeof mainImage === 'string' && mainImage.startsWith('http')
+                mainImage && typeof mainImage === 'string' && mainImage.startsWith('http')
                   ? mainImage
-                  : getFileUrl(product, mainImage)) || undefined
+                  : getFileUrl(product, mainImage)
               }
               alt={product.name} 
               style={{

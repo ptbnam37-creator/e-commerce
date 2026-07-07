@@ -59,7 +59,7 @@ const Cart = () => {
           <div key={item.cartId} className="cart-item-card">
             {/* Product image */}
             <div className="cart-item-image-wrapper">
-              <img src={item.image || undefined} alt={item.name} className="cart-item-image" />
+              <img src={item.image} alt={item.name} className="cart-item-image" />
             </div>
 
             {/* Product details */}

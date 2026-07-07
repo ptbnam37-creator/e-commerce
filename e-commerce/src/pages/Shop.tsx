@@ -458,11 +458,11 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
                 <div className="product-image-container">
                   <img
                     src={
-                      (Array.isArray(product.image) && product.image.length > 0
+                      Array.isArray(product.image) && product.image.length > 0
                         ? getFileUrl(product, product.image[0])
                         : (product.image && typeof product.image === 'string' && product.image.startsWith('http')
                           ? product.image
-                          : getFileUrl(product, product.image))) || undefined
+                          : getFileUrl(product, product.image))
                     }
                     alt={product.name}
                     className="product-image"
@@ -497,7 +497,6 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
         <div className="pagination-container" style={{ 
           marginTop: 'auto',
           position: 'sticky', 
-          bottom: '24px',
           zIndex: 100,
           display: 'flex', 
           justifyContent: 'center', 
