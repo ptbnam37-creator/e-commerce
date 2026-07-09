@@ -209,6 +209,7 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
             <button
               type="button"
               className="login-password-toggle"
+              aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeIcon /> : <EyeOffIcon />}

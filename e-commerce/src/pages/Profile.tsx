@@ -7,6 +7,33 @@ interface ProfileProps {
   onLogout: () => void;
 }
 
+const normalizePhone = (value: string) => {
+  const trimmed = value.trim();
+  const digits = trimmed.replace(/\D/g, '');
+
+  if (trimmed.startsWith('+')) {
+    const withoutPlus = digits.slice(0, 11);
+    return `+${withoutPlus}`;
+  }
+
+  return digits.slice(0, 10);
+};
+
+const formatPhone = (value: string) => {
+  const normalized = normalizePhone(value);
+
+  if (normalized.startsWith('+84')) {
+    const rest = normalized.slice(3);
+    return ['+84', rest.slice(0, 3), rest.slice(3, 6), rest.slice(6, 9)]
+      .filter(Boolean)
+      .join(' ');
+  }
+
+  return [normalized.slice(0, 4), normalized.slice(4, 7), normalized.slice(7, 10)]
+    .filter(Boolean)
+    .join(' ');
+};
+
 const Profile = ({ onLogout }: ProfileProps) => {
   const dispatch = useDispatch();
   const storedProfile = useSelector((state: RootState) => state.profile);
@@ -17,7 +44,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
   const initialProfile = {
     name: isPbLoggedIn ? (pb.authStore.model?.name || '') : storedProfile.name,
     email: isPbLoggedIn ? (pb.authStore.model?.email || '') : storedProfile.email,
-    phone: isPbLoggedIn ? (pb.authStore.model?.phone || '') : storedProfile.phone,
+    phone: formatPhone(isPbLoggedIn ? (pb.authStore.model?.phone || '') : storedProfile.phone),
     address: isPbLoggedIn ? (pb.authStore.model?.address || '') : storedProfile.address,
   };
 
@@ -41,7 +68,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
     const { name, value } = e.target;
     setProfile((prev) => ({
       ...prev,
-      [name]: value
+      [name]: name === 'phone' ? formatPhone(value) : value
     }));
   };
 
@@ -63,8 +90,9 @@ const Profile = ({ onLogout }: ProfileProps) => {
       return;
     }
 
+    const normalizedPhone = normalizePhone(profile.phone);
     const phoneRegex = /^(0|\+84)\d{9}$/;
-    if (!phoneRegex.test(profile.phone)) {
+    if (!phoneRegex.test(normalizedPhone)) {
       showToast('Số điện thoại không hợp lệ (phải bắt đầu bằng 0 hoặc +84 và đủ 10 số)!', 'error');
       return;
     }
@@ -73,7 +101,7 @@ const Profile = ({ onLogout }: ProfileProps) => {
       try {
         const updateData: Record<string, string> = {};
         if (profile.name !== pb.authStore.model.name) updateData.name = profile.name;
-        if (profile.phone !== pb.authStore.model.phone) updateData.phone = profile.phone;
+        if (normalizedPhone !== normalizePhone(pb.authStore.model.phone || '')) updateData.phone = normalizedPhone;
         if (profile.address !== pb.authStore.model.address) updateData.address = profile.address;
 
         let emailChangeSuccess = false;

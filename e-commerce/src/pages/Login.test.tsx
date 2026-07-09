@@ -48,7 +48,7 @@ describe('Login Component', () => {
   it('toggles password visibility when the eye button is clicked', () => {
     render(<Login onLoginSuccess={mockOnLoginSuccess} />);
     const passwordInput = screen.getByPlaceholderText('Mật khẩu');
-    const toggleButton = screen.getByRole('button', { name: '' }); // Eye icon button has no text name
+    const toggleButton = screen.getByRole('button', { name: 'Hiện mật khẩu' });
 
     // Initial state: password input type should be password
     expect(passwordInput).toHaveAttribute('type', 'password');
@@ -56,9 +56,10 @@ describe('Login Component', () => {
     // Click toggle button: type should become text
     fireEvent.click(toggleButton);
     expect(passwordInput).toHaveAttribute('type', 'text');
+    expect(screen.getByRole('button', { name: 'Ẩn mật khẩu' })).toBeInTheDocument();
 
     // Click again: type should become password
-    fireEvent.click(toggleButton);
+    fireEvent.click(screen.getByRole('button', { name: 'Ẩn mật khẩu' }));
     expect(passwordInput).toHaveAttribute('type', 'password');
   });
 

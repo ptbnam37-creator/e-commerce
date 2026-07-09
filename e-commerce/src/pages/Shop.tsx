@@ -272,7 +272,7 @@ const formatPrice = (price: number) => {
 };
 
 const Shop = ({ onSelectProduct }: ShopProps) => {
-  const { products } = useCart();
+  const { products, isLoadingProducts } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -440,7 +440,21 @@ const Shop = ({ onSelectProduct }: ShopProps) => {
       </div>
 
       {/* 2-Column Horizontal Grid */}
-      {filteredProducts.length === 0 ? (
+      {isLoadingProducts ? (
+        <div className="empty-state" style={{ marginBottom: '80px', flex: 1 }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #00d2ff',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            marginBottom: '16px'
+          }}></div>
+          <h2>Đang tải sản phẩm...</h2>
+          <p>Vui lòng chờ trong giây lát.</p>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="empty-state" style={{ marginBottom: '80px', flex: 1 }}>
           <h2>Không tìm thấy sản phẩm nào</h2>
           <p>Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.</p>

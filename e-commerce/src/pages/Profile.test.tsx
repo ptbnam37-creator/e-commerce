@@ -57,8 +57,24 @@ describe('Profile Component', () => {
 
     expect(screen.getByLabelText('Họ và Tên')).toHaveValue('Lê Văn B');
     expect(screen.getByLabelText('Email')).toHaveValue('levanb@gmail.com');
-    expect(screen.getByLabelText('Số điện thoại')).toHaveValue('0111111111');
+    expect(screen.getByLabelText('Số điện thoại')).toHaveValue('0111 111 111');
     expect(screen.getByLabelText('Địa chỉ nhận hàng')).toHaveValue('Hà Nội');
+  });
+
+  it('formats phone numbers and removes extra spaces while typing', () => {
+    vi.mocked(useSelector).mockReturnValue({
+      name: 'Lê Văn B',
+      email: 'levanb@gmail.com',
+      phone: '',
+      address: 'Hà Nội',
+    });
+
+    render(<Profile onLogout={mockOnLogout} />);
+
+    const phoneInput = screen.getByLabelText('Số điện thoại');
+    fireEvent.change(phoneInput, { target: { name: 'phone', value: '0987    654     321' } });
+
+    expect(phoneInput).toHaveValue('0987 654 321');
   });
 
   it('triggers onLogout callback when clicking Đăng xuất', () => {

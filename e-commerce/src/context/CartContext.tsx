@@ -27,6 +27,7 @@ export interface CartItem extends Product {
 
 interface CartContextType {
   products: Product[];
+  isLoadingProducts: boolean;
   cart: CartItem[];
   addToCart: (product: Product, variantId?: string) => Promise<void>;
   updateQuantity: (cartId: string, delta: number) => Promise<void>;
@@ -40,6 +41,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [cart, _setCartState] = useState<CartItem[]>([]);
   const cartRef = React.useRef<CartItem[]>([]);
 
@@ -106,6 +108,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // Load products from PocketBase database
   React.useEffect(() => {
     const loadProducts = async () => {
+      setIsLoadingProducts(true);
       try {
         const productRecords = await pb.collection('product').getFullList({
           expand: 'color_variants(productId)',
@@ -175,6 +178,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (err) {
         console.warn('PocketBase product/variants fetch failed.', err);
+      } finally {
+        setIsLoadingProducts(false);
       }
     };
 
@@ -330,6 +335,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     <CartContext.Provider
       value={{
         products,
+        isLoadingProducts,
         cart,
         addToCart,
         updateQuantity,
