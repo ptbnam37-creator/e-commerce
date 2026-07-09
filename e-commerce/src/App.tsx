@@ -219,7 +219,7 @@ function NavigationContent({ onLogout }: NavigationContentProps) {
   );
 }
 
-function AppContent() {
+export function AppContent() {
   const isLoggedIn = useSelector((state: { auth: boolean }) => state.auth);
   const dispatch = useDispatch();
 

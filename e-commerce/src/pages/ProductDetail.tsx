@@ -1,7 +1,8 @@
 import React, { useState, useRef, useMemo } from 'react';
+import { getFileUrl } from '../services/pocketbase';
 import { useCart, Product } from '../context/CartContext';
 import { StarIcon } from '../components/icons/StarIcon';
-import { getFileUrl } from '../services/pocketbase';
+
 import { ColorThumbnails } from '../components/ColorThumbnails';
 
 const STARS = [1, 2, 3, 4, 5];

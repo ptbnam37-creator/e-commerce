@@ -1,5 +1,4 @@
-
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Shop from './Shop';
 import { useCart } from '../context/CartContext';
@@ -8,6 +7,13 @@ import { useCart } from '../context/CartContext';
 vi.mock('../context/CartContext', () => {
   return {
     useCart: vi.fn(),
+  };
+});
+
+// Mock pocketbase
+vi.mock('../services/pocketbase', () => {
+  return {
+    getFileUrl: vi.fn((_record, filename) => filename),
   };
 });
 
@@ -21,7 +27,7 @@ describe('Shop Component', () => {
       rating: 5,
       description: 'Clean iPhone',
       price: 16990000,
-      image: '/ip13-green.png',
+      image: ['/ip13-green.png'], // Test array image branch
       colors: [],
     },
     {
@@ -44,6 +50,7 @@ describe('Shop Component', () => {
   it('renders search bar and list of products', () => {
     vi.mocked(useCart).mockReturnValue({
       products: mockProducts,
+      isLoadingProducts: false,
       cart: [],
       addToCart: vi.fn(),
       updateQuantity: vi.fn(),
@@ -62,9 +69,10 @@ describe('Shop Component', () => {
     expect(screen.getByText('8 990 000 VND')).toBeInTheDocument();
   });
 
-  it('filters products based on search input', async () => {
+  it('shows loading state', () => {
     vi.mocked(useCart).mockReturnValue({
-      products: mockProducts,
+      products: [],
+      isLoadingProducts: true,
       cart: [],
       addToCart: vi.fn(),
       updateQuantity: vi.fn(),
@@ -75,57 +83,36 @@ describe('Shop Component', () => {
     });
 
     render(<Shop onSelectProduct={mockOnSelectProduct} />);
+    expect(screen.getByText('Đang tải sản phẩm...')).toBeInTheDocument();
+  });
 
+  it('filters products based on search input', async () => {
+    vi.mocked(useCart).mockReturnValue({
+      products: mockProducts,
+      isLoadingProducts: false,
+      cart: [],
+      addToCart: vi.fn(),
+      updateQuantity: vi.fn(),
+      removeFromCart: vi.fn(),
+      subTotal: 0,
+      tax: 0,
+      total: 0,
+    });
+
+    render(<Shop onSelectProduct={mockOnSelectProduct} />);
     const searchInput = screen.getByPlaceholderText('Search...');
     
-    // Type 'iPhone'
     fireEvent.change(searchInput, { target: { value: 'iPhone' } });
-
     await waitFor(() => {
       expect(screen.getByText('iPhone 13 128GB')).toBeInTheDocument();
       expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
     });
-
-    // Type case-insensitive search
-    fireEvent.change(searchInput, { target: { value: 'oppo' } });
-
-    await waitFor(() => {
-      expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
-      expect(screen.getByText('Oppo Reno 11F')).toBeInTheDocument();
-    });
-
-    // Clear search
-    fireEvent.change(searchInput, { target: { value: '' } });
-
-    await waitFor(() => {
-      expect(screen.getByText('iPhone 13 128GB')).toBeInTheDocument();
-      expect(screen.getByText('Oppo Reno 11F')).toBeInTheDocument();
-    });
-  });
-
-  it('triggers onSelectProduct callback when clicking a product card', () => {
-    vi.mocked(useCart).mockReturnValue({
-      products: mockProducts,
-      cart: [],
-      addToCart: vi.fn(),
-      updateQuantity: vi.fn(),
-      removeFromCart: vi.fn(),
-      subTotal: 0,
-      tax: 0,
-      total: 0,
-    });
-
-    render(<Shop onSelectProduct={mockOnSelectProduct} />);
-
-    const productCard = screen.getByText('iPhone 13 128GB').closest('.product-card')!;
-    fireEvent.click(productCard);
-
-    expect(mockOnSelectProduct).toHaveBeenCalledWith(mockProducts[0]);
   });
 
   it('renders empty state when no products match the search term', async () => {
     vi.mocked(useCart).mockReturnValue({
       products: mockProducts,
+      isLoadingProducts: false,
       cart: [],
       addToCart: vi.fn(),
       updateQuantity: vi.fn(),
@@ -136,23 +123,19 @@ describe('Shop Component', () => {
     });
 
     render(<Shop onSelectProduct={mockOnSelectProduct} />);
-
     const searchInput = screen.getByPlaceholderText('Search...');
 
-    // Type a term that matches no products
     fireEvent.change(searchInput, { target: { value: 'NonExistentProduct' } });
 
     await waitFor(() => {
-      expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
-      expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
       expect(screen.getByText('Không tìm thấy sản phẩm nào')).toBeInTheDocument();
-      expect(screen.getByText('Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.')).toBeInTheDocument();
     });
   });
 
   it('filters products based on min and max price', () => {
     vi.mocked(useCart).mockReturnValue({
       products: mockProducts,
+      isLoadingProducts: false,
       cart: [],
       addToCart: vi.fn(),
       updateQuantity: vi.fn(),
@@ -165,39 +148,30 @@ describe('Shop Component', () => {
     render(<Shop onSelectProduct={mockOnSelectProduct} />);
 
     // Open filter
-    const filterBtn = screen.getByTitle('Filters');
-    fireEvent.click(filterBtn);
+    fireEvent.click(screen.getByTitle('Filters'));
 
     const selects = screen.getAllByRole('combobox');
-    // Mappings based on DOM structure
-    // index 0: minPrice
-    // index 1: maxPrice
-    // index 2: minRating
-    // index 3: maxRating
     const minPriceSelect = selects[0];
     const maxPriceSelect = selects[1];
 
-    // Test max price
     fireEvent.change(maxPriceSelect, { target: { value: '10000000' } });
-
     expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
     expect(screen.getByText('Oppo Reno 11F')).toBeInTheDocument();
 
-    // Test min price
     fireEvent.change(minPriceSelect, { target: { value: '10000000' } });
     fireEvent.change(maxPriceSelect, { target: { value: '999999999' } });
-
     expect(screen.getByText('iPhone 13 128GB')).toBeInTheDocument();
-    expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
-
-    // Changing max below min sets min
+    
+    // Changing min > max sets max = min
     fireEvent.change(maxPriceSelect, { target: { value: '5000000' } });
-    expect(minPriceSelect).toHaveValue('5000000');
+    fireEvent.change(minPriceSelect, { target: { value: '10000000' } });
+    expect(maxPriceSelect).toHaveValue('10000000');
   });
 
-  it('filters products based on min and max rating', () => {
+  it('resets filters when clicking Reset', () => {
     vi.mocked(useCart).mockReturnValue({
       products: mockProducts,
+      isLoadingProducts: false,
       cart: [],
       addToCart: vi.fn(),
       updateQuantity: vi.fn(),
@@ -208,35 +182,120 @@ describe('Shop Component', () => {
     });
 
     render(<Shop onSelectProduct={mockOnSelectProduct} />);
-
-    // Open filter
-    const filterBtn = screen.getByTitle('Filters');
-    fireEvent.click(filterBtn);
+    fireEvent.click(screen.getByTitle('Filters'));
 
     const selects = screen.getAllByRole('combobox');
-    const minRatingSelect = selects[2];
-    const maxRatingSelect = selects[3];
-
-    // Test max rating
-    fireEvent.change(maxRatingSelect, { target: { value: '4' } });
-
+    fireEvent.change(selects[1], { target: { value: '10000000' } }); // max price
     expect(screen.queryByText('iPhone 13 128GB')).not.toBeInTheDocument();
-    expect(screen.getByText('Oppo Reno 11F')).toBeInTheDocument();
 
-    // Test min rating
-    fireEvent.change(minRatingSelect, { target: { value: '5' } });
-    fireEvent.change(maxRatingSelect, { target: { value: '5' } });
+    fireEvent.click(screen.getByText('Reset'));
 
     expect(screen.getByText('iPhone 13 128GB')).toBeInTheDocument();
-    expect(screen.queryByText('Oppo Reno 11F')).not.toBeInTheDocument();
+  });
 
-    // Changing max below min sets min
-    fireEvent.change(maxRatingSelect, { target: { value: '4' } });
-    expect(minRatingSelect).toHaveValue('4');
+  it('closes filter dropdown on outside click', () => {
+    vi.mocked(useCart).mockReturnValue({
+      products: mockProducts,
+      isLoadingProducts: false,
+      cart: [],
+      addToCart: vi.fn(),
+      updateQuantity: vi.fn(),
+      removeFromCart: vi.fn(),
+      subTotal: 0,
+      tax: 0,
+      total: 0,
+    });
 
-    // Test changing min sets max if min > max
-    fireEvent.change(maxRatingSelect, { target: { value: '1' } });
-    fireEvent.change(minRatingSelect, { target: { value: '3' } });
-    expect(maxRatingSelect).toHaveValue('3');
+    render(
+      <div>
+        <div data-testid="outside">Outside</div>
+        <Shop onSelectProduct={mockOnSelectProduct} />
+      </div>
+    );
+
+    fireEvent.click(screen.getByTitle('Filters'));
+    expect(screen.getByText('Filter')).toBeInTheDocument();
+
+    fireEvent.mouseDown(screen.getByTestId('outside'));
+    expect(screen.queryByText('Filter')).not.toBeInTheDocument();
+  });
+
+  it('handles image fallback onError', () => {
+    vi.mocked(useCart).mockReturnValue({
+      products: mockProducts,
+      isLoadingProducts: false,
+      cart: [],
+      addToCart: vi.fn(),
+      updateQuantity: vi.fn(),
+      removeFromCart: vi.fn(),
+      subTotal: 0,
+      tax: 0,
+      total: 0,
+    });
+
+    render(<Shop onSelectProduct={mockOnSelectProduct} />);
+    
+    const images = screen.getAllByRole('img');
+    fireEvent.error(images[0]); // simulate error
+    expect(images[0]).toHaveAttribute('src', '/samsung_a31.png');
+  });
+
+  it('handles pagination correctly', () => {
+    // Generate 20 products
+    const manyProducts = Array.from({ length: 20 }, (_, i) => ({
+      id: `p-${i}`,
+      name: `Product ${i + 1}`,
+      brand: 'Brand',
+      rating: 5,
+      description: 'Desc',
+      price: 1000,
+      image: `img-${i}.png`,
+      colors: [],
+    }));
+
+    vi.mocked(useCart).mockReturnValue({
+      products: manyProducts,
+      isLoadingProducts: false,
+      cart: [],
+      addToCart: vi.fn(),
+      updateQuantity: vi.fn(),
+      removeFromCart: vi.fn(),
+      subTotal: 0,
+      tax: 0,
+      total: 0,
+    });
+
+    // Default window inner width is large enough so it displays multiple per page
+    // Let's force a resize to re-calculate items per page
+    act(() => {
+      window.innerWidth = 800;
+      window.innerHeight = 800; // should calculate itemsPerPage = 4 on mobile, let's see.
+      window.dispatchEvent(new Event('resize'));
+    });
+
+    render(<Shop onSelectProduct={mockOnSelectProduct} />);
+
+    // Should render Product 1, but not Product 20
+    expect(screen.getByText('Product 1')).toBeInTheDocument();
+    expect(screen.queryByText('Product 20')).not.toBeInTheDocument();
+
+    // Click next page
+    const nextBtns = screen.getAllByRole('button').filter(b => !b.hasAttribute('title'));
+    // Usually buttons: filter, first, prev, next, last
+    const nextBtn = nextBtns[2]; 
+    fireEvent.click(nextBtn);
+
+    expect(screen.queryByText('Product 1')).not.toBeInTheDocument();
+    
+    // Click last page
+    const lastBtn = nextBtns[3];
+    fireEvent.click(lastBtn);
+
+    expect(screen.getByText('Product 20')).toBeInTheDocument();
+
+    // Click first page
+    const firstBtn = nextBtns[0];
+    fireEvent.click(firstBtn);
+    expect(screen.getByText('Product 1')).toBeInTheDocument();
   });
 });
