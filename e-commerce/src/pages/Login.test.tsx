@@ -167,6 +167,30 @@ describe('Login Component', () => {
     });
   });
 
+  it('logs warning when PocketBase authentication fails and falls back to mock auth', async () => {
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const pbError = new Error('Auth failed');
+    mockAuthWithPassword.mockRejectedValueOnce(pbError);
+
+    render(<Login onLoginSuccess={mockOnLoginSuccess} />);
+
+    const usernameInput = screen.getByPlaceholderText('Tên đăng nhập, Email hoặc số điện thoại');
+    const passwordInput = screen.getByPlaceholderText('Mật khẩu');
+    const submitButton = screen.getByRole('button', { name: 'Đăng nhập' });
+
+    fireEvent.change(usernameInput, { target: { value: 'levanb' } });
+    fireEvent.change(passwordInput, { target: { value: '12345678' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(consoleWarnSpy).toHaveBeenCalledWith('PocketBase authentication failed or server offline.', pbError);
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Falling back to mock auth in DEV environment...');
+      expect(mockOnLoginSuccess).toHaveBeenCalledWith('levanb', false);
+    });
+
+    consoleWarnSpy.mockRestore();
+  });
+
   it('logs in successfully using PocketBase', async () => {
     // Setup pb mocks to succeed
     mockGetList.mockResolvedValueOnce({
