@@ -189,13 +189,26 @@ describe('CartContext with PocketBase', () => {
   it('addToCart handles create error gracefully', async () => {
     pb.authStore.isValid = true;
     pb.authStore.model = { id: 'user-1' };
-    mockCreate.mockRejectedValueOnce(new Error('Test create err'));
+
+    let rejectPromise: (reason?: any) => void;
+    const delayedRejection = new Promise((_, reject) => {
+      rejectPromise = reject;
+    });
+    mockCreate.mockReturnValueOnce(delayedRejection);
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     
     render(<CartProvider><TestComponent /></CartProvider>);
     await waitFor(() => expect(screen.getByTestId('cart-length')).toHaveTextContent('1'));
+
     fireEvent.click(screen.getByTestId('add-new-btn'));
     
+    // Verify optimistic update
+    await waitFor(() => expect(screen.getByTestId('cart-length')).toHaveTextContent('2'));
+
+    // Reject the promise to simulate error
+    rejectPromise!(new Error('Test create err'));
+
+    // Verify UI reverts on failure
     await waitFor(() => {
       expect(warnSpy).toHaveBeenCalledWith('Failed to add to cart on PocketBase:', expect.any(Error));
       expect(screen.getByTestId('cart-length')).toHaveTextContent('1');
