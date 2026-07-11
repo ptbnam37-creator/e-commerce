@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ColorThumbnails } from './ColorThumbnails';
 
 describe('ColorThumbnails Component', () => {
@@ -8,6 +8,10 @@ describe('ColorThumbnails Component', () => {
     { id: '2', name: 'Xanh', image: '/blue.png' }
   ];
   const mockOnSelectColor = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('renders correctly', () => {
     render(
@@ -30,6 +34,7 @@ describe('ColorThumbnails Component', () => {
       />
     );
     fireEvent.click(screen.getByText('Xanh'));
+    expect(mockOnSelectColor).toHaveBeenCalledTimes(1);
     expect(mockOnSelectColor).toHaveBeenCalledWith('Xanh');
   });
 
@@ -44,5 +49,16 @@ describe('ColorThumbnails Component', () => {
     const redImage = screen.getByAltText('Đỏ') as HTMLImageElement;
     fireEvent.error(redImage);
     expect(redImage.src).toContain('/samsung_a31.png');
+  });
+
+  it('renders correctly with an empty colors array', () => {
+    const { container } = render(
+      <ColorThumbnails
+        colors={[]}
+        selectedColor=""
+        onSelectColor={mockOnSelectColor}
+      />
+    );
+    expect(container.firstChild).toBeEmptyDOMElement();
   });
 });
