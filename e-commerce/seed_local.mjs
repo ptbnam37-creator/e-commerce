@@ -92,17 +92,17 @@ async function run() {
         
         const createdRecord = await pb.collection('product').create(pbItem);
         
-        for (const color of colors) {
-          try {
-            await pb.collection('color_variants').create({
-              productId: createdRecord.id,
-              color: color.name,
-              image: color.image
-            });
-          } catch(err) {
+        const variantPromises = colors.map(color => {
+          return pb.collection('color_variants').create({
+            productId: createdRecord.id,
+            color: color.name,
+            image: color.image
+          }).catch(err => {
             console.error(`  Error creating color variant ${color.name}:`, err.message);
-          }
-        }
+          });
+        });
+
+        await Promise.all(variantPromises);
         
         insertedCount++;
         await new Promise(r => setTimeout(r, 500));
