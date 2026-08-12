@@ -10,16 +10,23 @@ async function run() {
 
     console.log('Clearing local products...');
     const localRecords = await localPb.collection('product').getFullList();
-    for (const r of localRecords) {
-      await localPb.collection('product').delete(r.id);
+
+    const CHUNK_SIZE = 50;
+
+    for (let i = 0; i < localRecords.length; i += CHUNK_SIZE) {
+      const chunk = localRecords.slice(i, i + CHUNK_SIZE);
+      await Promise.all(chunk.map(r => localPb.collection('product').delete(r.id)));
     }
     console.log('Local products cleared.');
 
     console.log('Importing to local PocketBase...');
-    for (let i = 0; i < records.length; i++) {
-      const { collectionId, collectionName, id, created, updated, expand, ...data } = records[i];
-      await localPb.collection('product').create({ id, ...data });
-      console.log(`Imported ${i + 1}/${records.length}: ${data.name}`);
+    for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+      const chunk = records.slice(i, i + CHUNK_SIZE);
+      await Promise.all(chunk.map(async (record) => {
+        const { collectionId, collectionName, id, created, updated, expand, ...data } = record;
+        await localPb.collection('product').create({ id, ...data });
+      }));
+      console.log(`Imported chunk up to ${Math.min(i + CHUNK_SIZE, records.length)}/${records.length}`);
     }
     console.log('Sync complete!');
   } catch (err) {
