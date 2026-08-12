@@ -22,13 +22,10 @@ async function run() {
   try {
     console.log('Clearing local products and color variants...');
     const oldVariants = await pb.collection('color_variants').getFullList();
-    for (const v of oldVariants) {
-      await pb.collection('color_variants').delete(v.id);
-    }
+    await Promise.all(oldVariants.map(v => pb.collection('color_variants').delete(v.id)));
+
     const localRecords = await pb.collection('product').getFullList();
-    for (const r of localRecords) {
-      await pb.collection('product').delete(r.id);
-    }
+    await Promise.all(localRecords.map(r => pb.collection('product').delete(r.id)));
     console.log('Local products and variants cleared.');
 
     console.log('Fetching smartphone list from Tiki...');
