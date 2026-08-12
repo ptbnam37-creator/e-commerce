@@ -10,9 +10,7 @@ async function run() {
 
     console.log('Clearing local products...');
     const localRecords = await localPb.collection('product').getFullList();
-    for (const r of localRecords) {
-      await localPb.collection('product').delete(r.id);
-    }
+    await Promise.all(localRecords.map(r => localPb.collection('product').delete(r.id)));
     console.log('Local products cleared.');
 
     console.log('Importing to local PocketBase...');
